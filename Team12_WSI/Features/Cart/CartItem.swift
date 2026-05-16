@@ -1,22 +1,16 @@
-//
-//  CartItem.swift
-//  WSHackathonApp
-//
-//  Created by Nilesh Mahajan on 06/04/26.
-//
-
 import Foundation
-struct CartItem: Identifiable {
+
+struct CartItem: Identifiable, Codable {
     let id: String
-    let title: String
+    let name: String
+    var title: String { name } // Alias for compatibility
     let price: Double
-    let path: String?
+
+    let path: String
     var quantity: Int
     
     var imageURL: URL? {
-        if let imageUrl = path {
-            return URL(string: AppConstants.API.imageBasePath + imageUrl)
-        }
-        return nil
+        URL(string: AppConstants.API.imageBasePath + path)
     }
 }
+

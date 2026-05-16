@@ -8,16 +8,31 @@
 import SwiftUI
 
 struct ContentView: View {
+    @EnvironmentObject var tabBarVM: WSTabBarViewModel
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        TabView(selection: $tabBarVM.selectedTab) {
+            HomeView()
+                .tabItem {
+                    Label("Shop", systemImage: "house")
+                }
+                .tag(WSTab.home)
+            
+            RegistryView()
+                .tabItem {
+                    Label("Registry", systemImage: "heart")
+                }
+                .tag(WSTab.registry)
+            
+            CartView()
+                .tabItem {
+                    Label("Cart", systemImage: "cart")
+                }
+                .tag(WSTab.cart)
         }
-        .padding()
     }
 }
+
 
 #Preview {
     ContentView()

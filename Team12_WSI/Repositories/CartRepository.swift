@@ -22,11 +22,12 @@ final class CartRepository: ObservableObject {
         } else {
             let newItem = CartItem(
                 id: product.id,
-                title: product.title,
+                name: product.name,
                 price: priceValue,
-                path: product.path,
+                path: product.path ?? "",
                 quantity: quantity
             )
+
             items.append(newItem)
         }
     }

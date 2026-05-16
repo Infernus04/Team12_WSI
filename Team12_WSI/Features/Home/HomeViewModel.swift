@@ -73,12 +73,14 @@ class HomeViewModel: ObservableObject {
         errorMessage = nil
         
         do {
-            let dtos: [ProductItemDTO] = try await APIClient.shared.request(Endpoint.products())
-            self.products = dtos.map { ProductItem(from: $0) }
+            let response: ProductResponseDTO = try await APIClient.shared.request(Endpoint.products())
+            self.products = response.products.map { ProductItem(from: $0) }
         } catch {
             print(error)
             errorMessage = "Failed to load products"
+            hasLoaded = false
         }
+
         
         isLoading = false
     }

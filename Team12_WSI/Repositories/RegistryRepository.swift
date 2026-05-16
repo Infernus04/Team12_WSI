@@ -52,12 +52,13 @@ final class RegistryRepository: ObservableObject {
             registry.items.append(
                 RegistryItem(
                     id: product.id,
-                    title: product.title,
+                    name: product.name,
                     price: price,
-                    imageUrl: product.path,
+                    imageUrl: product.path ?? "",
                     quantity: 1
                 )
             )
+
         }
         
         currentRegistry = registry

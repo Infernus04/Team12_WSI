@@ -6,7 +6,7 @@
 //
 
 import Foundation
-enum RegistryEvent: String, CaseIterable, Identifiable {
+enum RegistryEvent: String, CaseIterable, Identifiable, Codable {
     case birthday = "Birthday"
     case wedding = "Wedding"
     case anniversary = "Anniversary"

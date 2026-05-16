@@ -1,15 +1,11 @@
-//
-//  ProductItem.swift
-//  WSHackathonApp
-//
-//  Created by Nilesh Mahajan on 05/04/26.
-//
-
 import Foundation
+
 struct ProductItem: Identifiable {
     let id: String
-    let title: String
+    let name: String
+    var title: String { name } // Alias for compatibility
     let price: Double?
+
     let path: String?
     
     var imageURL: URL? {
@@ -23,20 +19,8 @@ struct ProductItem: Identifiable {
 extension ProductItem {
     init(from dto: ProductItemDTO) {
         self.id = dto.id
-        self.title = dto.name
-        
-        // Price formatting: use regularPrice if available
-        if let priceValue = dto.price?.regularPrice {
-            self.price = priceValue
-        } else {
-            self.price = 0.0
-        }
-        
-        // Image: first ProductImage path if available
-        if let firstImage = dto.media?.images?.first?.path {
-            self.path = firstImage
-        } else {
-            self.path = nil
-        }
+        self.name = dto.name
+        self.price = dto.price?.regularPrice ?? 0.0
+        self.path = dto.media?.images?.first?.path
     }
 }
