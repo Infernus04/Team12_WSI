@@ -15,6 +15,7 @@ struct CreateRegistryView: View {
     @State private var selectedEvent: RegistryEvent = .wedding
     @State private var eventDate = Date()
     @State private var namesOnRegistry = ""
+    @State private var guestNote = ""
     @State private var homeVision: GiftDNAChoice?
     @State private var lifestyleMoments: Set<String> = []
     @State private var homeType: GiftDNAChoice?
@@ -61,50 +62,53 @@ private extension CreateRegistryView {
         VStack(spacing: 0) {
             progressBar
 
-            ScrollView(showsIndicators: false) {
-                VStack(alignment: .leading, spacing: 26) {
-                    if step == .homeVision {
-                        editorialHero(height: 168)
-                    }
+            GeometryReader { proxy in
+                ScrollView(showsIndicators: false) {
+                    VStack(alignment: .leading, spacing: 22) {
+                        if step == .homeVision {
+                            editorialHero(height: 168)
+                        }
 
-                    if step == .basics {
-                        basicsForm
-                    } else {
-                        screenHeader(title: step.title, subtitle: step.subtitle)
-                    }
+                        if step == .basics {
+                            basicsForm
+                        } else {
+                            screenHeader(title: step.title, subtitle: step.subtitle)
+                        }
 
-                    switch step {
-                    case .basics:
-                        EmptyView()
-                    case .homeVision:
-                        singleChoiceGrid(GiftDNAData.homeVisions, selection: $homeVision, imageCards: true)
-                    case .moments:
-                        multiChoiceGrid(GiftDNAData.moments, selection: $lifestyleMoments)
-                    case .homeType:
-                        singleChoiceGrid(GiftDNAData.homeTypes, selection: $homeType, imageCards: false)
-                        roomScaleCard
-                    case .priorities:
-                        multiChoiceGrid(GiftDNAData.priorities, selection: $priorities)
-                    case .rituals:
-                        multiChoiceGrid(GiftDNAData.rituals, selection: $dailyRituals)
-                    case .people:
-                        multiChoiceGrid(GiftDNAData.people, selection: $homeCircle)
-                    case .productCategories:
-                        multiChoiceGrid(GiftDNAData.productCategories, selection: $productCategories)
-                    case .budget:
-                        singleChoiceGrid(GiftDNAData.budgetPreferences, selection: $budgetPreference, imageCards: false)
-                    case .giftPreferences:
-                        multiChoiceGrid(GiftDNAData.giftPreferences, selection: $giftPreferences)
-                    case .visualStyle:
-                        largeImageChoiceGrid(GiftDNAData.visualStyles, selection: $visualStyles)
-                    case .generating:
-                        EmptyView()
+                        switch step {
+                        case .basics:
+                            EmptyView()
+                        case .homeVision:
+                            singleChoiceGrid(GiftDNAData.homeVisions, selection: $homeVision, imageCards: true)
+                        case .moments:
+                            multiChoiceGrid(GiftDNAData.moments, selection: $lifestyleMoments)
+                        case .homeType:
+                            singleChoiceGrid(GiftDNAData.homeTypes, selection: $homeType, imageCards: false)
+                            roomScaleCard
+                        case .priorities:
+                            multiChoiceGrid(GiftDNAData.priorities, selection: $priorities)
+                        case .rituals:
+                            multiChoiceGrid(GiftDNAData.rituals, selection: $dailyRituals)
+                        case .people:
+                            multiChoiceGrid(GiftDNAData.people, selection: $homeCircle)
+                        case .productCategories:
+                            multiChoiceGrid(GiftDNAData.productCategories, selection: $productCategories)
+                        case .budget:
+                            singleChoiceGrid(GiftDNAData.budgetPreferences, selection: $budgetPreference, imageCards: false)
+                        case .giftPreferences:
+                            multiChoiceGrid(GiftDNAData.giftPreferences, selection: $giftPreferences)
+                        case .visualStyle:
+                            largeImageChoiceGrid(GiftDNAData.visualStyles, selection: $visualStyles)
+                        case .generating:
+                            EmptyView()
+                        }
                     }
+                    .frame(width: max(0, proxy.size.width - 32), alignment: .leading)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 10)
+                    .padding(.bottom, step == .visualStyle ? 152 : 132)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 18)
-                .padding(.top, 10)
-                .padding(.bottom, step == .visualStyle ? 152 : 132)
+                .scrollClipDisabled(false)
             }
 
             bottomContinueButton
@@ -112,65 +116,238 @@ private extension CreateRegistryView {
     }
 
     var basicsForm: some View {
-        VStack(alignment: .leading, spacing: 24) {
-            Text("Just the basics to get started")
-                .font(.system(size: 27, weight: .semibold))
-                .foregroundStyle(WSRegistryPalette.warmGray.opacity(0.42))
-                .lineLimit(2)
-                .minimumScaleFactor(0.82)
-                .padding(.top, 84)
-            
-            VStack(alignment: .leading, spacing: 15) {
-                formSectionLabel("EVENT TYPE")
-                FlowLayout(spacing: 12, rowSpacing: 10) {
-                    ForEach(RegistryEvent.onboardingEvents) { event in
-                        Button {
-                            withAnimation(.spring(response: 0.25, dampingFraction: 0.86)) {
-                                selectedEvent = event
-                            }
-                        } label: {
-                            Text(event.title)
-                                .font(.system(size: 17, weight: .semibold))
-                                .foregroundStyle(selectedEvent == event ? WSRegistryPalette.gold : WSRegistryPalette.cocoa.opacity(0.78))
-                                .padding(.horizontal, 18)
-                                .frame(height: 38)
-                                .background(
-                                    selectedEvent == event ? WSRegistryPalette.espresso : WSRegistryPalette.hairline.opacity(0.32),
-                                    in: Capsule()
-                                )
+        VStack(alignment: .leading, spacing: 18) {
+            basicsHero
+            eventTypeCard
+            dateCard
+            registryNamesCard
+            guestNoteCard
+        }
+    }
+
+    var basicsHero: some View {
+        ZStack(alignment: .bottomLeading) {
+            Image("giftdna_living_room")
+                .resizable()
+                .scaledToFill()
+                .frame(maxWidth: .infinity)
+                .frame(height: 236)
+                .clipped()
+                .overlay(
+                    LinearGradient(
+                        colors: [
+                            WSRegistryPalette.ivory.opacity(0.96),
+                            WSRegistryPalette.ivory.opacity(0.72),
+                            WSRegistryPalette.ivory.opacity(0.08)
+                        ],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                )
+                .overlay(
+                    LinearGradient(
+                        colors: [
+                            WSRegistryPalette.ivory,
+                            WSRegistryPalette.ivory.opacity(0.16),
+                            WSRegistryPalette.ivory
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+
+            VStack(alignment: .leading, spacing: 14) {
+                Text("Just the basics\nto get started")
+                    .font(.system(size: 38, weight: .regular, design: .serif))
+                    .foregroundStyle(WSRegistryPalette.espresso)
+                    .lineSpacing(2)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Text("We'll personalize your registry experience.")
+                    .font(.system(size: 18, weight: .regular))
+                    .foregroundStyle(WSRegistryPalette.cocoa.opacity(0.78))
+                    .lineSpacing(4)
+                    .frame(maxWidth: 250, alignment: .leading)
+            }
+            .padding(.horizontal, 16)
+            .padding(.bottom, 18)
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: 236)
+        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+    }
+
+    var eventTypeCard: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            formSectionLabel("EVENT TYPE")
+
+            LazyVGrid(columns: twoColumns, spacing: 10) {
+                ForEach(RegistryEvent.onboardingEvents) { event in
+                    Button {
+                        withAnimation(.spring(response: 0.25, dampingFraction: 0.86)) {
+                            selectedEvent = event
                         }
-                        .buttonStyle(.plain)
+                    } label: {
+                        HStack(spacing: 8) {
+                            Image(systemName: event.iconName)
+                                .font(.system(size: 20, weight: .regular))
+                                .foregroundStyle(selectedEvent == event ? WSRegistryPalette.gold : WSRegistryPalette.cocoa.opacity(0.78))
+                                .frame(width: 24)
+
+                            Text(event.title)
+                                .font(.system(size: 15, weight: .semibold))
+                                .foregroundStyle(selectedEvent == event ? WSRegistryPalette.cream : WSRegistryPalette.espresso)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.62)
+
+                            Spacer(minLength: 0)
+                        }
+                        .padding(.horizontal, 12)
+                        .frame(maxWidth: .infinity, minHeight: 62)
+                        .background(
+                            selectedEvent == event ? WSRegistryPalette.espresso : WSRegistryPalette.porcelain,
+                            in: RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                .stroke(selectedEvent == event ? WSRegistryPalette.espresso.opacity(0.12) : WSRegistryPalette.hairline.opacity(0.62), lineWidth: 1)
+                        )
                     }
+                    .buttonStyle(.plain)
                 }
             }
-            .padding(22)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
-            
-            VStack(alignment: .leading, spacing: 10) {
-                formSectionLabel("DATE")
-                DatePicker("Event date", selection: $eventDate, displayedComponents: .date)
-                    .datePickerStyle(.compact)
-                    .labelsHidden()
-                    .font(.system(size: 22, weight: .regular))
-                    .tint(WSRegistryPalette.gold)
+        }
+        .onboardingCardPadding()
+    }
+
+    var dateCard: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            formSectionLabel("DATE")
+
+            DatePicker(selection: $eventDate, displayedComponents: .date) {
+                HStack(spacing: 13) {
+                    Image(systemName: "calendar")
+                        .font(.system(size: 19, weight: .regular))
+                        .foregroundStyle(WSRegistryPalette.gold)
+                    Text(eventDate.formatted(date: .long, time: .omitted))
+                        .font(.system(size: 18, weight: .regular))
+                        .foregroundStyle(WSRegistryPalette.espresso)
+                }
             }
-            .padding(22)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
-            
-            VStack(alignment: .leading, spacing: 10) {
-                formSectionLabel("NAMES ON REGISTRY")
+            .datePickerStyle(.compact)
+            .labelsHidden()
+            .tint(WSRegistryPalette.gold)
+            .padding(.horizontal, 16)
+            .frame(maxWidth: .infinity, minHeight: 58, alignment: .leading)
+            .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 13, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 13, style: .continuous)
+                    .stroke(WSRegistryPalette.hairline.opacity(0.62), lineWidth: 1)
+            )
+        }
+        .onboardingCardPadding()
+    }
+
+    var registryNamesCard: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            formSectionLabel("NAMES ON REGISTRY")
+
+            HStack(spacing: 13) {
+                Image(systemName: "person.2")
+                    .font(.system(size: 19, weight: .regular))
+                    .foregroundStyle(WSRegistryPalette.gold)
                 TextField("Priya & Arjun", text: $namesOnRegistry)
-                    .font(.system(size: 22, weight: .regular))
+                    .font(.system(size: 18, weight: .regular))
                     .foregroundStyle(WSRegistryPalette.espresso)
                     .textInputAutocapitalization(.words)
                     .submitLabel(.done)
             }
-            .padding(22)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .padding(.horizontal, 16)
+            .frame(maxWidth: .infinity, minHeight: 58, alignment: .leading)
+            .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 13, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 13, style: .continuous)
+                    .stroke(WSRegistryPalette.hairline.opacity(0.62), lineWidth: 1)
+            )
         }
+        .onboardingCardPadding()
+    }
+
+    var guestNoteCard: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(alignment: .firstTextBaseline) {
+                formSectionLabel("ADD A NOTE FOR YOUR GUESTS")
+                Spacer()
+                Text("Optional")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(WSRegistryPalette.cocoa.opacity(0.82))
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 7)
+                    .background(WSRegistryPalette.ivory, in: Capsule())
+            }
+
+            Text("Share a personal message or story about your new journey. This will be visible to anyone who views your registry.")
+                .font(.system(size: 14, weight: .regular))
+                .foregroundStyle(WSRegistryPalette.cocoa.opacity(0.78))
+                .lineSpacing(3)
+
+            ZStack(alignment: .topLeading) {
+                TextEditor(text: $guestNote)
+                    .font(.system(size: 16, weight: .regular))
+                    .foregroundStyle(WSRegistryPalette.espresso)
+                    .scrollContentBackground(.hidden)
+                    .frame(minHeight: 112)
+                    .padding(.horizontal, 56)
+                    .padding(.vertical, 14)
+
+                Text("“")
+                    .font(.system(size: 34, weight: .bold, design: .serif))
+                    .foregroundStyle(WSRegistryPalette.gold)
+                    .padding(.leading, 18)
+                    .padding(.top, 16)
+
+                if guestNote.isEmpty {
+                    Text("Thank you so much for being part of our special day and helping us build our future together...")
+                        .font(.system(size: 16, weight: .regular))
+                        .foregroundStyle(WSRegistryPalette.warmGray.opacity(0.55))
+                        .lineSpacing(4)
+                        .padding(.leading, 70)
+                        .padding(.trailing, 18)
+                        .padding(.top, 26)
+                        .allowsHitTesting(false)
+                }
+
+                Text("\(guestNote.count)/500")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(WSRegistryPalette.warmGray)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+                    .padding(14)
+            }
+            .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 13, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 13, style: .continuous)
+                    .stroke(WSRegistryPalette.hairline.opacity(0.62), lineWidth: 1)
+            )
+            .onChange(of: guestNote) { _, newValue in
+                if newValue.count > 500 {
+                    guestNote = String(newValue.prefix(500))
+                }
+            }
+
+            HStack(spacing: 14) {
+                Image(systemName: "sparkle")
+                    .font(.system(size: 24, weight: .regular))
+                    .foregroundStyle(WSRegistryPalette.gold)
+                Text("A personal note helps your guests feel more connected to your story.")
+                    .font(.system(size: 14, weight: .regular))
+                    .foregroundStyle(WSRegistryPalette.cocoa.opacity(0.82))
+                    .lineSpacing(3)
+            }
+            .padding(14)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(WSRegistryPalette.ivory, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        }
+        .onboardingCardPadding()
     }
     
     func formSectionLabel(_ text: String) -> some View {
@@ -192,6 +369,7 @@ private extension CreateRegistryView {
         .frame(height: 4)
         .padding(.horizontal, 18)
         .padding(.top, 8)
+        .padding(.bottom, 8)
     }
 
     func screenHeader(title: String, subtitle: String) -> some View {
@@ -205,8 +383,8 @@ private extension CreateRegistryView {
             Text(subtitle)
                 .font(.system(size: 16, weight: .regular))
                 .foregroundStyle(WSRegistryPalette.warmGray)
-                .fixedSize(horizontal: false, vertical: true)
-                .lineSpacing(3)
+                .lineLimit(1)
+                .minimumScaleFactor(0.76)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -226,7 +404,7 @@ private extension CreateRegistryView {
     }
 
     func singleChoiceGrid(_ choices: [GiftDNAChoice], selection: Binding<GiftDNAChoice?>, imageCards: Bool) -> some View {
-        LazyVGrid(columns: twoColumns, spacing: 20) {
+        LazyVGrid(columns: twoColumns, spacing: 14) {
             ForEach(choices) { choice in
                 Button {
                     withAnimation(.spring(response: 0.28, dampingFraction: 0.82)) {
@@ -241,7 +419,7 @@ private extension CreateRegistryView {
     }
 
     func multiChoiceGrid(_ choices: [GiftDNAChoice], selection: Binding<Set<String>>) -> some View {
-        LazyVGrid(columns: twoColumns, spacing: 20) {
+        LazyVGrid(columns: twoColumns, spacing: 14) {
             ForEach(choices) { choice in
                 Button {
                     withAnimation(.spring(response: 0.28, dampingFraction: 0.82)) {
@@ -323,13 +501,13 @@ private extension CreateRegistryView {
     }
 
     func choiceCard(_ choice: GiftDNAChoice, isSelected: Bool, imageCards: Bool) -> some View {
-        VStack(spacing: imageCards ? 10 : 12) {
+        VStack(spacing: imageCards ? 8 : 10) {
             if imageCards {
                 ZStack(alignment: .topTrailing) {
                     Image("giftdna_living_room")
                         .resizable()
                         .scaledToFill()
-                        .frame(height: 82)
+                        .frame(height: 76)
                         .frame(maxWidth: .infinity)
                         .clipped()
                         .overlay(
@@ -348,44 +526,44 @@ private extension CreateRegistryView {
                 ZStack(alignment: .topTrailing) {
                     Circle()
                         .fill(choice.tint.opacity(isSelected ? 0.18 : 0.11))
-                        .frame(width: 58, height: 58)
+                        .frame(width: 52, height: 52)
                         .overlay {
                             Image(systemName: choice.icon)
-                                .font(.system(size: 24, weight: .semibold))
+                                .font(.system(size: 22, weight: .semibold))
                                 .foregroundStyle(isSelected ? WSRegistryPalette.gold : WSRegistryPalette.cocoa)
                         }
 
                     selectionIndicator(isSelected: isSelected)
                         .offset(x: 8, y: -8)
                 }
-                .frame(height: 64)
+                .frame(height: 58)
             }
 
-            VStack(spacing: 5) {
+            VStack(spacing: imageCards ? 4 : 0) {
                 Text(choice.title)
-                    .font(.system(size: imageCards ? 15 : 14, weight: .semibold))
+                    .font(.system(size: imageCards ? 14 : 13, weight: .semibold))
                     .foregroundStyle(WSRegistryPalette.espresso)
                     .multilineTextAlignment(.center)
-                    .lineLimit(imageCards ? 2 : 3)
-                    .minimumScaleFactor(0.76)
-                    .frame(maxWidth: .infinity, minHeight: imageCards ? 38 : 42, alignment: .center)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.52)
+                    .frame(maxWidth: .infinity, minHeight: imageCards ? 24 : 24, alignment: .center)
 
                 if imageCards, let subtitle = choice.subtitle {
                     Text(subtitle)
                         .font(.system(size: 12, weight: .regular))
                         .foregroundStyle(WSRegistryPalette.warmGray)
                         .multilineTextAlignment(.center)
-                        .lineLimit(2)
-                        .minimumScaleFactor(0.80)
-                        .frame(maxWidth: .infinity, minHeight: 34, alignment: .top)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.68)
+                        .frame(maxWidth: .infinity, minHeight: 18, alignment: .top)
                 }
             }
             .frame(maxWidth: .infinity)
         }
-        .padding(.horizontal, imageCards ? 10 : 14)
-        .padding(.top, imageCards ? 10 : 14)
-        .padding(.bottom, imageCards ? 12 : 14)
-        .frame(height: imageCards ? 178 : 128, alignment: .top)
+        .padding(.horizontal, imageCards ? 10 : 12)
+        .padding(.top, imageCards ? 10 : 12)
+        .padding(.bottom, imageCards ? 10 : 12)
+        .frame(height: imageCards ? 154 : 106, alignment: .top)
         .frame(maxWidth: .infinity)
         .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
         .overlay(
@@ -463,12 +641,15 @@ private extension CreateRegistryView {
             Button {
                 goForward()
             } label: {
-                HStack {
+                ZStack {
                     Text("Continue")
                         .font(.system(size: 17, weight: .semibold))
-                    Spacer()
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 14, weight: .bold))
+
+                    HStack {
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 14, weight: .bold))
+                    }
                 }
                 .foregroundStyle(WSRegistryPalette.cream)
                 .padding(.horizontal, 20)
@@ -478,7 +659,7 @@ private extension CreateRegistryView {
             .buttonStyle(.plain)
             .disabled(!canContinue)
             .opacity(canContinue ? 1 : 0.42)
-            .padding(.horizontal, 18)
+            .padding(.horizontal, 16)
             .padding(.top, 12)
             .padding(.bottom, 12)
         }
@@ -590,7 +771,7 @@ private extension CreateRegistryView {
 
     var twoColumns: [GridItem] {
         [
-            GridItem(.flexible(), spacing: 18, alignment: .top),
+            GridItem(.flexible(), spacing: 12, alignment: .top),
             GridItem(.flexible(), spacing: 0, alignment: .top)
         ]
     }
@@ -661,6 +842,34 @@ private extension CreateRegistryView {
             registryRepo.createRegistry(firstName: names.first, lastName: names.last, event: selectedEvent, date: eventDate)
             tabBarVM.resetRegistryFlow()
             tabBarVM.selectTab(.registry)
+        }
+    }
+}
+
+
+private extension View {
+    func onboardingCardPadding() -> some View {
+        self
+            .padding(22)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                    .stroke(WSRegistryPalette.cream.opacity(0.78), lineWidth: 1)
+            )
+            .shadow(color: WSRegistryPalette.espresso.opacity(0.035), radius: 14, x: 0, y: 8)
+    }
+}
+
+private extension RegistryEvent {
+    var iconName: String {
+        switch self {
+        case .wedding: return "circlebadge.2"
+        case .housewarming: return "house"
+        case .baby: return "figure.2.and.child.holdinghands"
+        case .birthday: return "birthday.cake"
+        case .anniversary: return "heart"
+        case .other: return "gift"
         }
     }
 }
