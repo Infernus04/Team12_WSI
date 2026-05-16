@@ -10,6 +10,8 @@ import SwiftUI
 enum RegistryRoute: Hashable {
     case create
     case success
+    case details
+    case categoryProducts(String)
 }
 
 enum WSRegistryPalette {
@@ -42,8 +44,11 @@ struct RegistryView: View {
                     VStack(alignment: .leading, spacing: 24) {
                         headerSection
                         heroImage
-                        primaryCTACard
-                        readinessCard
+                        if viewModel.hasRegistry {
+                            registrySummaryCard
+                        } else {
+                            primaryCTACard
+                        }
                         secondaryActions
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -77,6 +82,10 @@ struct RegistryView: View {
                     CreateRegistryView()
                 case .success:
                     RegistrySuccessView()
+                case .details:
+                    RegistryDetailsView()
+                case .categoryProducts(let title):
+                    RegistryCategoryProductsView(sectionTitle: title)
                 }
             }
         }
@@ -182,79 +191,122 @@ private extension RegistryView {
         .buttonStyle(.plain)
     }
     
-    var readinessCard: some View {
-        VStack(alignment: .leading, spacing: 22) {
-            VStack(alignment: .leading, spacing: 7) {
-                Text("Your Home Readiness")
-                    .font(.system(size: 23, weight: .semibold, design: .serif))
-                    .foregroundStyle(WSRegistryPalette.espresso)
-                Text("AI builds your registry around how you live.")
-                    .font(.system(size: 14, weight: .regular))
-                    .foregroundStyle(WSRegistryPalette.warmGray)
+    var registrySummaryCard: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            HStack(alignment: .top, spacing: 12) {
+                VStack(alignment: .leading, spacing: 7) {
+                    Text("Your Registry")
+                        .font(.system(size: 23, weight: .semibold, design: .serif))
+                        .foregroundStyle(WSRegistryPalette.espresso)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.86)
+                }
+                
+                Spacer(minLength: 8)
+                
+                Image(systemName: "sparkles")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundStyle(WSRegistryPalette.gold)
+                    .padding(.top, 2)
             }
             
-            VStack(spacing: 18) {
-                ForEach(RegistryReadinessItem.samples) { item in
-                    readinessRow(item)
+            VStack(spacing: 0) {
+                ForEach(Array(RegistrySummaryItem.samples.enumerated()), id: \.element.id) { index, item in
+                    registrySummaryRow(item)
+                    
+                    if index < RegistrySummaryItem.samples.count - 1 {
+                        Divider()
+                            .overlay(WSRegistryPalette.hairline.opacity(0.48))
+                            .padding(.leading, 64)
+                    }
                 }
             }
             
-            HStack(alignment: .top, spacing: 10) {
-                Image(systemName: "info.circle")
-                    .font(.system(size: 15, weight: .medium))
-                    .foregroundStyle(WSRegistryPalette.sage)
-                    .padding(.top, 1)
-                Text("We’ll help you fill the gaps and complete your home.")
-                    .font(.system(size: 13, weight: .regular))
-                    .foregroundStyle(WSRegistryPalette.warmGray)
-                    .fixedSize(horizontal: false, vertical: true)
+            Button {
+                tabBarVM.registryPath.append(RegistryRoute.details)
+            } label: {
+                HStack(spacing: 12) {
+                    Spacer()
+                    
+                    Text("View Registry")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(WSRegistryPalette.cream)
+                    
+                    Spacer()
+                    
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundStyle(WSRegistryPalette.cream.opacity(0.78))
+                }
+                .padding(.horizontal, 18)
+                .frame(maxWidth: .infinity, minHeight: 56)
+                .background {
+                    LinearGradient(
+                        colors: [
+                            WSRegistryPalette.espresso,
+                            Color(red: 0.245, green: 0.165, blue: 0.110)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                }
+                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
             }
-            .padding(14)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(WSRegistryPalette.sage.opacity(0.10), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .buttonStyle(.plain)
+            .accessibilityLabel("View Registry")
         }
-        .padding(20)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 20)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .stroke(WSRegistryPalette.hairline.opacity(0.78), lineWidth: 1)
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .stroke(WSRegistryPalette.hairline.opacity(0.50), lineWidth: 1)
         )
-        .shadow(color: WSRegistryPalette.espresso.opacity(0.07), radius: 18, x: 0, y: 10)
+        .shadow(color: WSRegistryPalette.espresso.opacity(0.05), radius: 16, x: 0, y: 8)
     }
     
-    func readinessRow(_ item: RegistryReadinessItem) -> some View {
-        VStack(spacing: 9) {
-            HStack(spacing: 12) {
+    func registrySummaryRow(_ item: RegistrySummaryItem) -> some View {
+        Button {
+        } label: {
+            HStack(spacing: 13) {
                 Image(systemName: item.systemImage)
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(WSRegistryPalette.cocoa)
-                    .frame(width: 34, height: 34)
-                    .background(WSRegistryPalette.ivory, in: Circle())
+                    .font(.system(size: 22, weight: .semibold))
+                    .foregroundStyle(item.tint)
+                    .frame(width: 50, height: 50)
+                    .background(item.tint.opacity(0.12), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
                 
-                Text(item.title)
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundStyle(WSRegistryPalette.espresso)
-                
-                Spacer()
-                
-                Text("\(item.percent)%")
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundStyle(WSRegistryPalette.cocoa)
-                    .monospacedDigit()
-            }
-            
-            GeometryReader { proxy in
-                ZStack(alignment: .leading) {
-                    Capsule()
-                        .fill(WSRegistryPalette.ivory)
-                    Capsule()
-                        .fill(item.tint)
-                        .frame(width: max(8, proxy.size.width * CGFloat(item.percent) / 100))
+                VStack(alignment: .leading, spacing: 5) {
+                    Text(item.title)
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(WSRegistryPalette.espresso)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.86)
+                    
+                    Text(item.subtitle)
+                        .font(.system(size: 12, weight: .regular))
+                        .foregroundStyle(WSRegistryPalette.cocoa.opacity(0.82))
+                        .lineLimit(3)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
+                
+                Spacer(minLength: 8)
+                
+                Text(item.status)
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(item.tint)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.76)
+                    .padding(.horizontal, 10)
+                    .frame(width: 74, height: 32)
+                    .background(item.tint.opacity(0.13), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+
             }
-            .frame(height: 5)
+            .padding(.vertical, 14)
+            .contentShape(Rectangle())
         }
+        .buttonStyle(.plain)
     }
     
     var secondaryActions: some View {
@@ -266,13 +318,8 @@ private extension RegistryView {
             )
             actionRow(
                 icon: "heart.text.square",
-                title: "Manage My Registry",
-                subtitle: "View, edit and track your registry"
-            )
-            actionRow(
-                icon: "link",
-                title: "Link a Store Registry",
-                subtitle: "Sync your Williams Sonoma store registry"
+                title: "View Past Registry",
+                subtitle: "View and track your past registry"
             )
         }
     }
@@ -316,17 +363,414 @@ private extension RegistryView {
     }
 }
 
-private struct RegistryReadinessItem: Identifiable {
+
+private struct RegistryDetailsView: View {
+    @EnvironmentObject var registryRepo: RegistryRepository
+    @EnvironmentObject var tabBarVM: WSTabBarViewModel
+    
+    private var registryItems: [RegistryItem] {
+        registryRepo.currentRegistry?.items ?? []
+    }
+    
+    private var sections: [RegistryDetailSection] {
+        RegistryDetailContent.sections(from: registryItems)
+    }
+    
+    private var totalItems: Int {
+        RegistryDetailContent.totalItems(from: registryItems)
+    }
+    
+    var body: some View {
+        ZStack {
+            WSRegistryPalette.porcelain
+                .ignoresSafeArea()
+            
+            ScrollView(showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 28) {
+                    homeStoryCard
+                    statsCard
+                    ForEach(sections) { section in
+                        registrySection(section)
+                    }
+                }
+                .padding(.horizontal, 18)
+                .padding(.top, 20)
+                .padding(.bottom, 40)
+            }
+        }
+        .navigationTitle("Your Registry")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "square.and.arrow.up")
+                        Text("Share")
+                    }
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(WSRegistryPalette.gold)
+                }
+            }
+        }
+    }
+    
+    private var homeStoryCard: some View {
+        HStack(alignment: .top, spacing: 18) {
+            Image("giftdna_living_room")
+                .resizable()
+                .scaledToFill()
+                .frame(width: 112, height: 150)
+                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+            
+            VStack(alignment: .leading, spacing: 14) {
+                Text("Your Home Story")
+                    .font(.system(size: 24, weight: .semibold, design: .serif))
+                    .foregroundStyle(WSRegistryPalette.espresso)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.82)
+                
+                Text("A warm, social home centered around shared meals, intimate hosting, and slow mornings together.")
+                    .font(.system(size: 16, weight: .regular))
+                    .foregroundStyle(WSRegistryPalette.cocoa.opacity(0.86))
+                    .lineSpacing(5)
+                    .fixedSize(horizontal: false, vertical: true)
+                
+                Button {
+                } label: {
+                    HStack(spacing: 8) {
+                        Text("Edit Story")
+                        Image(systemName: "pencil")
+                    }
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(WSRegistryPalette.gold)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(WSRegistryPalette.ivory, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+    }
+    
+    private var statsCard: some View {
+        HStack(spacing: 0) {
+            statItem(value: "\(totalItems)", label: "Items")
+            divider
+            statItem(value: "12", label: "Collections")
+            divider
+            statItem(value: "18", label: "Purchased")
+            divider
+            statItem(value: registryItems.isEmpty ? "68%" : "0%", label: "Completed")
+        }
+        .padding(.vertical, 20)
+        .frame(maxWidth: .infinity)
+        .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(WSRegistryPalette.hairline.opacity(0.48), lineWidth: 1)
+        )
+        .shadow(color: WSRegistryPalette.espresso.opacity(0.05), radius: 12, x: 0, y: 6)
+    }
+    
+    private var divider: some View {
+        Rectangle()
+            .fill(WSRegistryPalette.hairline.opacity(0.70))
+            .frame(width: 1, height: 45)
+    }
+    
+    private func statItem(value: String, label: String) -> some View {
+        VStack(spacing: 6) {
+            Text(value)
+                .font(.system(size: 25, weight: .semibold))
+                .foregroundStyle(WSRegistryPalette.espresso)
+                .lineLimit(1)
+                .minimumScaleFactor(0.72)
+            Text(label)
+                .font(.system(size: 13, weight: .regular))
+                .foregroundStyle(WSRegistryPalette.warmGray)
+                .lineLimit(1)
+                .minimumScaleFactor(0.78)
+        }
+        .frame(maxWidth: .infinity)
+    }
+    
+    private func registrySection(_ section: RegistryDetailSection) -> some View {
+        VStack(alignment: .leading, spacing: 15) {
+            HStack(alignment: .bottom) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(section.title)
+                        .font(.system(size: 24, weight: .semibold, design: .serif))
+                        .foregroundStyle(WSRegistryPalette.espresso)
+                    Text("\(section.itemCount) Items")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(section.tint)
+                }
+                
+                Spacer()
+                
+                Button("View All") {
+                    tabBarVM.registryPath.append(RegistryRoute.categoryProducts(section.title))
+                }
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(WSRegistryPalette.gold)
+            }
+            
+            LazyVGrid(
+                columns: Array(repeating: GridItem(.flexible(), spacing: 14), count: 3),
+                alignment: .leading,
+                spacing: 14
+            ) {
+                ForEach(section.products.prefix(3)) { product in
+                    registryProductCard(product)
+                }
+            }
+            
+            GeometryReader { proxy in
+                ZStack(alignment: .leading) {
+                    Capsule()
+                        .fill(WSRegistryPalette.hairline.opacity(0.28))
+                    Capsule()
+                        .fill(section.tint)
+                        .frame(width: proxy.size.width * section.progress)
+                }
+            }
+            .frame(height: 4)
+        }
+    }
+    
+    private func registryProductCard(_ product: RegistryDisplayProduct) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            CustomAsyncImage(url: product.imageURL)
+                .frame(height: 138)
+                .frame(maxWidth: .infinity)
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            
+            Text(product.brand)
+                .font(.system(size: 12, weight: .bold))
+                .foregroundStyle(WSRegistryPalette.espresso)
+                .lineLimit(1)
+                .minimumScaleFactor(0.72)
+            
+            Text(product.name)
+                .font(.system(size: 12, weight: .regular))
+                .foregroundStyle(WSRegistryPalette.cocoa.opacity(0.88))
+                .lineLimit(2)
+                .minimumScaleFactor(0.76)
+            
+            Text(product.priceText)
+                .font(.system(size: 14, weight: .bold))
+                .foregroundStyle(WSRegistryPalette.espresso)
+        }
+    }
+}
+
+
+private struct RegistryCategoryProductsView: View {
+    let sectionTitle: String
+    @EnvironmentObject var registryRepo: RegistryRepository
+    
+    private var registryItems: [RegistryItem] {
+        registryRepo.currentRegistry?.items ?? []
+    }
+    
+    private var section: RegistryDetailSection {
+        let sections = RegistryDetailContent.sections(from: registryItems)
+        return sections.first(where: { $0.title == sectionTitle }) ?? RegistryDetailSection.samples[0]
+    }
+    
+    var body: some View {
+        ZStack {
+            WSRegistryPalette.porcelain
+                .ignoresSafeArea()
+            
+            ScrollView(showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 18) {
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text(section.title)
+                            .font(.system(size: 34, weight: .semibold, design: .serif))
+                            .foregroundStyle(WSRegistryPalette.espresso)
+                        Text("\(section.itemCount) Items")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundStyle(section.tint)
+                    }
+                    .padding(.bottom, 4)
+                    
+                    ForEach(section.products) { product in
+                        registryProductListRow(product)
+                    }
+                }
+                .padding(.horizontal, 18)
+                .padding(.top, 20)
+                .padding(.bottom, 40)
+            }
+        }
+        .navigationTitle(section.title)
+        .navigationBarTitleDisplayMode(.inline)
+    }
+    
+    private func registryProductListRow(_ product: RegistryDisplayProduct) -> some View {
+        HStack(spacing: 14) {
+            CustomAsyncImage(url: product.imageURL)
+                .frame(width: 92, height: 92)
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            
+            VStack(alignment: .leading, spacing: 6) {
+                Text(product.brand)
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundStyle(WSRegistryPalette.espresso)
+                    .lineLimit(1)
+                
+                Text(product.name)
+                    .font(.system(size: 14, weight: .regular))
+                    .foregroundStyle(WSRegistryPalette.cocoa.opacity(0.86))
+                    .lineLimit(2)
+                
+                Text(product.priceText)
+                    .font(.system(size: 15, weight: .bold))
+                    .foregroundStyle(WSRegistryPalette.espresso)
+            }
+            
+            Spacer(minLength: 8)
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(WSRegistryPalette.ivory.opacity(0.62), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .stroke(WSRegistryPalette.hairline.opacity(0.45), lineWidth: 1)
+        )
+    }
+}
+
+private enum RegistryDetailContent {
+    static func sections(from registryItems: [RegistryItem]) -> [RegistryDetailSection] {
+        guard !registryItems.isEmpty else { return RegistryDetailSection.samples }
+        return [
+            RegistryDetailSection(
+                title: "Daily Cooking",
+                itemCount: registryItems.reduce(0) { $0 + $1.quantity },
+                tint: WSRegistryPalette.sage,
+                products: registryItems.map { RegistryDisplayProduct(item: $0) }
+            )
+        ] + RegistryDetailSection.samples.dropFirst()
+    }
+    
+    static func totalItems(from registryItems: [RegistryItem]) -> Int {
+        guard !registryItems.isEmpty else { return 86 }
+        return registryItems.reduce(0) { $0 + $1.quantity }
+    }
+}
+
+private struct RegistryDetailSection: Identifiable {
+    let id = UUID()
+    let title: String
+    let itemCount: Int
+    let tint: Color
+    let products: [RegistryDisplayProduct]
+    
+    var progress: CGFloat {
+        switch title {
+        case "Daily Cooking": return 0.38
+        case "Hosting": return 0.30
+        case "Shared Dining": return 0.22
+        default: return 0.34
+        }
+    }
+    
+    static let samples: [RegistryDetailSection] = [
+        RegistryDetailSection(
+            title: "Daily Cooking",
+            itemCount: 12,
+            tint: WSRegistryPalette.sage,
+            products: [
+                RegistryDisplayProduct(brand: "Le Creuset", name: "Signature Dutch Oven", priceText: "$420.00", imagePath: "/img122m.jpg"),
+                RegistryDisplayProduct(brand: "Wusthof", name: "Classic 8-Piece Set", priceText: "$450.00", imagePath: "/img17m.jpg"),
+                RegistryDisplayProduct(brand: "Vitamix", name: "A3500 Blender", priceText: "$699.95", imagePath: "/img83m.jpg")
+            ]
+        ),
+        RegistryDetailSection(
+            title: "Hosting",
+            itemCount: 18,
+            tint: WSRegistryPalette.gold,
+            products: [
+                RegistryDisplayProduct(brand: "Staub", name: "Serving Bowl Set", priceText: "$179.95", imagePath: "/img64m.jpg"),
+                RegistryDisplayProduct(brand: "Marimekko", name: "Oiva Serving Platter", priceText: "$69.00", imagePath: "/img42m.jpg"),
+                RegistryDisplayProduct(brand: "LSA International", name: "Wine Carafe", priceText: "$89.00", imagePath: "/img95m.jpg")
+            ]
+        ),
+        RegistryDetailSection(
+            title: "Shared Dining",
+            itemCount: 22,
+            tint: WSRegistryPalette.cocoa,
+            products: [
+                RegistryDisplayProduct(brand: "Crate & Barrel", name: "Marin Dinner Plate", priceText: "$14.95", imagePath: "/img5m.jpg"),
+                RegistryDisplayProduct(brand: "Crate & Barrel", name: "Marin Salad Plate", priceText: "$11.95", imagePath: "/img23m.jpg"),
+                RegistryDisplayProduct(brand: "Zwiesel Glas", name: "All Purpose Glass", priceText: "$59.95", imagePath: "/img4m.jpg")
+            ]
+        )
+    ]
+}
+
+private struct RegistryDisplayProduct: Identifiable {
+    let id = UUID()
+    let brand: String
+    let name: String
+    let priceText: String
+    let imageURL: URL?
+    
+    init(brand: String, name: String, priceText: String, imagePath: String) {
+        self.brand = brand
+        self.name = name
+        self.priceText = priceText
+        self.imageURL = URL(string: AppConstants.API.imageBasePath + imagePath)
+    }
+    
+    init(item: RegistryItem) {
+        let parts = item.name.split(separator: " ", maxSplits: 1).map(String.init)
+        self.brand = parts.first ?? "Williams Sonoma"
+        self.name = parts.count > 1 ? parts[1] : item.name
+        self.priceText = item.price.formatted(.currency(code: "USD"))
+        self.imageURL = URL(string: AppConstants.API.imageBasePath + item.imageUrl)
+    }
+}
+
+private struct RegistrySummaryItem: Identifiable {
     let id = UUID()
     let title: String
     let systemImage: String
-    let percent: Int
+    let subtitle: String
+    let status: String
     let tint: Color
     
-    static let samples: [RegistryReadinessItem] = [
-        RegistryReadinessItem(title: "Hosting", systemImage: "wineglass", percent: 62, tint: WSRegistryPalette.gold),
-        RegistryReadinessItem(title: "Daily Cooking", systemImage: "frying.pan", percent: 89, tint: WSRegistryPalette.sage),
-        RegistryReadinessItem(title: "Shared Dining", systemImage: "fork.knife", percent: 40, tint: WSRegistryPalette.cocoa.opacity(0.74)),
-        RegistryReadinessItem(title: "Morning Rituals", systemImage: "cup.and.saucer", percent: 58, tint: WSRegistryPalette.gold.opacity(0.78))
+    static let samples: [RegistrySummaryItem] = [
+        RegistrySummaryItem(
+            title: "Daily Cooking",
+            systemImage: "frying.pan",
+            subtitle: "Your registry strongly supports everyday cooking and shared meal preparation.",
+            status: "Strong\nFoundation",
+            tint: WSRegistryPalette.sage
+        ),
+        RegistrySummaryItem(
+            title: "Hosting",
+            systemImage: "wineglass",
+            subtitle: "You are building a great start. Add a few more essentials to host with ease and confidence.",
+            status: "Growing",
+            tint: WSRegistryPalette.gold
+        ),
+        RegistrySummaryItem(
+            title: "Shared Dining",
+            systemImage: "fork.knife",
+            subtitle: "Consider adding pieces for shared meals and memorable gatherings.",
+            status: "Needs\nAttention",
+            tint: WSRegistryPalette.cocoa
+        ),
+        RegistrySummaryItem(
+            title: "Morning Rituals",
+            systemImage: "cup.and.saucer",
+            subtitle: "You are creating a cozy start to your day.",
+            status: "Developing",
+            tint: WSRegistryPalette.sage
+        )
     ]
 }

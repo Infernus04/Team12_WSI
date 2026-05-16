@@ -56,7 +56,7 @@ private extension CreateRegistryView {
             progressBar
 
             ScrollView(showsIndicators: false) {
-                VStack(alignment: .leading, spacing: 24) {
+                VStack(alignment: .leading, spacing: 26) {
                     if step == .homeVision {
                         editorialHero(height: 168)
                     }
@@ -86,7 +86,7 @@ private extension CreateRegistryView {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 18)
                 .padding(.top, 10)
-                .padding(.bottom, 118)
+                .padding(.bottom, step == .visualStyle ? 152 : 132)
             }
 
             bottomContinueButton
@@ -139,7 +139,7 @@ private extension CreateRegistryView {
     }
 
     func singleChoiceGrid(_ choices: [GiftDNAChoice], selection: Binding<GiftDNAChoice?>, imageCards: Bool) -> some View {
-        LazyVGrid(columns: twoColumns, spacing: 14) {
+        LazyVGrid(columns: twoColumns, spacing: 20) {
             ForEach(choices) { choice in
                 Button {
                     withAnimation(.spring(response: 0.28, dampingFraction: 0.82)) {
@@ -154,7 +154,7 @@ private extension CreateRegistryView {
     }
 
     func multiChoiceGrid(_ choices: [GiftDNAChoice], selection: Binding<Set<String>>) -> some View {
-        LazyVGrid(columns: twoColumns, spacing: 14) {
+        LazyVGrid(columns: twoColumns, spacing: 20) {
             ForEach(choices) { choice in
                 Button {
                     withAnimation(.spring(response: 0.28, dampingFraction: 0.82)) {
@@ -173,11 +173,12 @@ private extension CreateRegistryView {
     }
 
     func largeImageChoiceGrid(_ choices: [GiftDNAChoice], selection: Binding<Set<String>>) -> some View {
-        VStack(spacing: 14) {
+        VStack(spacing: 12) {
             ForEach(choices) { choice in
+                let isSelected = selection.wrappedValue.contains(choice.id)
                 Button {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.84)) {
-                        if selection.wrappedValue.contains(choice.id) {
+                        if isSelected {
                             selection.wrappedValue.remove(choice.id)
                         } else {
                             selection.wrappedValue.insert(choice.id)
@@ -189,38 +190,45 @@ private extension CreateRegistryView {
                             .resizable()
                             .scaledToFill()
                             .frame(maxWidth: .infinity)
-                            .frame(height: 154)
+                            .frame(height: 132)
                             .clipped()
                             .overlay(
                                 LinearGradient(
-                                    colors: [.clear, WSRegistryPalette.espresso.opacity(0.62)],
-                                    startPoint: .center,
+                                    colors: [
+                                        WSRegistryPalette.espresso.opacity(0.18),
+                                        WSRegistryPalette.espresso.opacity(0.72)
+                                    ],
+                                    startPoint: .top,
                                     endPoint: .bottom
                                 )
                             )
 
-                        HStack(alignment: .bottom) {
-                            VStack(alignment: .leading, spacing: 5) {
-                                Image(systemName: choice.icon)
-                                    .font(.system(size: 18, weight: .medium))
-                                Text(choice.title)
-                                    .font(.system(size: 21, weight: .semibold, design: .serif))
-                            }
-                            .foregroundStyle(WSRegistryPalette.cream)
+                        HStack(alignment: .center, spacing: 12) {
+                            Image(systemName: choice.icon)
+                                .font(.system(size: 18, weight: .semibold))
+                                .foregroundStyle(WSRegistryPalette.cream)
+                                .frame(width: 30, height: 30)
+                                .shadow(color: WSRegistryPalette.espresso.opacity(0.55), radius: 4, x: 0, y: 2)
+
+                            Text(choice.title)
+                                .font(.system(size: 23, weight: .semibold, design: .serif))
+                                .foregroundStyle(WSRegistryPalette.cream)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.82)
+                                .shadow(color: WSRegistryPalette.espresso.opacity(0.55), radius: 4, x: 0, y: 2)
 
                             Spacer()
 
-                            selectionIndicator(isSelected: selection.wrappedValue.contains(choice.id))
+                            selectionIndicator(isSelected: isSelected)
                         }
-                        .padding(18)
+                        .padding(16)
                     }
-                    .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 24, style: .continuous)
-                            .stroke(selection.wrappedValue.contains(choice.id) ? WSRegistryPalette.gold : WSRegistryPalette.hairline.opacity(0.55), lineWidth: selection.wrappedValue.contains(choice.id) ? 2 : 1)
+                        RoundedRectangle(cornerRadius: 20, style: .continuous)
+                            .stroke(isSelected ? WSRegistryPalette.gold : WSRegistryPalette.hairline.opacity(0.45), lineWidth: isSelected ? 2 : 1)
                     )
-                    .shadow(color: WSRegistryPalette.espresso.opacity(selection.wrappedValue.contains(choice.id) ? 0.16 : 0.07), radius: selection.wrappedValue.contains(choice.id) ? 20 : 12, x: 0, y: 10)
-                    .scaleEffect(selection.wrappedValue.contains(choice.id) ? 1.012 : 1)
+                    .shadow(color: WSRegistryPalette.espresso.opacity(isSelected ? 0.13 : 0.045), radius: isSelected ? 14 : 8, x: 0, y: 6)
                 }
                 .buttonStyle(.plain)
             }
@@ -228,71 +236,93 @@ private extension CreateRegistryView {
     }
 
     func choiceCard(_ choice: GiftDNAChoice, isSelected: Bool, imageCards: Bool) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            ZStack(alignment: .bottomTrailing) {
-                if imageCards {
+        VStack(spacing: imageCards ? 10 : 12) {
+            if imageCards {
+                ZStack(alignment: .topTrailing) {
                     Image("giftdna_living_room")
                         .resizable()
                         .scaledToFill()
-                        .frame(height: 74)
+                        .frame(height: 82)
                         .frame(maxWidth: .infinity)
                         .clipped()
-                        .overlay(WSRegistryPalette.espresso.opacity(0.12))
-                } else {
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .fill(choice.tint.opacity(0.16))
-                        .frame(height: 54)
-                        .overlay(alignment: .leading) {
+                        .overlay(
+                            LinearGradient(
+                                colors: [WSRegistryPalette.espresso.opacity(0.04), WSRegistryPalette.espresso.opacity(0.18)],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
+
+                    selectionIndicator(isSelected: isSelected)
+                        .padding(8)
+                }
+                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            } else {
+                ZStack(alignment: .topTrailing) {
+                    Circle()
+                        .fill(choice.tint.opacity(isSelected ? 0.18 : 0.11))
+                        .frame(width: 58, height: 58)
+                        .overlay {
                             Image(systemName: choice.icon)
-                                .font(.system(size: 22, weight: .medium))
-                                .foregroundStyle(WSRegistryPalette.cocoa)
-                                .padding(.leading, 14)
+                                .font(.system(size: 24, weight: .semibold))
+                                .foregroundStyle(isSelected ? WSRegistryPalette.gold : WSRegistryPalette.cocoa)
                         }
-                }
 
-                selectionIndicator(isSelected: isSelected)
-                    .padding(10)
+                    selectionIndicator(isSelected: isSelected)
+                        .offset(x: 8, y: -8)
+                }
+                .frame(height: 64)
             }
-            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
 
-            VStack(alignment: .leading, spacing: 5) {
-                HStack(spacing: 8) {
-                    Image(systemName: choice.icon)
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(isSelected ? WSRegistryPalette.gold : WSRegistryPalette.cocoa)
-                    Text(choice.title)
-                        .font(.system(size: 15, weight: .semibold))
-                        .foregroundStyle(WSRegistryPalette.espresso)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
+            VStack(spacing: 5) {
+                Text(choice.title)
+                    .font(.system(size: imageCards ? 15 : 14, weight: .semibold))
+                    .foregroundStyle(WSRegistryPalette.espresso)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(imageCards ? 2 : 3)
+                    .minimumScaleFactor(0.76)
+                    .frame(maxWidth: .infinity, minHeight: imageCards ? 38 : 42, alignment: .center)
 
-                if let subtitle = choice.subtitle {
+                if imageCards, let subtitle = choice.subtitle {
                     Text(subtitle)
                         .font(.system(size: 12, weight: .regular))
                         .foregroundStyle(WSRegistryPalette.warmGray)
+                        .multilineTextAlignment(.center)
                         .lineLimit(2)
+                        .minimumScaleFactor(0.80)
+                        .frame(maxWidth: .infinity, minHeight: 34, alignment: .top)
                 }
             }
+            .frame(maxWidth: .infinity)
         }
-        .padding(12)
-        .frame(maxWidth: .infinity, minHeight: imageCards ? 158 : 138, alignment: .topLeading)
-        .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .padding(.horizontal, imageCards ? 10 : 14)
+        .padding(.top, imageCards ? 10 : 14)
+        .padding(.bottom, imageCards ? 12 : 14)
+        .frame(height: imageCards ? 178 : 128, alignment: .top)
+        .frame(maxWidth: .infinity)
+        .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .stroke(isSelected ? WSRegistryPalette.gold : WSRegistryPalette.hairline.opacity(0.58), lineWidth: isSelected ? 2 : 1)
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .stroke(isSelected ? WSRegistryPalette.gold : WSRegistryPalette.hairline.opacity(0.44), lineWidth: isSelected ? 2 : 1)
         )
-        .shadow(color: WSRegistryPalette.espresso.opacity(isSelected ? 0.13 : 0.055), radius: isSelected ? 16 : 10, x: 0, y: 8)
-        .scaleEffect(isSelected ? 1.015 : 1)
+        .shadow(color: WSRegistryPalette.espresso.opacity(isSelected ? 0.11 : 0.035), radius: isSelected ? 12 : 6, x: 0, y: 5)
+        .scaleEffect(isSelected ? 1.01 : 1)
     }
 
     func selectionIndicator(isSelected: Bool) -> some View {
         ZStack {
             Circle()
-                .fill(isSelected ? WSRegistryPalette.gold : WSRegistryPalette.cream.opacity(0.94))
-                .frame(width: 28, height: 28)
-            Image(systemName: isSelected ? "checkmark" : "circle")
-                .font(.system(size: isSelected ? 12 : 10, weight: .bold))
-                .foregroundStyle(isSelected ? WSRegistryPalette.cream : WSRegistryPalette.hairline)
+                .fill(isSelected ? WSRegistryPalette.gold : WSRegistryPalette.porcelain.opacity(0.94))
+                .frame(width: 24, height: 24)
+                .overlay(
+                    Circle()
+                        .stroke(isSelected ? WSRegistryPalette.gold : WSRegistryPalette.hairline.opacity(0.72), lineWidth: 1.4)
+                )
+            if isSelected {
+                Image(systemName: "checkmark")
+                    .font(.system(size: 10, weight: .bold))
+                    .foregroundStyle(WSRegistryPalette.cream)
+            }
         }
     }
 
@@ -473,8 +503,8 @@ private extension CreateRegistryView {
 
     var twoColumns: [GridItem] {
         [
-            GridItem(.flexible(), spacing: 14),
-            GridItem(.flexible(), spacing: 14)
+            GridItem(.flexible(), spacing: 18, alignment: .top),
+            GridItem(.flexible(), spacing: 0, alignment: .top)
         ]
     }
 
