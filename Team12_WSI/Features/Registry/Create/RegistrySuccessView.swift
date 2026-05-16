@@ -27,6 +27,7 @@ struct RegistrySuccessView: View {
                 tabBarVM.resetRegistryFlow()
                 tabBarVM.selectTab(.home)
             }
+
         }
         .padding()
     }

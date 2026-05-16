@@ -33,17 +33,18 @@ final class RegistryItemRowViewModel: ObservableObject {
     var title: String { item.title }
     
     var priceText: String {
-        "$\(item.price, default: "%.2f")"
+        String(format: "$%.2f", item.price)
     }
+
     
     var quantityText: String {
         "\(registryRepo.quantity(for: item))"
     }
     
     var imageURL: URL? {
-        guard let url = item.imageUrl else { return nil }
-        return URL(string: AppConstants.API.imageBasePath + url)
+        URL(string: AppConstants.API.imageBasePath + item.imageUrl)
     }
+
     
     // MARK: - Actions
     
@@ -62,7 +63,7 @@ final class RegistryItemRowViewModel: ObservableObject {
     func addToCart() {
         let product = ProductItem(
             id: item.id,
-            title: item.title,
+            name: item.title,
             price: item.price,
             path: item.imageUrl ?? ""
         )

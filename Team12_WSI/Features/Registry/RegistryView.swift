@@ -69,10 +69,10 @@ struct RegistryView: View {
             
             .navigationDestination(for: RegistryRoute.self) { route in
                 switch route {
-                case .create:
+                case RegistryRoute.create:
                     CreateRegistryView()
                     
-                case .success:
+                case RegistryRoute.success:
                     RegistrySuccessView()
                 }
             }
@@ -90,8 +90,9 @@ private extension RegistryView {
         VStack(spacing: 0) {
             
             Button {
-                tabBarVM.registryPath.append(.create)
+                tabBarVM.registryPath.append(RegistryRoute.create)
             } label: {
+
                 createRegistryButton
                     .contentShape(Rectangle())
             }

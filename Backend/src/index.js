@@ -1,8 +1,13 @@
 import { Hono } from 'hono'
+import { serveStatic } from '@hono/node-server/serve-static'
 import { promises as fs } from 'fs'
 import path from 'path'
 
 const app = new Hono()
+
+// Serve static images
+app.use('/images/*', serveStatic({ root: './' }))
+
 
 app.get('/', (c) => {
   return c.text('Hello Hono!')
@@ -81,7 +86,23 @@ app.post('/recommendations', async (c) => {
   }
 })
 
+// Unfiltered Product Catalogue
+app.get('/skus', async (c) => {
+  try {
+    const filePath = path.join(process.cwd(), 'responses', 'skus.json')
+    const data = await fs.readFile(filePath, 'utf8')
+    const products = JSON.parse(data)
+    return c.json({
+      count: products.length,
+      products: products
+    })
+  } catch (error) {
+    return c.json({ error: 'Failed to fetch skus' }, 500)
+  }
+})
+
 export default app
+
 
 
 

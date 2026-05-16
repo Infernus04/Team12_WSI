@@ -1,62 +1,33 @@
-//
-//  ProductItem.swift
-//  WSHackathonApp
-//
-//  Created by Nilesh Mahajan on 05/04/26.
-//
-
 import Foundation
 
-struct ProductItemDTO: Identifiable, Codable {
+struct ProductResponseDTO: Codable {
+    let count: Int
+    let products: [ProductItemDTO]
+}
+
+struct ProductItemDTO: Codable {
     let id: String
     let name: String
     let shortName: String?
-    let primaryGroupId: String?
-    let price: ProductPrice?
-    let properties: ProductProperties?
-    let media: ProductMedia?
-    let availability: String?
-    let deliveryEstimate: String?
+    let price: PriceDTO?
+    let media: MediaDTO?
+    let properties: PropertiesDTO?
 }
 
-struct ProductPrice: Codable {
+struct PriceDTO: Codable {
     let regularPrice: Double?
-    let surcharge: Double?
-    let retailPrice: Double?
     let sellingPrice: Double?
-    let monogramOrPersonalizationPrice: Double?
 }
 
-struct ProductProperties: Codable {
-    let isMarketPlace: String?
-    let isSpecialOrder: String?
-    let pattern: String?
-    let isFood: String?
-    let isFurniture: String?
-    let spiritType: String?
-    let hasUtilityNeeds: String?
-    let brand: String?
-    let productType: String?
-    let canGiftWrap: String?
-    let collection: String?
-    let allProductTypes: String?
-    let material: String?
-    let isShoppable: String?
-    let name: String?
-    let shortName: String?
+struct MediaDTO: Codable {
+    let images: [ImageDTO]?
 }
 
-struct ProductMedia: Codable {
-    let images: [ProductImage]?
-}
-
-struct ProductImage: Codable {
-    let type: String?
+struct ImageDTO: Codable {
     let path: String?
-    let aspect: String?
-    let properties: ProductImageProperties?
 }
 
-struct ProductImageProperties: Codable {
-    let altText: String?
+struct PropertiesDTO: Codable {
+    let productType: String?
+    let brand: String?
 }
