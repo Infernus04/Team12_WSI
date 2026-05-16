@@ -11,7 +11,10 @@ struct CreateRegistryView: View {
     @EnvironmentObject var tabBarVM: WSTabBarViewModel
     @EnvironmentObject var registryRepo: RegistryRepository
 
-    @State private var step: GiftDNAStep = .homeVision
+    @State private var step: GiftDNAStep = .basics
+    @State private var selectedEvent: RegistryEvent = .wedding
+    @State private var eventDate = Date()
+    @State private var namesOnRegistry = ""
     @State private var homeVision: GiftDNAChoice?
     @State private var lifestyleMoments: Set<String> = []
     @State private var homeType: GiftDNAChoice?
@@ -19,6 +22,9 @@ struct CreateRegistryView: View {
     @State private var priorities: Set<String> = []
     @State private var dailyRituals: Set<String> = []
     @State private var homeCircle: Set<String> = []
+    @State private var productCategories: Set<String> = []
+    @State private var budgetPreference: GiftDNAChoice?
+    @State private var giftPreferences: Set<String> = []
     @State private var visualStyles: Set<String> = []
     @State private var generationProgress: Double = 0
     @State private var completedGenerationSteps: Set<String> = []
@@ -61,9 +67,15 @@ private extension CreateRegistryView {
                         editorialHero(height: 168)
                     }
 
-                    screenHeader(title: step.title, subtitle: step.subtitle)
+                    if step == .basics {
+                        basicsForm
+                    } else {
+                        screenHeader(title: step.title, subtitle: step.subtitle)
+                    }
 
                     switch step {
+                    case .basics:
+                        EmptyView()
                     case .homeVision:
                         singleChoiceGrid(GiftDNAData.homeVisions, selection: $homeVision, imageCards: true)
                     case .moments:
@@ -77,6 +89,12 @@ private extension CreateRegistryView {
                         multiChoiceGrid(GiftDNAData.rituals, selection: $dailyRituals)
                     case .people:
                         multiChoiceGrid(GiftDNAData.people, selection: $homeCircle)
+                    case .productCategories:
+                        multiChoiceGrid(GiftDNAData.productCategories, selection: $productCategories)
+                    case .budget:
+                        singleChoiceGrid(GiftDNAData.budgetPreferences, selection: $budgetPreference, imageCards: false)
+                    case .giftPreferences:
+                        multiChoiceGrid(GiftDNAData.giftPreferences, selection: $giftPreferences)
                     case .visualStyle:
                         largeImageChoiceGrid(GiftDNAData.visualStyles, selection: $visualStyles)
                     case .generating:
@@ -91,6 +109,75 @@ private extension CreateRegistryView {
 
             bottomContinueButton
         }
+    }
+
+    var basicsForm: some View {
+        VStack(alignment: .leading, spacing: 24) {
+            Text("Just the basics to get started")
+                .font(.system(size: 27, weight: .semibold))
+                .foregroundStyle(WSRegistryPalette.warmGray.opacity(0.42))
+                .lineLimit(2)
+                .minimumScaleFactor(0.82)
+                .padding(.top, 84)
+            
+            VStack(alignment: .leading, spacing: 15) {
+                formSectionLabel("EVENT TYPE")
+                FlowLayout(spacing: 12, rowSpacing: 10) {
+                    ForEach(RegistryEvent.onboardingEvents) { event in
+                        Button {
+                            withAnimation(.spring(response: 0.25, dampingFraction: 0.86)) {
+                                selectedEvent = event
+                            }
+                        } label: {
+                            Text(event.title)
+                                .font(.system(size: 17, weight: .semibold))
+                                .foregroundStyle(selectedEvent == event ? WSRegistryPalette.gold : WSRegistryPalette.cocoa.opacity(0.78))
+                                .padding(.horizontal, 18)
+                                .frame(height: 38)
+                                .background(
+                                    selectedEvent == event ? WSRegistryPalette.espresso : WSRegistryPalette.hairline.opacity(0.32),
+                                    in: Capsule()
+                                )
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+            .padding(22)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+            
+            VStack(alignment: .leading, spacing: 10) {
+                formSectionLabel("DATE")
+                DatePicker("Event date", selection: $eventDate, displayedComponents: .date)
+                    .datePickerStyle(.compact)
+                    .labelsHidden()
+                    .font(.system(size: 22, weight: .regular))
+                    .tint(WSRegistryPalette.gold)
+            }
+            .padding(22)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+            
+            VStack(alignment: .leading, spacing: 10) {
+                formSectionLabel("NAMES ON REGISTRY")
+                TextField("Priya & Arjun", text: $namesOnRegistry)
+                    .font(.system(size: 22, weight: .regular))
+                    .foregroundStyle(WSRegistryPalette.espresso)
+                    .textInputAutocapitalization(.words)
+                    .submitLabel(.done)
+            }
+            .padding(22)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+        }
+    }
+    
+    func formSectionLabel(_ text: String) -> some View {
+        Text(text)
+            .font(.system(size: 14, weight: .semibold))
+            .tracking(2.1)
+            .foregroundStyle(WSRegistryPalette.warmGray.opacity(0.78))
     }
 
     var progressBar: some View {
@@ -510,6 +597,8 @@ private extension CreateRegistryView {
 
     var canContinue: Bool {
         switch step {
+        case .basics:
+            return !namesOnRegistry.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         case .homeVision:
             return homeVision != nil
         case .moments:
@@ -522,11 +611,29 @@ private extension CreateRegistryView {
             return !dailyRituals.isEmpty
         case .people:
             return !homeCircle.isEmpty
+        case .productCategories:
+            return !productCategories.isEmpty
+        case .budget:
+            return budgetPreference != nil
+        case .giftPreferences:
+            return !giftPreferences.isEmpty
         case .visualStyle:
             return !visualStyles.isEmpty
         case .generating:
             return true
         }
+    }
+
+    var parsedRegistryNames: (first: String, last: String) {
+        let cleaned = namesOnRegistry.trimmingCharacters(in: .whitespacesAndNewlines)
+        let separators = [" & ", " and ", ","]
+        for separator in separators where cleaned.contains(separator) {
+            let parts = cleaned.components(separatedBy: separator).map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            if let first = parts.first, let last = parts.dropFirst().first, !first.isEmpty, !last.isEmpty {
+                return (first, last)
+            }
+        }
+        return (cleaned.isEmpty ? "GiftDNA" : cleaned, "Home")
     }
 
     func goForward() {
@@ -550,31 +657,103 @@ private extension CreateRegistryView {
             }
 
             try? await Task.sleep(nanoseconds: 450_000_000)
-            registryRepo.createRegistry(firstName: "GiftDNA", lastName: "Home", event: .housewarming, date: Date())
+            let names = parsedRegistryNames
+            registryRepo.createRegistry(firstName: names.first, lastName: names.last, event: selectedEvent, date: eventDate)
             tabBarVM.resetRegistryFlow()
             tabBarVM.selectTab(.registry)
         }
     }
 }
 
+private struct FlowLayout: Layout {
+    var spacing: CGFloat = 8
+    var rowSpacing: CGFloat = 8
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let maxWidth = proposal.width ?? 0
+        let rows = rows(for: subviews, maxWidth: maxWidth)
+        let height = rows.reduce(CGFloat.zero) { total, row in
+            total + row.height + (row.index == rows.count - 1 ? 0 : rowSpacing)
+        }
+        return CGSize(width: maxWidth, height: height)
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        var origin = bounds.origin
+        for row in rows(for: subviews, maxWidth: bounds.width) {
+            var x = origin.x
+            for index in row.indices {
+                let size = subviews[index].sizeThatFits(.unspecified)
+                subviews[index].place(
+                    at: CGPoint(x: x, y: origin.y + (row.height - size.height) / 2),
+                    proposal: ProposedViewSize(size)
+                )
+                x += size.width + spacing
+            }
+            origin.y += row.height + rowSpacing
+        }
+    }
+
+    private func rows(for subviews: Subviews, maxWidth: CGFloat) -> [FlowRow] {
+        var rows: [FlowRow] = []
+        var current = FlowRow(index: 0)
+        var currentWidth: CGFloat = 0
+
+        for index in subviews.indices {
+            let size = subviews[index].sizeThatFits(.unspecified)
+            let proposedWidth = current.indices.isEmpty ? size.width : currentWidth + spacing + size.width
+
+            if proposedWidth > maxWidth, !current.indices.isEmpty {
+                rows.append(current)
+                current = FlowRow(index: rows.count)
+                currentWidth = 0
+            }
+
+            current.indices.append(index)
+            current.height = max(current.height, size.height)
+            currentWidth = currentWidth == 0 ? size.width : currentWidth + spacing + size.width
+        }
+
+        if !current.indices.isEmpty {
+            rows.append(current)
+        }
+
+        return rows
+    }
+
+    private struct FlowRow {
+        let index: Int
+        var indices: [Subviews.Index] = []
+        var height: CGFloat = 0
+    }
+}
+
 private enum GiftDNAStep: Int, CaseIterable {
+    case basics
     case homeVision
     case moments
     case homeType
     case priorities
     case rituals
     case people
+    case productCategories
+    case budget
+    case giftPreferences
     case visualStyle
     case generating
 
     var title: String {
         switch self {
+        case .basics: return "Just the basics to get started"
         case .homeVision: return "What kind of home are you building?"
         case .moments: return "How do you imagine spending time at home?"
         case .homeType: return "What best describes your space?"
         case .priorities: return "What matters most in your future home?"
         case .rituals: return "What are your daily rituals?"
         case .people: return "Who are you building this home with?"
+        case .productCategories: return "Which products should we prioritize?"
+        case .budget: return "What price range feels right?"
+        case .giftPreferences: return "How should we sort your gifts?"
         case .visualStyle: return "Which spaces feel most like home to you?"
         case .generating: return "Creating your home profile..."
         }
@@ -582,12 +761,16 @@ private enum GiftDNAStep: Int, CaseIterable {
 
     var subtitle: String {
         switch self {
-        case .homeVision: return "We’ll create a registry around how you’ll actually live, host, and grow together."
+        case .basics: return "Tell us what you are celebrating and who the registry is for."
+        case .homeVision: return "We'll create a registry around how you'll actually live, host, and grow together."
         case .moments: return "Choose the moments that matter most to you."
         case .homeType: return "This helps us tailor your future registry."
         case .priorities: return "Your answers shape your registry recommendations."
-        case .rituals: return "We’ll help build around the routines you value most."
+        case .rituals: return "We'll help build around the routines you value most."
         case .people: return "This helps GiftDNA personalize your registry."
+        case .productCategories: return "Pick the rooms and product families that should come first in your registry."
+        case .budget: return "This helps match recommendations to products your guests will feel good gifting."
+        case .giftPreferences: return "Tell us what matters when comparing similar products from the dataset."
         case .visualStyle: return "Choose the styles you naturally gravitate toward."
         case .generating: return "GiftDNA is learning how you live, gather, host, and grow together."
         }
@@ -683,6 +866,35 @@ private enum GiftDNAData {
         GiftDNAChoice("Multi-generational family", icon: "house.and.flag")
     ]
 
+    static let productCategories = [
+        GiftDNAChoice("Cookware & bakeware", icon: "frying.pan"),
+        GiftDNAChoice("Dinnerware & serveware", icon: "fork.knife"),
+        GiftDNAChoice("Glassware & bar", icon: "wineglass"),
+        GiftDNAChoice("Kitchen appliances", icon: "oven"),
+        GiftDNAChoice("Coffee & tea", icon: "cup.and.saucer"),
+        GiftDNAChoice("Bedding & bath", icon: "bed.double"),
+        GiftDNAChoice("Storage & organization", icon: "archivebox"),
+        GiftDNAChoice("Decor accents", icon: "sparkles")
+    ]
+
+    static let budgetPreferences = [
+        GiftDNAChoice("Mostly under $50", icon: "tag"),
+        GiftDNAChoice("$50 to $150", icon: "gift"),
+        GiftDNAChoice("$150 to $300", icon: "shippingbox"),
+        GiftDNAChoice("Investment pieces", icon: "seal")
+    ]
+
+    static let giftPreferences = [
+        GiftDNAChoice("Top-rated items", icon: "star"),
+        GiftDNAChoice("Essentials first", icon: "checklist"),
+        GiftDNAChoice("Mix of prices", icon: "slider.horizontal.3"),
+        GiftDNAChoice("Available now", icon: "checkmark.seal"),
+        GiftDNAChoice("Trusted brands", icon: "building.columns"),
+        GiftDNAChoice("Easy to ship", icon: "shippingbox"),
+        GiftDNAChoice("Most useful daily", icon: "sun.max"),
+        GiftDNAChoice("Statement pieces", icon: "sparkles")
+    ]
+
     static let visualStyles = [
         GiftDNAChoice("Warm Modern", icon: "sun.max"),
         GiftDNAChoice("Soft Scandinavian", icon: "snowflake"),
@@ -695,11 +907,10 @@ private enum GiftDNAData {
     static let generationSteps = [
         "Understanding your lifestyle",
         "Mapping your home priorities",
+        "Reading your product preferences",
         "Building your home readiness profile",
         "Curating your future home"
     ]
-
-
 }
 
 #Preview {

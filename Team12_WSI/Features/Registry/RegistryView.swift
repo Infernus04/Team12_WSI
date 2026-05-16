@@ -44,10 +44,9 @@ struct RegistryView: View {
                     VStack(alignment: .leading, spacing: 24) {
                         headerSection
                         heroImage
+                        primaryCTACard
                         if viewModel.hasRegistry {
                             registrySummaryCard
-                        } else {
-                            primaryCTACard
                         }
                         secondaryActions
                     }
@@ -389,6 +388,7 @@ private struct RegistryDetailsView: View {
                 VStack(alignment: .leading, spacing: 28) {
                     homeStoryCard
                     statsCard
+                    addItemsButton
                     ForEach(sections) { section in
                         registrySection(section)
                     }
@@ -471,6 +471,31 @@ private struct RegistryDetailsView: View {
                 .stroke(WSRegistryPalette.hairline.opacity(0.48), lineWidth: 1)
         )
         .shadow(color: WSRegistryPalette.espresso.opacity(0.05), radius: 12, x: 0, y: 6)
+    }
+    
+    private var addItemsButton: some View {
+        Button {
+            tabBarVM.selectTab(.home)
+        } label: {
+            HStack(spacing: 12) {
+                Image(systemName: "plus.circle.fill")
+                    .font(.system(size: 20, weight: .semibold))
+                Text("Add items to your registry")
+                    .font(.system(size: 17, weight: .semibold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.82)
+                Spacer(minLength: 8)
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 13, weight: .bold))
+            }
+            .foregroundStyle(WSRegistryPalette.porcelain)
+            .padding(.horizontal, 18)
+            .frame(maxWidth: .infinity, minHeight: 58, alignment: .leading)
+            .background(WSRegistryPalette.espresso, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .shadow(color: WSRegistryPalette.espresso.opacity(0.16), radius: 14, x: 0, y: 8)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Add items to your registry")
     }
     
     private var divider: some View {
@@ -569,14 +594,17 @@ private struct RegistryDetailsView: View {
 private struct RegistryCategoryProductsView: View {
     let sectionTitle: String
     @EnvironmentObject var registryRepo: RegistryRepository
+    @State private var selectedProduct: RegistryDisplayProduct?
+    @State private var removedProductIDs = Set<String>()
     
     private var registryItems: [RegistryItem] {
         registryRepo.currentRegistry?.items ?? []
     }
     
-    private var section: RegistryDetailSection {
-        let sections = RegistryDetailContent.sections(from: registryItems)
-        return sections.first(where: { $0.title == sectionTitle }) ?? RegistryDetailSection.samples[0]
+    private var products: [RegistryDisplayProduct] {
+        RegistryDetailContent.sections(from: registryItems)
+            .flatMap(\.products)
+            .filter { !removedProductIDs.contains($0.id) }
     }
     
     var body: some View {
@@ -585,63 +613,351 @@ private struct RegistryCategoryProductsView: View {
                 .ignoresSafeArea()
             
             ScrollView(showsIndicators: false) {
-                VStack(alignment: .leading, spacing: 18) {
-                    VStack(alignment: .leading, spacing: 5) {
-                        Text(section.title)
-                            .font(.system(size: 34, weight: .semibold, design: .serif))
-                            .foregroundStyle(WSRegistryPalette.espresso)
-                        Text("\(section.itemCount) Items")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundStyle(section.tint)
-                    }
-                    .padding(.bottom, 4)
+                VStack(alignment: .leading, spacing: 0) {
+                    listToolbar
                     
-                    ForEach(section.products) { product in
+                    ForEach(products) { product in
                         registryProductListRow(product)
                     }
                 }
                 .padding(.horizontal, 18)
-                .padding(.top, 20)
+                .padding(.top, 18)
                 .padding(.bottom, 40)
             }
         }
-        .navigationTitle(section.title)
+        .navigationTitle("Registry Items")
         .navigationBarTitleDisplayMode(.inline)
+        .sheet(item: $selectedProduct) { product in
+            RegistryProductActionSheet(
+                product: product,
+                onRemove: { removeProduct(product) }
+            )
+            .presentationDetents([.height(620), .large])
+            .presentationDragIndicator(.visible)
+        }
     }
     
-    private func registryProductListRow(_ product: RegistryDisplayProduct) -> some View {
-        HStack(spacing: 14) {
-            CustomAsyncImage(url: product.imageURL)
-                .frame(width: 92, height: 92)
-                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-            
-            VStack(alignment: .leading, spacing: 6) {
-                Text(product.brand)
-                    .font(.system(size: 14, weight: .bold))
-                    .foregroundStyle(WSRegistryPalette.espresso)
-                    .lineLimit(1)
-                
-                Text(product.name)
-                    .font(.system(size: 14, weight: .regular))
-                    .foregroundStyle(WSRegistryPalette.cocoa.opacity(0.86))
-                    .lineLimit(2)
-                
-                Text(product.priceText)
-                    .font(.system(size: 15, weight: .bold))
-                    .foregroundStyle(WSRegistryPalette.espresso)
+    private func removeProduct(_ product: RegistryDisplayProduct) {
+        if registryRepo.currentRegistry?.items.contains(where: { $0.id == product.id }) == true {
+            registryRepo.removeItem(product.id)
+        }
+        removedProductIDs.insert(product.id)
+        selectedProduct = nil
+    }
+    
+    private var listToolbar: some View {
+        HStack {
+            Menu {
+                Button("Recently Added") { }
+                Button("Price: Low to High") { }
+                Button("Purchased") { }
+                Button("Unpurchased") { }
+            } label: {
+                HStack(spacing: 6) {
+                    Text("Sort: Recently Added")
+                        .font(.system(size: 16, weight: .semibold))
+                        .lineLimit(1)
+                    Image(systemName: "chevron.down")
+                        .font(.system(size: 13, weight: .bold))
+                }
+                .foregroundStyle(WSRegistryPalette.espresso)
             }
             
             Spacer(minLength: 8)
         }
-        .padding(12)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(WSRegistryPalette.ivory.opacity(0.62), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .stroke(WSRegistryPalette.hairline.opacity(0.45), lineWidth: 1)
-        )
+        .padding(.bottom, 14)
+    }
+    
+    private func registryProductListRow(_ product: RegistryDisplayProduct) -> some View {
+        Button {
+            selectedProduct = product
+        } label: {
+            HStack(spacing: 10) {
+                CustomAsyncImage(url: product.imageURL)
+                    .frame(width: 86, height: 86)
+                    .clipShape(RoundedRectangle(cornerRadius: 11, style: .continuous))
+                
+                VStack(alignment: .leading, spacing: 7) {
+                    Text(product.brand)
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundStyle(WSRegistryPalette.espresso)
+                        .lineLimit(1)
+                    
+                    Text(product.name)
+                        .font(.system(size: 15, weight: .regular))
+                        .foregroundStyle(WSRegistryPalette.cocoa.opacity(0.86))
+                        .lineLimit(2)
+                    
+                    if let detail = product.detail {
+                        Text(detail)
+                            .font(.system(size: 15, weight: .regular))
+                            .foregroundStyle(WSRegistryPalette.cocoa.opacity(0.86))
+                            .lineLimit(1)
+                    }
+                    
+                    Text(product.priceText)
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundStyle(WSRegistryPalette.espresso)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(product.isPurchased ? "Purchased" : "Unpurchased")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(product.isPurchased ? WSRegistryPalette.sage : WSRegistryPalette.cocoa)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.82)
+                        .padding(.horizontal, 9)
+                        .padding(.vertical, 5)
+                        .background(
+                            (product.isPurchased ? WSRegistryPalette.sage.opacity(0.14) : WSRegistryPalette.gold.opacity(0.14)),
+                            in: Capsule()
+                        )
+                    
+                    if product.isPurchased, let purchaserName = product.purchaserName {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Purchased by")
+                                .font(.system(size: 12, weight: .regular))
+                                .foregroundStyle(WSRegistryPalette.cocoa.opacity(0.86))
+                                .lineLimit(1)
+                            
+                            HStack(spacing: 6) {
+                                Text(product.purchaserInitials)
+                                    .font(.system(size: 9, weight: .bold))
+                                    .foregroundStyle(WSRegistryPalette.porcelain)
+                                    .frame(width: 24, height: 24)
+                                    .background(WSRegistryPalette.cocoa.opacity(0.72), in: Circle())
+                                
+                                Text(purchaserName)
+                                    .font(.system(size: 12, weight: .semibold))
+                                    .foregroundStyle(WSRegistryPalette.cocoa.opacity(0.9))
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.72)
+                            }
+                        }
+                    }
+                }
+                .frame(width: 92, alignment: .leading)
+                
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(WSRegistryPalette.espresso.opacity(0.85))
+            }
+            .padding(.vertical, 12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(Rectangle())
+            .overlay(
+                Rectangle()
+                    .fill(WSRegistryPalette.hairline.opacity(0.45))
+                    .frame(height: 1)
+                    .padding(.leading, 98),
+                alignment: .bottom
+            )
+        }
+        .buttonStyle(.plain)
     }
 }
+
+private struct RegistryProductActionSheet: View {
+    let product: RegistryDisplayProduct
+    let onRemove: () -> Void
+    @Environment(\.dismiss) private var dismiss
+    @State private var noteText = ""
+    @State private var collection = "Daily Cooking"
+    @State private var priority = "Medium"
+    @State private var isShowingNoteEditor = false
+    @State private var isShowingCollectionPicker = false
+    @State private var isShowingPriorityPicker = false
+    @State private var isShowingRemoveConfirm = false
+    
+    var body: some View {
+        VStack(spacing: 18) {
+            Capsule()
+                .fill(WSRegistryPalette.hairline.opacity(0.9))
+                .frame(width: 56, height: 5)
+                .padding(.top, 8)
+            
+            HStack(alignment: .top, spacing: 16) {
+                CustomAsyncImage(url: product.imageURL)
+                    .frame(width: 126, height: 126)
+                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(product.brand)
+                        .font(.system(size: 25, weight: .semibold, design: .serif))
+                        .foregroundStyle(WSRegistryPalette.espresso)
+                        .lineLimit(1)
+                    Text(product.name)
+                        .font(.system(size: 18, weight: .regular))
+                        .foregroundStyle(WSRegistryPalette.cocoa.opacity(0.9))
+                        .lineLimit(2)
+                    if let detail = product.detail {
+                        Text(detail)
+                            .font(.system(size: 17, weight: .regular))
+                            .foregroundStyle(WSRegistryPalette.cocoa.opacity(0.84))
+                    }
+                    Text(product.priceText)
+                        .font(.system(size: 22, weight: .bold))
+                        .foregroundStyle(WSRegistryPalette.espresso)
+                }
+                Spacer(minLength: 0)
+            }
+            
+            purchaseStatusCard
+            actionList
+            closeButton
+        }
+        .padding(.horizontal, 24)
+        .padding(.bottom, 18)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .background(WSRegistryPalette.porcelain.ignoresSafeArea())
+        .alert("Add Note", isPresented: $isShowingNoteEditor) {
+            TextField("Note", text: $noteText)
+            Button("Save") { }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("Add a private note for this registry item.")
+        }
+        .confirmationDialog("Move to Collection", isPresented: $isShowingCollectionPicker, titleVisibility: .visible) {
+            Button("Daily Cooking") { collection = "Daily Cooking" }
+            Button("Hosting") { collection = "Hosting" }
+            Button("Shared Dining") { collection = "Shared Dining" }
+            Button("Cancel", role: .cancel) { }
+        }
+        .confirmationDialog("Edit Priority", isPresented: $isShowingPriorityPicker, titleVisibility: .visible) {
+            Button("High") { priority = "High" }
+            Button("Medium") { priority = "Medium" }
+            Button("Low") { priority = "Low" }
+            Button("Cancel", role: .cancel) { }
+        }
+        .confirmationDialog("Remove from Registry?", isPresented: $isShowingRemoveConfirm, titleVisibility: .visible) {
+            Button("Remove from Registry", role: .destructive) {
+                onRemove()
+                dismiss()
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("This item will be removed from your registry list.")
+        }
+    }
+    
+    private var purchaseStatusCard: some View {
+        HStack(spacing: 14) {
+            Image(systemName: product.isPurchased ? "checkmark.circle" : "circle")
+                .font(.system(size: 27, weight: .medium))
+                .foregroundStyle(product.isPurchased ? WSRegistryPalette.sage : WSRegistryPalette.gold)
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text(product.isPurchased ? "Purchased" : "Unpurchased")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundStyle(WSRegistryPalette.espresso)
+                Text(product.statusDetailText)
+                    .font(.system(size: 14, weight: .regular))
+                    .foregroundStyle(WSRegistryPalette.cocoa.opacity(0.84))
+                    .lineLimit(2)
+            }
+            
+            Spacer(minLength: 10)
+            
+            if product.isPurchased {
+                Text(product.purchaserInitials)
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundStyle(WSRegistryPalette.porcelain)
+                    .frame(width: 42, height: 42)
+                    .background(WSRegistryPalette.cocoa.opacity(0.72), in: Circle())
+            }
+        }
+        .padding(18)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(WSRegistryPalette.ivory.opacity(0.68), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+    }
+    
+    private var actionList: some View {
+        VStack(spacing: 0) {
+            actionRow(icon: "note.text", title: noteText.isEmpty ? "Add Note" : "Edit Note", trailing: noteText.isEmpty ? nil : "Saved") {
+                isShowingNoteEditor = true
+            }
+            actionDivider
+            actionRow(icon: "folder", title: "Move to Collection", trailing: collection) {
+                isShowingCollectionPicker = true
+            }
+            actionDivider
+            actionRow(icon: "star", title: "Edit Priority", trailing: priority) {
+                isShowingPriorityPicker = true
+            }
+            actionDivider
+            actionRow(icon: "trash", title: "Remove from Registry", role: .destructive) {
+                isShowingRemoveConfirm = true
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 6)
+        .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .stroke(WSRegistryPalette.hairline.opacity(0.55), lineWidth: 1)
+        )
+    }
+    
+    private var actionDivider: some View {
+        Rectangle()
+            .fill(WSRegistryPalette.hairline.opacity(0.52))
+            .frame(height: 1)
+            .padding(.leading, 42)
+    }
+    
+    private func actionRow(
+        icon: String,
+        title: String,
+        trailing: String? = nil,
+        role: ButtonRole? = nil,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(role: role, action: action) {
+            HStack(spacing: 14) {
+                Image(systemName: icon)
+                    .font(.system(size: 19, weight: .regular))
+                    .foregroundStyle(role == .destructive ? Color.red : WSRegistryPalette.espresso)
+                    .frame(width: 28)
+                Text(title)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(role == .destructive ? Color.red : WSRegistryPalette.espresso)
+                Spacer(minLength: 8)
+                if let trailing {
+                    Text(trailing)
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(WSRegistryPalette.gold)
+                        .lineLimit(1)
+                }
+                if role != .destructive {
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundStyle(WSRegistryPalette.espresso.opacity(0.72))
+                }
+            }
+            .frame(maxWidth: .infinity, minHeight: 54, alignment: .leading)
+        }
+        .buttonStyle(.plain)
+    }
+    
+    private var closeButton: some View {
+        Button {
+            dismiss()
+        } label: {
+            Text("Close")
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundStyle(WSRegistryPalette.espresso)
+                .frame(maxWidth: .infinity, minHeight: 58)
+                .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .stroke(WSRegistryPalette.hairline.opacity(0.9), lineWidth: 1)
+                )
+        }
+        .buttonStyle(.plain)
+    }
+}
+
 
 private enum RegistryDetailContent {
     static func sections(from registryItems: [RegistryItem]) -> [RegistryDetailSection] {
@@ -684,9 +1000,9 @@ private struct RegistryDetailSection: Identifiable {
             itemCount: 12,
             tint: WSRegistryPalette.sage,
             products: [
-                RegistryDisplayProduct(brand: "Le Creuset", name: "Signature Dutch Oven", priceText: "$420.00", imagePath: "/img122m.jpg"),
-                RegistryDisplayProduct(brand: "Wusthof", name: "Classic 8-Piece Set", priceText: "$450.00", imagePath: "/img17m.jpg"),
-                RegistryDisplayProduct(brand: "Vitamix", name: "A3500 Blender", priceText: "$699.95", imagePath: "/img83m.jpg")
+                RegistryDisplayProduct(brand: "Le Creuset", name: "Signature Dutch Oven", detail: "7.25 Qt.", priceText: "$420.00", imagePath: "/img122m.jpg", isPurchased: true, purchaserName: "Emma Williams"),
+                RegistryDisplayProduct(brand: "Wusthof", name: "Classic 8-Piece Knife Set", priceText: "$450.00", imagePath: "/img17m.jpg"),
+                RegistryDisplayProduct(brand: "Vitamix", name: "A3500 Ascent Series Blender", priceText: "$699.95", imagePath: "/img83m.jpg")
             ]
         ),
         RegistryDetailSection(
@@ -694,9 +1010,9 @@ private struct RegistryDetailSection: Identifiable {
             itemCount: 18,
             tint: WSRegistryPalette.gold,
             products: [
-                RegistryDisplayProduct(brand: "Staub", name: "Serving Bowl Set", priceText: "$179.95", imagePath: "/img64m.jpg"),
+                RegistryDisplayProduct(brand: "Staub", name: "Serving Bowl Set", detail: "(4-piece)", priceText: "$179.95", imagePath: "/img64m.jpg", isPurchased: true, purchaserName: "John Smith"),
                 RegistryDisplayProduct(brand: "Marimekko", name: "Oiva Serving Platter", priceText: "$69.00", imagePath: "/img42m.jpg"),
-                RegistryDisplayProduct(brand: "LSA International", name: "Wine Carafe", priceText: "$89.00", imagePath: "/img95m.jpg")
+                RegistryDisplayProduct(brand: "LSA International", name: "Wine Carafe", priceText: "$89.00", imagePath: "/img95m.jpg", isPurchased: true, purchaserName: "Olivia Johnson")
             ]
         ),
         RegistryDetailSection(
@@ -713,25 +1029,63 @@ private struct RegistryDetailSection: Identifiable {
 }
 
 private struct RegistryDisplayProduct: Identifiable {
-    let id = UUID()
+    let id: String
     let brand: String
     let name: String
+    let detail: String?
     let priceText: String
     let imageURL: URL?
+    let isPurchased: Bool
+    let purchaserName: String?
     
-    init(brand: String, name: String, priceText: String, imagePath: String) {
+    var statusDetailText: String {
+        if let purchaserName {
+            return "Purchased by \(purchaserName) on May 12, 2024"
+        }
+        return "Still available for guests to purchase."
+    }
+    
+    var purchaserInitials: String {
+        guard let purchaserName else { return "" }
+        let initials = purchaserName
+            .split(separator: " ")
+            .prefix(2)
+            .compactMap(\.first)
+            .map(String.init)
+            .joined()
+        return initials.isEmpty ? "G" : initials
+    }
+    
+    init(
+        id: String? = nil,
+        brand: String,
+        name: String,
+        detail: String? = nil,
+        priceText: String,
+        imagePath: String,
+        isPurchased: Bool = false,
+        purchaserName: String? = nil
+    ) {
+        self.id = id ?? "\(brand)-\(name)"
         self.brand = brand
         self.name = name
+        self.detail = detail
         self.priceText = priceText
         self.imageURL = URL(string: AppConstants.API.imageBasePath + imagePath)
+        self.isPurchased = isPurchased
+        self.purchaserName = purchaserName
     }
     
     init(item: RegistryItem) {
         let parts = item.name.split(separator: " ", maxSplits: 1).map(String.init)
+        self.id = item.id
         self.brand = parts.first ?? "Williams Sonoma"
         self.name = parts.count > 1 ? parts[1] : item.name
+        self.detail = nil
         self.priceText = item.price.formatted(.currency(code: "USD"))
         self.imageURL = URL(string: AppConstants.API.imageBasePath + item.imageUrl)
+        self.isPurchased = false
+        self.purchaserName = nil
     }
 }
 
