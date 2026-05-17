@@ -49,6 +49,8 @@ struct RegistryView: View {
     @State private var s2On = false
     @State private var s3On = false
     @State private var s4On = false
+    @State private var showActivitySheet = false
+    @State private var showReceiverFlowDemo = false
 
     var body: some View {
         NavigationStack(path: $tabBarVM.registryPath) {
@@ -62,21 +64,19 @@ struct RegistryView: View {
                             .opacity(s1On ? 1 : 0).offset(y: s1On ? 0 : 16)
                             .onAppear { withAnimation(.easeOut(duration: 0.5)) { s1On = true } }
 
-                        startActionHub
+                        createRegistryButton
                             .opacity(s2On ? 1 : 0).offset(y: s2On ? 0 : 20)
                             .onAppear { withAnimation(.easeOut(duration: 0.5).delay(0.1)) { s2On = true } }
 
                         if viewModel.hasRegistry {
-                            currentRegistryQuickCard
+                            currentRegistriesSection
                                 .opacity(s3On ? 1 : 0).offset(y: s3On ? 0 : 20)
                                 .onAppear { withAnimation(.easeOut(duration: 0.5).delay(0.15)) { s3On = true } }
                         }
 
-                        if !registryRepo.activities.isEmpty {
-                            recentActivitySection
-                                .opacity(s4On ? 1 : 0).offset(y: s4On ? 0 : 20)
-                                .onAppear { withAnimation(.easeOut(duration: 0.5).delay(0.2)) { s4On = true } }
-                        }
+                        secondaryActions
+                            .opacity(s4On ? 1 : 0).offset(y: s4On ? 0 : 20)
+                            .onAppear { withAnimation(.easeOut(duration: 0.5).delay(0.2)) { s4On = true } }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 18)
@@ -89,18 +89,34 @@ struct RegistryView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
+                        showActivitySheet = true
                     } label: {
-                        Image(systemName: "bell")
-                            .font(.system(size: 17, weight: .semibold))
-                            .foregroundStyle(WSRegistryPalette.espresso)
-                            .frame(width: 36, height: 36)
-                            .background(WSRegistryPalette.porcelain, in: Circle())
-                            .overlay(
+                        ZStack(alignment: .topTrailing) {
+                            Image(systemName: "bell")
+                                .font(.system(size: 17, weight: .semibold))
+                                .foregroundStyle(WSRegistryPalette.espresso)
+                                .frame(width: 36, height: 36)
+                                .background(WSRegistryPalette.porcelain, in: Circle())
+                                .overlay(
+                                    Circle()
+                                        .stroke(WSRegistryPalette.hairline.opacity(0.55), lineWidth: 1)
+                                )
+
+                            if !registryRepo.activities.isEmpty {
                                 Circle()
-                                    .stroke(WSRegistryPalette.hairline.opacity(0.55), lineWidth: 1)
-                            )
+                                    .fill(WSRegistryPalette.gold)
+                                    .frame(width: 10, height: 10)
+                                    .offset(x: 2, y: -1)
+                            }
+                        }
                     }
-                    .accessibilityLabel("Notifications")
+                    .accessibilityLabel("Activity")
+                }
+            }
+            .sheet(isPresented: $showActivitySheet) {
+                NavigationStack {
+                    RegistryActivityView()
+                        .environmentObject(registryRepo)
                 }
             }
             .navigationDestination(for: RegistryRoute.self) { route in
@@ -172,64 +188,91 @@ private extension RegistryView {
         .padding(.top, 4)
     }
 
-    var startActionHub: some View {
-        VStack(spacing: 10) {
-            actionRow(
-                icon: "plus.square",
-                title: "Create New Registry",
-                subtitle: "Start a registry for a new event",
-                accentColor: WSRegistryPalette.sage
-            ) {
-                tabBarVM.registryPath.append(RegistryRoute.create)
-            }
+    // MARK: - Create Registry Button
 
-            actionRow(
-                icon: "chart.line.uptrend.xyaxis",
-                title: "Track Registry Activity",
-                subtitle: viewModel.hasRegistry ? "\(registryRepo.activities.count) recent updates" : "Create a registry to start tracking",
-                accentColor: WSRegistryPalette.gold
-            ) {
-                if viewModel.hasRegistry {
-                    tabBarVM.registryPath.append(RegistryRoute.activity)
-                } else {
-                    tabBarVM.registryPath.append(RegistryRoute.create)
+    var createRegistryButton: some View {
+        Button {
+            tabBarVM.registryPath.append(RegistryRoute.create)
+        } label: {
+            HStack(spacing: 14) {
+                Image(systemName: "plus.circle.fill")
+                    .font(.system(size: 22, weight: .semibold))
+                    .foregroundStyle(.white)
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Create New Registry")
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundStyle(.white)
+                    Text("Start a registry for a wedding, housewarming, or event")
+                        .font(.system(size: 13, weight: .regular))
+                        .foregroundStyle(.white.opacity(0.8))
+                        .lineLimit(1)
                 }
+
+                Spacer(minLength: 8)
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundStyle(.white.opacity(0.65))
+            }
+            .padding(.horizontal, 18)
+            .frame(maxWidth: .infinity, minHeight: 68, alignment: .leading)
+            .background(
+                LinearGradient(
+                    colors: [WSRegistryPalette.espresso, Color(red: 0.245, green: 0.165, blue: 0.110)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ),
+                in: RoundedRectangle(cornerRadius: 14, style: .continuous)
+            )
+            .shadow(color: WSRegistryPalette.espresso.opacity(0.16), radius: 14, x: 0, y: 8)
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Current Registries (Horizontal Scroll)
+
+    var currentRegistriesSection: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack {
+                HStack(spacing: 8) {
+                    Image(systemName: "heart.text.square")
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundStyle(WSRegistryPalette.gold)
+                    Text("Your Registries")
+                        .font(.wsSerif(size: 20, weight: .semibold))
+                        .foregroundStyle(WSRegistryPalette.espresso)
+                }
+                Spacer()
+                Text("\(registryRepo.registries.count)")
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundStyle(WSRegistryPalette.warmGray)
             }
 
-            actionRow(
-                icon: "magnifyingglass",
-                title: "Find Other Registries",
-                subtitle: "Search by name or email",
-                accentColor: WSRegistryPalette.cocoa
-            ) {
-                tabBarVM.registryPath.append(RegistryRoute.findRegistry)
-            }
-
-            actionRow(
-                icon: "clock.arrow.circlepath",
-                title: "Past Registries",
-                subtitle: "Registries you created or participated in",
-                accentColor: WSRegistryPalette.warmGray
-            ) {
-                tabBarVM.registryPath.append(RegistryRoute.pastRegistries)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 14) {
+                    ForEach(registryRepo.registries.sorted(by: { $0.date > $1.date })) { registry in
+                        registryHorizontalCard(registry)
+                    }
+                }
+                .padding(.horizontal, 2)
+                .padding(.vertical, 4)
             }
         }
     }
 
-    var currentRegistryQuickCard: some View {
-        Button {
-            if let id = registryRepo.activeRegistryID {
-                tabBarVM.registryPath.append(RegistryRoute.existingRegistryDetails(id))
-            } else {
-                tabBarVM.registryPath.append(RegistryRoute.details)
-            }
+    func registryHorizontalCard(_ registry: Registry) -> some View {
+        let items = registry.items
+        let isActive = registryRepo.activeRegistryID == registry.id
+
+        return Button {
+            tabBarVM.registryPath.append(RegistryRoute.existingRegistryDetails(registry.id))
         } label: {
             ZStack(alignment: .bottomLeading) {
                 Image("giftdna_living_room")
                     .resizable()
                     .scaledToFill()
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 200)
+                    .frame(width: 260, height: 170)
                     .clipped()
                     .overlay(
                         LinearGradient(
@@ -239,41 +282,43 @@ private extension RegistryView {
                         )
                     )
 
-                VStack(alignment: .leading, spacing: 10) {
-                    HStack(spacing: 6) {
-                        Image(systemName: "sparkles")
-                            .font(.system(size: 9))
-                            .foregroundStyle(WSRegistryPalette.gold)
-                        Text("CURRENT REGISTRY")
-                            .font(.wsLabel(size: 9))
-                            .tracking(1.5)
-                            .foregroundStyle(WSRegistryPalette.gold)
+                VStack(alignment: .leading, spacing: 8) {
+                    if isActive {
+                        Text("ACTIVE")
+                            .font(.system(size: 9, weight: .bold))
+                            .tracking(1.2)
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 3)
+                            .background(WSRegistryPalette.gold, in: Capsule())
                     }
 
-                    Text(viewModel.displayTitle)
-                        .font(.wsSerif(size: 20, weight: .semibold))
+                    Text(registry.displayName)
+                        .font(.wsSerif(size: 17, weight: .semibold))
                         .foregroundStyle(.white)
                         .lineLimit(2)
 
-                    HStack(spacing: 12) {
-                        registryHeroStat(value: "\(RegistryDetailContent.totalItems(from: viewModel.items))", label: "Items")
-                        registryHeroStat(value: "\(RegistryDetailContent.collectionCount(from: viewModel.items))", label: "Collections")
-                        registryHeroStat(value: RegistryDetailContent.completionText(from: viewModel.items), label: "Fulfilled")
-                    }
+                    Text(registry.event.rawValue + " • " + registry.date.formatted(date: .abbreviated, time: .omitted))
+                        .font(.system(size: 12, weight: .regular))
+                        .foregroundStyle(.white.opacity(0.8))
 
-                    HStack(spacing: 4) {
-                        Text("VIEW REGISTRY")
-                            .font(.wsLabel(size: 10))
-                            .tracking(1.2)
-                        Image(systemName: "chevron.right")
-                            .font(.system(size: 9, weight: .bold))
+                    HStack(spacing: 10) {
+                        registryHeroStat(value: "\(RegistryDetailContent.totalItems(from: items))", label: "Items")
+                        registryHeroStat(value: "\(RegistryDetailContent.collectionCount(from: items))", label: "Collections")
                     }
-                    .foregroundStyle(WSRegistryPalette.gold)
                 }
-                .padding(20)
+                .padding(16)
             }
+            .frame(width: 260, height: 170)
             .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-            .shadow(color: WSRegistryPalette.espresso.opacity(0.12), radius: 16, x: 0, y: 8)
+            .overlay(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .stroke(
+                        isActive ? WSRegistryPalette.gold.opacity(0.6) : Color.clear,
+                        lineWidth: 2
+                    )
+            )
+            .shadow(color: WSRegistryPalette.espresso.opacity(0.12), radius: 14, x: 0, y: 6)
         }
         .buttonStyle(.plain)
     }
@@ -424,24 +469,26 @@ private extension RegistryView {
     }
 
     var secondaryActions: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 10) {
             actionRow(
                 icon: "magnifyingglass",
-                title: "Find a Registry",
-                subtitle: "Search by name or email"
+                title: "Find Other Registries",
+                subtitle: "Search by name or email",
+                accentColor: WSRegistryPalette.cocoa
             ) {
                 tabBarVM.registryPath.append(RegistryRoute.findRegistry)
             }
+
             actionRow(
-                icon: "heart.text.square",
-                title: "View Past Registry",
-                subtitle: "View and track your past registry"
+                icon: "clock.arrow.circlepath",
+                title: "Past Registries",
+                subtitle: "Registries you created or participated in",
+                accentColor: WSRegistryPalette.warmGray
             ) {
                 tabBarVM.registryPath.append(RegistryRoute.pastRegistries)
             }
 
             // TEMP DEMO ENTRY POINT FOR RECEIVER FLOW
-            // This button can be removed or replaced with deep-link / iMessage share navigation later.
             receiverFlowDemoButton
         }
     }
@@ -494,7 +541,7 @@ private extension RegistryView {
         .buttonStyle(.plain)
     }
 
-    func actionRow(icon: String, title: String, subtitle: String, action: @escaping () -> Void = {}) -> some View {
+    func actionRow(icon: String, title: String, subtitle: String, accentColor: Color, action: @escaping () -> Void = {}) -> some View {
         Button(action: action) {
             HStack(spacing: 14) {
                 Image(systemName: icon)
@@ -2373,4 +2420,3 @@ private struct RegistrySummaryItem: Identifiable {
         )
     ]
 }
-

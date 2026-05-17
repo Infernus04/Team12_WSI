@@ -471,34 +471,70 @@ private extension AURARecommendationReviewView {
             productType: rec.product.productType,
             brand: brandDisplayName(rec.product.brand)
         )
-        let cartQty = cartRepo.items.first(where: { $0.id == product.id })?.quantity ?? 0
         let registryQty = registryRepo.currentRegistry?.items.first(where: { $0.id == product.id })?.quantity ?? 0
 
         return VStack(alignment: .leading, spacing: 6) {
-            ProductCardView(
-                product: product,
-                quantity: cartQty,
-                registryQuantity: registryQty,
-                onAdd: { cartRepo.add(product: product) },
-                onRemove: { cartRepo.remove(productId: product.id) },
-                onAddToRegistry: { viewModel.addToRegistry(rec) },
-                onRemoveFromRegistry: { viewModel.removeFromRegistry(rec) }
-            )
-            .frame(width: 170)
+            ZStack(alignment: .topLeading) {
+                CustomAsyncImage(url: product.imageURL)
+                    .frame(width: 170, height: 170)
+                    .clipped()
+                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
 
-            HStack(spacing: 4) {
                 Text(rec.confidenceLabel.uppercased())
                     .font(.system(size: 9, weight: .bold))
+                    .tracking(0.5)
                     .foregroundStyle(.white)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 3)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
                     .background(confidenceForeground(rec.confidenceLabel), in: Capsule())
-                Text(rec.explanation)
-                    .font(.system(size: 10, weight: .regular))
-                    .foregroundStyle(WSRegistryPalette.warmGray)
-                    .lineLimit(2)
+                    .padding(8)
             }
-            .frame(width: 170, alignment: .leading)
+
+            Text(product.name)
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundStyle(WSRegistryPalette.espresso)
+                .lineLimit(2)
+                .frame(width: 170, alignment: .leading)
+
+            if let price = product.price {
+                Text("$\(price, specifier: "%.2f")")
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundStyle(Color(hex: "#C8102E"))
+            }
+
+            Text(rec.explanation)
+                .font(.system(size: 11, weight: .regular))
+                .foregroundStyle(WSRegistryPalette.warmGray)
+                .lineLimit(2)
+                .frame(width: 170, alignment: .leading)
+
+            Button {
+                if registryQty > 0 {
+                    viewModel.removeFromRegistry(rec)
+                } else {
+                    viewModel.addToRegistry(rec)
+                }
+            } label: {
+                Text(registryQty > 0 ? "ADDED \u{2713}" : "ADD TO REGISTRY")
+                    .font(.system(size: 10, weight: .bold))
+                    .tracking(0.8)
+                    .foregroundStyle(registryQty > 0 ? WSRegistryPalette.sage : WSRegistryPalette.espresso)
+                    .frame(width: 170, height: 34)
+                    .background(
+                        registryQty > 0
+                            ? WSRegistryPalette.sage.opacity(0.14)
+                            : Color.clear,
+                        in: RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                            .stroke(
+                                registryQty > 0 ? WSRegistryPalette.sage.opacity(0.4) : WSRegistryPalette.espresso.opacity(0.5),
+                                lineWidth: 1
+                            )
+                    )
+            }
+            .buttonStyle(.plain)
         }
     }
 
