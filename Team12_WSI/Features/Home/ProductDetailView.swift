@@ -8,8 +8,10 @@ struct ProductDetailView: View {
     let allProducts: [ProductItem]
     let onAddToCart: (ProductItem) -> Void
     let onAddToRegistry: (ProductItem) -> Void
+    let onAddToSaveForLater: ((ProductItem) -> Void)?   // nil = feature not injected
     let cartQuantity: Int
     let registryQuantity: Int
+    let isInSaveForLater: Bool
 
     @Environment(\.dismiss) private var dismiss
 
@@ -69,8 +71,10 @@ struct ProductDetailView: View {
                 allProducts: allProducts,
                 onAddToCart: onAddToCart,
                 onAddToRegistry: onAddToRegistry,
+                onAddToSaveForLater: onAddToSaveForLater,
                 cartQuantity: 0,
-                registryQuantity: 0
+                registryQuantity: 0,
+                isInSaveForLater: false
             )
         }
         .overlay(alignment: .bottom) {
@@ -215,6 +219,21 @@ struct ProductDetailView: View {
                 }
             }
             .buttonStyle(WSPrimaryButtonStyle())
+
+            // Save for Later
+            if let saveAction = onAddToSaveForLater {
+                Button(action: { saveAction(product) }) {
+                    HStack(spacing: 8) {
+                        Image(systemName: isInSaveForLater ? "bookmark.fill" : "bookmark")
+                            .font(.system(size: 13))
+                            .foregroundColor(isInSaveForLater ? .wsMutedBrass : .wsCharcoal)
+                        Text(isInSaveForLater ? "SAVED FOR LATER" : "SAVE FOR LATER")
+                            .font(.wsLabel(size: 12))
+                            .tracking(1.5)
+                    }
+                }
+                .buttonStyle(WSSecondaryButtonStyle())
+            }
 
             // Save to registry
             Button(action: {

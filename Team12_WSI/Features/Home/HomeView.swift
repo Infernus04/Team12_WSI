@@ -6,6 +6,7 @@ struct HomeView: View {
     @EnvironmentObject var cartRepository: CartRepository
     @EnvironmentObject var registryRepository: RegistryRepository
     @EnvironmentObject var tabBarVM: WSTabBarViewModel
+    @EnvironmentObject var saveForLaterRepository: SaveForLaterRepository
 
     @State private var selectedProduct: ProductItem?
     @State private var showSearch = false
@@ -21,6 +22,7 @@ struct HomeView: View {
     @State private var s1On = false; @State private var s2On = false
     @State private var s4On = false; @State private var s5On = false
     @State private var s6On = false; @State private var s8On = false
+    @State private var showSaveForLater = false          // Buy Later list
     // Hero CTA navigation
     @State private var showHeroCollection = false
 
@@ -49,11 +51,16 @@ struct HomeView: View {
             conciergeButton
         }
         .fullScreenCover(item: $selectedProduct) { p in
-            ProductDetailView(product: p, allProducts: viewModel.products,
+            ProductDetailView(
+                product: p,
+                allProducts: viewModel.products,
                 onAddToCart: { viewModel.addToCart($0) },
                 onAddToRegistry: { viewModel.addToRegistry($0) },
+                onAddToSaveForLater: { viewModel.addToSaveForLater($0) },
                 cartQuantity: viewModel.cartQuantity(for: p),
-                registryQuantity: viewModel.registryQuantity(for: p))
+                registryQuantity: viewModel.registryQuantity(for: p),
+                isInSaveForLater: viewModel.isInSaveForLater(p)
+            )
         }
         .sheet(isPresented: $showSearch) {
             HomeSearchView(allProducts: viewModel.products, onSelectProduct: { selectedProduct = $0 })
@@ -86,8 +93,20 @@ struct HomeView: View {
                 onAddToRegistry: { viewModel.addToRegistry($0) }
             )
         }
+        .sheet(isPresented: $showSaveForLater) {
+            SaveForLaterView()
+                .environmentObject(saveForLaterRepository)
+                .environmentObject(cartRepository)
+        }
         .onAppear {
-            Task { viewModel.bind(cartRepository: cartRepository, registryRepository: registryRepository); await viewModel.fetchProducts() }
+            Task {
+                viewModel.bind(
+                    cartRepository: cartRepository,
+                    registryRepository: registryRepository,
+                    saveForLaterRepository: saveForLaterRepository
+                )
+                await viewModel.fetchProducts()
+            }
             withAnimation(.easeInOut(duration: 1.4).repeatForever(autoreverses: true)) { conciergeScale = 1.08 }
         }
     }
@@ -113,7 +132,23 @@ struct HomeView: View {
             Text("WILLIAMS\nSONOMA").font(.system(size: 8, weight: .bold)).tracking(2).multilineTextAlignment(.center).foregroundColor(.wsCharcoal)
             Spacer()
             HStack(spacing: 16) {
-                Button(action: { showConcierge = true }) { Image(systemName: "sparkles").foregroundColor(.wsMutedBrass).font(.system(size: 16)) }
+                // Buy Later list button (replaces sparkles)
+                ZStack(alignment: .topTrailing) {
+                    Button(action: { showSaveForLater = true }) {
+                        Image(systemName: "bookmark")
+                            .foregroundColor(.wsMutedBrass)
+                            .font(.system(size: 16))
+                    }
+                    if saveForLaterRepository.totalItems > 0 {
+                        Text("\(saveForLaterRepository.totalItems)")
+                            .font(.system(size: 8, weight: .bold))
+                            .foregroundColor(.white)
+                            .frame(width: 14, height: 14)
+                            .background(Color.wsCrimson)
+                            .clipShape(Circle())
+                            .offset(x: 6, y: -6)
+                    }
+                }
                 Button(action: { showSearch = true }) { Image(systemName: "magnifyingglass").foregroundColor(.wsCharcoal).font(.system(size: 16)) }
                 Button(action: {}) { Image(systemName: "person.circle").foregroundColor(.wsCharcoal).font(.system(size: 16)) }
             }
@@ -619,5 +654,6 @@ struct HomeView_Previews: PreviewProvider {
             .environmentObject(CartRepository())
             .environmentObject(RegistryRepository())
             .environmentObject(WSTabBarViewModel())
+            .environmentObject(SaveForLaterRepository())
     }
 }
