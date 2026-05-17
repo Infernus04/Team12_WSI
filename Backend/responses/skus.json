@@ -467,5 +467,552 @@
     },
     "availability": "ON_HAND",
     "deliveryEstimate": "TRANSIT"
+  },{
+    "id": "15456207058931044427",
+    "name": "Staub Enameled Cast Iron Traditional Fry Pan, 10\", Sapphire Blue",
+    "shortName": "Staub Enameled Cast Iron Traditional Fry Pan, 10\", Sapphire Blue",
+    "primaryGroupId": "staub-traditional-skillet",
+    "price": {
+      "regularPrice": 199.0,
+      "surcharge": 0,
+      "retailPrice": 199.0,
+      "sellingPrice": 199.0,
+      "monogramOrPersonalizationPrice": 17.0
+    },
+    "freeShip": true,
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "blue-parent/sapphire-blue",
+      "pattern": "cookware",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "staub-parent/staub",
+      "productType": "fry-pans-skillets",
+      "canGiftWrap": "true",
+      "broiler-safe": "true",
+      "pickupServiceLevels": "[{\"pickupServiceLevel\":\"PICKUP_INTERNAL\",\"pickupInternal\":true}]",
+      "collection": "staub-cast-iron",
+      "allProductTypes": "fry-pans-skillets",
+      "material": "enameled-cast-iron",
+      "isShoppable": "true",
+      "shippingDestinationServiceCode": "[{\"destinationServiceCode\":\"UPSAP\",\"upsapEligible\":true}]",
+      "name": "Staub Enameled Cast Iron Traditional Fry Pan, 10\", Sapphire Blue",
+      "shortName": "Staub Enameled Cast Iron Traditional Fry Pan, 10\", Sapphire Blue"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/img10s.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Staub Enameled Cast Iron Traditional Fry Pan, 10\", Sapphire Blue"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },{
+    "id": "9046778551105555161",
+    "name": "Staub Enameled Cast Iron Traditional Fry Pan, 12\", Cherry",
+    "shortName": "Staub Enameled Cast Iron Traditional Fry Pan, 12\", Cherry",
+    "primaryGroupId": "staub-traditional-skillet",
+    "price": {
+      "regularPrice": 249.0,
+      "surcharge": 0,
+      "retailPrice": 249.0,
+      "sellingPrice": 249.0,
+      "monogramOrPersonalizationPrice": 17.0
+    },
+    "freeShip": true,
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "red-parent/cherry",
+      "pattern": "cookware",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "staub-parent/staub",
+      "productType": "fry-pans-skillets",
+      "canGiftWrap": "true",
+      "broiler-safe": "true",
+      "pickupServiceLevels": "[{\"pickupServiceLevel\":\"PICKUP_INTERNAL\",\"pickupInternal\":true}]",
+      "collection": "staub-cast-iron",
+      "allProductTypes": "fry-pans-skillets",
+      "material": "enameled-cast-iron",
+      "isShoppable": "true",
+      "shippingDestinationServiceCode": "[{\"destinationServiceCode\":\"UPSAP\",\"upsapEligible\":true}]",
+      "name": "Staub Enameled Cast Iron Traditional Fry Pan, 12\", Cherry",
+      "shortName": "Staub Enameled Cast Iron Traditional Fry Pan, 12\", Cherry"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/img12c.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Staub Enameled Cast Iron Traditional Fry Pan, 12\", Cherry"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "13344382564729065351",
+    "name": "Le Creuset Enamel On Steel Demi Tea Kettle, 1.25 Quart, Sea Salt",
+    "shortName": "Le Creuset Enamel On Steel Demi Tea Kettle, 1.25 Quart, Sea Salt",
+    "primaryGroupId": "le-creuset-demi-kettle",
+    "price": {
+      "regularPrice": 100.0,
+      "surcharge": 0,
+      "retailPrice": 100.0,
+      "sellingPrice": 100.0,
+      "monogramOrPersonalizationPrice": 0.0
+    },
+    "freeShip": true,
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "blue-parent/sea-salt",
+      "pattern": "solid",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "le-creuset-parent/le-creuset",
+      "productType": "tea-kettles",
+      "canGiftWrap": "true",
+      "broiler-safe": "false",
+      "pickupServiceLevels": "[{\"pickupServiceLevel\":\"PICKUP_INTERNAL\",\"pickupInternal\":true}]",
+      "collection": "le-creuset-enamel-on-steel",
+      "allProductTypes": "tea-kettles",
+      "material": "enamel-on-steel",
+      "isShoppable": "true",
+      "shippingDestinationServiceCode": "[{\"destinationServiceCode\":\"UPSAP\",\"upsapEligible\":true}]",
+      "name": "Le Creuset Enamel On Steel Demi Tea Kettle, 1.25 Quart, Sea Salt",
+      "shortName": "Le Creuset Enamel On Steel Demi Tea Kettle, 1.25 Quart, Sea Salt"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/lc_demi_seasalt.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Le Creuset Enamel On Steel Demi Tea Kettle, 1.25 Quart, Sea Salt"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "5483103364487949759",
+    "name": "MacKenzie-Childs Mocha Check Whistling Tea Kettle, 2 Quart",
+    "shortName": "MacKenzie-Childs Mocha Check Whistling Tea Kettle, 2 Quart",
+    "primaryGroupId": "mackenzie-childs-tea-kettle",
+    "price": {
+      "regularPrice": 150.0,
+      "surcharge": 0,
+      "retailPrice": 150.0,
+      "sellingPrice": 150.0,
+      "monogramOrPersonalizationPrice": 0.0
+    },
+    "freeShip": true,
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "brown-parent/mocha-check",
+      "pattern": "check",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "mackenzie-childs-parent/mackenzie-childs",
+      "productType": "tea-kettles",
+      "canGiftWrap": "true",
+      "broiler-safe": "false",
+      "pickupServiceLevels": "[{\"pickupServiceLevel\":\"PICKUP_INTERNAL\",\"pickupInternal\":true}]",
+      "collection": "mackenzie-childs-enamelware",
+      "allProductTypes": "tea-kettles",
+      "material": "enamel-on-steel",
+      "isShoppable": "true",
+      "shippingDestinationServiceCode": "[{\"destinationServiceCode\":\"UPSAP\",\"upsapEligible\":true}]",
+      "name": "MacKenzie-Childs Mocha Check Whistling Tea Kettle, 2 Quart",
+      "shortName": "MacKenzie-Childs Mocha Check Whistling Tea Kettle, 2 Quart"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/mc_mocha_kettle.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "MacKenzie-Childs Mocha Check Whistling Tea Kettle, 2 Quart"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "7558162896730183670",
+    "name": "Le Creuset Enameled Cast Iron Fondue Pot, 2.5-Qt., Cerise",
+    "shortName": "Le Creuset Enameled Cast Iron Fondue Pot, 2.5-Qt., Cerise",
+    "primaryGroupId": "le-creuset-fondue-set",
+    "price": {
+      "regularPrice": 400.0,
+      "surcharge": 0,
+      "retailPrice": 400.0,
+      "sellingPrice": 400.0,
+      "monogramOrPersonalizationPrice": 0.0
+    },
+    "freeShip": true,
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "red-parent/cerise",
+      "pattern": "solid",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "le-creuset-parent/le-creuset",
+      "productType": "fondue-sets",
+      "canGiftWrap": "true",
+      "broiler-safe": "true",
+      "pickupServiceLevels": "[{\"pickupServiceLevel\":\"PICKUP_INTERNAL\",\"pickupInternal\":true}]",
+      "collection": "le-creuset-cast-iron",
+      "allProductTypes": "fondue-sets",
+      "material": "enameled-cast-iron",
+      "isShoppable": "true",
+      "shippingDestinationServiceCode": "[{\"destinationServiceCode\":\"UPSAP\",\"upsapEligible\":true}]",
+      "name": "Le Creuset Enameled Cast Iron Fondue Pot, 2.5-Qt., Cerise",
+      "shortName": "Le Creuset Enameled Cast Iron Fondue Pot, 2.5-Qt., Cerise"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/lc_fondue_cerise.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Le Creuset Enameled Cast Iron Fondue Pot, 2.5-Qt., Cerise"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "7401559767048109629",
+    "name": "Le Creuset Stoneware Heritage Rectangular Dish, 2.5 qt., Cerise",
+    "shortName": "Le Creuset Stoneware Heritage Rectangular Dish, 2.5 qt., Cerise",
+    "primaryGroupId": "le-creuset-heritage-bakeware",
+    "price": {
+      "regularPrice": 70.0,
+      "surcharge": 0,
+      "retailPrice": 70.0,
+      "sellingPrice": 70.0,
+      "monogramOrPersonalizationPrice": 0.0
+    },
+    "freeShip": true,
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "red-parent/cerise",
+      "pattern": "solid",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "le-creuset-parent/le-creuset",
+      "productType": "bakeware-dishes",
+      "canGiftWrap": "true",
+      "broiler-safe": "true",
+      "pickupServiceLevels": "[{\"pickupServiceLevel\":\"PICKUP_INTERNAL\",\"pickupInternal\":true}]",
+      "collection": "le-creuset-stoneware",
+      "allProductTypes": "bakeware-dishes",
+      "material": "stoneware",
+      "isShoppable": "true",
+      "shippingDestinationServiceCode": "[{\"destinationServiceCode\":\"UPSAP\",\"upsapEligible\":true}]",
+      "name": "Le Creuset Stoneware Heritage Rectangular Dish, 2.5 qt., Cerise",
+      "shortName": "Le Creuset Stoneware Heritage Rectangular Dish, 2.5 qt., Cerise"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/lc_heritage_rect_cerise.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Le Creuset Stoneware Heritage Rectangular Dish, 2.5 qt., Cerise"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "1530236715545116870",
+    "name": "Le Creuset Stoneware Heritage Oval Fish Baker, 1 3/4 Qt., Sea Salt",
+    "shortName": "Le Creuset Stoneware Heritage Oval Fish Baker, 1 3/4 Qt., Sea Salt",
+    "primaryGroupId": "le-creuset-fish-baker",
+    "price": {
+      "regularPrice": 135.0,
+      "surcharge": 0,
+      "retailPrice": 135.0,
+      "sellingPrice": 135.0,
+      "monogramOrPersonalizationPrice": 0.0
+    },
+    "freeShip": true,
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "blue-parent/sea-salt",
+      "pattern": "solid",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "le-creuset-parent/le-creuset",
+      "productType": "bakeware-dishes",
+      "canGiftWrap": "true",
+      "broiler-safe": "true",
+      "pickupServiceLevels": "[{\"pickupServiceLevel\":\"PICKUP_INTERNAL\",\"pickupInternal\":true}]",
+      "collection": "le-creuset-stoneware",
+      "allProductTypes": "bakeware-dishes",
+      "material": "stoneware",
+      "isShoppable": "true",
+      "shippingDestinationServiceCode": "[{\"destinationServiceCode\":\"UPSAP\",\"upsapEligible\":true}]",
+      "name": "Le Creuset Stoneware Heritage Oval Fish Baker, 1 3/4 Qt., Sea Salt",
+      "shortName": "Le Creuset Stoneware Heritage Oval Fish Baker, 1 3/4 Qt., Sea Salt"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/lc_fish_baker_seasalt.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Le Creuset Stoneware Heritage Oval Fish Baker, 1 3/4 Qt., Sea Salt"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "14039038606881310834",
+    "name": "Mauviel M'Heritage 150b Copper Crêpe Pan, 11.8\", Brass Handle",
+    "shortName": "Mauviel M'Heritage 150b Copper Crêpe Pan, 11.8\", Brass Handle",
+    "primaryGroupId": "mauviel-m-heritage-crepe",
+    "price": {
+      "regularPrice": 380.0,
+      "surcharge": 0,
+      "retailPrice": 380.0,
+      "sellingPrice": 380.0,
+      "monogramOrPersonalizationPrice": 0.0
+    },
+    "freeShip": true,
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "copper-parent/polished-copper",
+      "pattern": "solid",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "mauviel-parent/mauviel",
+      "productType": "fry-pans-skillets",
+      "canGiftWrap": "true",
+      "broiler-safe": "true",
+      "pickupServiceLevels": "[{\"pickupServiceLevel\":\"PICKUP_INTERNAL\",\"pickupInternal\":true}]",
+      "collection": "mauviel-m-heritage",
+      "allProductTypes": "fry-pans-skillets",
+      "material": "copper",
+      "isShoppable": "true",
+      "shippingDestinationServiceCode": "[{\"destinationServiceCode\":\"UPSAP\",\"upsapEligible\":true}]",
+      "name": "Mauviel M'Heritage 150b Copper Crêpe Pan, 11.8\", Brass Handle",
+      "shortName": "Mauviel M'Heritage 150b Copper Crêpe Pan, 11.8\", Brass Handle"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/mauviel_crepe_brass.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Mauviel M'Heritage 150b Copper Crêpe Pan, 11.8\", Brass Handle"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "1828572353861453579",
+    "name": "Le Creuset Enameled Cast Iron Signature Round Dutch Oven, 4.5 qt., Caribbean",
+    "shortName": "Le Creuset Enameled Cast Iron Signature Round Dutch Oven, 4.5 qt., Caribbean",
+    "primaryGroupId": "le-creuset-signature-dutch-oven",
+    "price": {
+      "regularPrice": 350.0,
+      "surcharge": 0,
+      "retailPrice": 350.0,
+      "sellingPrice": 350.0,
+      "monogramOrPersonalizationPrice": 0.0
+    },
+    "freeShip": true,
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "blue-parent/caribbean",
+      "pattern": "solid",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "le-creuset-parent/le-creuset",
+      "productType": "dutch-ovens-braisers",
+      "canGiftWrap": "true",
+      "broiler-safe": "true",
+      "pickupServiceLevels": "[{\"pickupServiceLevel\":\"PICKUP_INTERNAL\",\"pickupInternal\":true}]",
+      "collection": "le-creuset-cast-iron",
+      "allProductTypes": "dutch-ovens-braisers",
+      "material": "enameled-cast-iron",
+      "isShoppable": "true",
+      "shippingDestinationServiceCode": "[{\"destinationServiceCode\":\"UPSAP\",\"upsapEligible\":true}]",
+      "name": "Le Creuset Enameled Cast Iron Signature Round Dutch Oven, 4.5 qt., Caribbean",
+      "shortName": "Le Creuset Enameled Cast Iron Signature Round Dutch Oven, 4.5 qt., Caribbean"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/lc_dutch45_caribbean.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Le Creuset Enameled Cast Iron Signature Round Dutch Oven, 4.5 qt., Caribbean"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },{
+    "id": "1894235715545116870",
+    "name": "Ruffoni Historia Hammered Copper Belly Stock Pot with Pineapple Knob, 5.5-Qt.",
+    "shortName": "Ruffoni Historia Hammered Copper Belly Stock Pot with Pineapple Knob, 5.5-Qt.",
+    "primaryGroupId": "ruffoni-historia-stockpot",
+    "price": {
+      "regularPrice": 545.0,
+      "surcharge": 0,
+      "retailPrice": 545.0,
+      "sellingPrice": 545.0,
+      "monogramOrPersonalizationPrice": 0.0
+    },
+    "freeShip": true,
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "copper-parent/copper",
+      "pattern": "hammered",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "ruffoni-parent/ruffoni",
+      "productType": "stock-pots",
+      "canGiftWrap": "true",
+      "broiler-safe": "true",
+      "pickupServiceLevels": "[{\"pickupServiceLevel\":\"PICKUP_INTERNAL\",\"pickupInternal\":true}]",
+      "collection": "ruffoni-historia",
+      "allProductTypes": "stock-pots",
+      "material": "copper",
+      "isShoppable": "true",
+      "shippingDestinationServiceCode": "[{\"destinationServiceCode\":\"UPSAP\",\"upsapEligible\":true}]",
+      "name": "Ruffoni Historia Hammered Copper Belly Stock Pot with Pineapple Knob, 5.5-Qt.",
+      "shortName": "Ruffoni Historia Hammered Copper Belly Stock Pot with Pineapple Knob, 5.5-Qt."
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/ruffoni_historia_pineapple_55.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Ruffoni Historia Hammered Copper Belly Stock Pot with Pineapple Knob, 5.5-Qt."
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "11579396062175085571",
+    "name": "Staub Enameled Cast Iron Deep Oven, 3-Qt., Cherry",
+    "shortName": "Staub Enameled Cast Iron Deep Oven, 3-Qt., Cherry",
+    "primaryGroupId": "staub-deep-oven",
+    "price": {
+      "regularPrice": 310.0,
+      "surcharge": 0,
+      "retailPrice": 310.0,
+      "sellingPrice": 310.0,
+      "monogramOrPersonalizationPrice": 0.0
+    },
+    "freeShip": true,
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "red-parent/cherry",
+      "pattern": "solid",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "staub-parent/staub",
+      "productType": "dutch-ovens-braisers",
+      "canGiftWrap": "true",
+      "broiler-safe": "true",
+      "pickupServiceLevels": "[{\"pickupServiceLevel\":\"PICKUP_INTERNAL\",\"pickupInternal\":true}]",
+      "collection": "staub-cast-iron",
+      "allProductTypes": "dutch-ovens-braisers",
+      "material": "enameled-cast-iron",
+      "isShoppable": "true",
+      "shippingDestinationServiceCode": "[{\"destinationServiceCode\":\"UPSAP\",\"upsapEligible\":true}]",
+      "name": "Staub Enameled Cast Iron Deep Oven, 3-Qt., Cherry",
+      "shortName": "Staub Enameled Cast Iron Deep Oven, 3-Qt., Cherry"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/staub_deep_oven_3qt_cherry.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Staub Enameled Cast Iron Deep Oven, 3-Qt., Cherry"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
   }
 ]

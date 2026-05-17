@@ -28,14 +28,19 @@ struct ContentView: View {
                 .badge(cartRepository.items.reduce(0) { $0 + $1.quantity })
                 .tag(WSTab.cart)
         }
-        .tint(.wsCharcoal)
+        .tint(WSRegistryPalette.gold)
         .onAppear {
             let appearance = UITabBarAppearance()
             appearance.configureWithOpaqueBackground()
-            appearance.backgroundColor = UIColor(Color.wsWarmIvory)
-            appearance.shadowColor = UIColor(Color.wsIvoryShadow)
+            appearance.backgroundColor = UIColor(WSRegistryPalette.ivory)
+            appearance.shadowColor = UIColor(WSRegistryPalette.hairline)
             UITabBar.appearance().standardAppearance = appearance
             UITabBar.appearance().scrollEdgeAppearance = appearance
         }
     }
 }
+
+#Preview {
+    ContentView()
+}
+
