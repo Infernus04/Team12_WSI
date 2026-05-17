@@ -22,7 +22,10 @@ struct ContributionSuccessView: View {
                     .font(RegistryTheme.Typography.body).multilineTextAlignment(.center).padding()
                 
                 Spacer()
-                Button("Back to Registry") { presentationMode.wrappedValue.dismiss() }.buttonStyle(PrimaryButtonStyle()).padding()
+                Button("Back to Registry") {
+                    NotificationCenter.default.post(name: NSNotification.Name("PopToRegistryRoot"), object: nil)
+                    presentationMode.wrappedValue.dismiss()
+                }.buttonStyle(PrimaryButtonStyle()).padding()
             }
         }
     }

@@ -102,40 +102,44 @@ struct RegistryAIInsightsView: View {
                 .padding(.horizontal, 20)
             
             VStack(spacing: 12) {
-                insightCard(
+                insightNavigationLink(
                     icon: "sparkles",
                     title: "Help complete their almost-finished dining collection",
                     subtitle: "Only 2 items left in the Citron Collection.",
-                    color: WSRegistryPalette.gold
+                    color: WSRegistryPalette.gold,
+                    destination: HelpCompleteCollectionView()
                 )
                 
-                insightCard(
+                insightNavigationLink(
                     icon: "person.3.fill",
                     title: "4 friends are contributing to the espresso machine",
                     subtitle: "Join the group gift to reach the goal.",
-                    color: WSRegistryPalette.sage
+                    color: WSRegistryPalette.sage,
+                    destination: GroupGiftDetailView()
                 )
                 
-                insightCard(
+                insightNavigationLink(
                     icon: "house.fill",
                     title: "The couple prioritized everyday kitchen essentials",
                     subtitle: "They selected 12 items for daily cooking.",
-                    color: WSRegistryPalette.cocoa
+                    color: WSRegistryPalette.cocoa,
+                    destination: HelpCompleteCollectionView()
                 )
                 
-                insightCard(
+                insightNavigationLink(
                     icon: "heart.text.square.fill",
                     title: "This hosting collection is 82% complete",
                     subtitle: "Add the final touches for their first dinner party.",
-                    color: WSRegistryPalette.espresso
+                    color: WSRegistryPalette.espresso,
+                    destination: HelpCompleteCollectionView()
                 )
             }
             .padding(.horizontal, 20)
         }
     }
     
-    private func insightCard(icon: String, title: String, subtitle: String, color: Color) -> some View {
-        Button(action: {}) {
+    private func insightNavigationLink<Destination: View>(icon: String, title: String, subtitle: String, color: Color, destination: Destination) -> some View {
+        NavigationLink(destination: destination) {
             HStack(spacing: 16) {
                 Image(systemName: icon)
                     .font(.system(size: 20))

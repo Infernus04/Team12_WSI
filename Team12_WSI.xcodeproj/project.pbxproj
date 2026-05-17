@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		91CA708D2FB870CD00FB4A33 /* GoogleGenerativeAI in Frameworks */ = {isa = PBXBuildFile; productRef = 91CA708C2FB870CD00FB4A33 /* GoogleGenerativeAI */; };
+		1980938D2FB9DB9F00EC2EAC /* GoogleGenerativeAI in Frameworks */ = {isa = PBXBuildFile; productRef = 1980938C2FB9DB9F00EC2EAC /* GoogleGenerativeAI */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,7 +27,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				91CA708D2FB870CD00FB4A33 /* GoogleGenerativeAI in Frameworks */,
+				1980938D2FB9DB9F00EC2EAC /* GoogleGenerativeAI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -70,7 +70,7 @@
 			);
 			name = Team12_WSI;
 			packageProductDependencies = (
-				91CA708C2FB870CD00FB4A33 /* GoogleGenerativeAI */,
+				1980938C2FB9DB9F00EC2EAC /* GoogleGenerativeAI */,
 			);
 			productName = Team12_WSI;
 			productReference = 91CA701F2FB83E7F00FB4A33 /* Team12_WSI.app */;
@@ -101,7 +101,7 @@
 			mainGroup = 91CA70162FB83E7F00FB4A33;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				91CA708B2FB870CD00FB4A33 /* XCRemoteSwiftPackageReference "generative-ai-swift" */,
+				1980938B2FB9DB9F00EC2EAC /* XCRemoteSwiftPackageReference "generative-ai-swift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 91CA70202FB83E7F00FB4A33 /* Products */;
@@ -339,7 +339,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		91CA708B2FB870CD00FB4A33 /* XCRemoteSwiftPackageReference "generative-ai-swift" */ = {
+		1980938B2FB9DB9F00EC2EAC /* XCRemoteSwiftPackageReference "generative-ai-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/google/generative-ai-swift";
 			requirement = {
@@ -350,9 +350,9 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		91CA708C2FB870CD00FB4A33 /* GoogleGenerativeAI */ = {
+		1980938C2FB9DB9F00EC2EAC /* GoogleGenerativeAI */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 91CA708B2FB870CD00FB4A33 /* XCRemoteSwiftPackageReference "generative-ai-swift" */;
+			package = 1980938B2FB9DB9F00EC2EAC /* XCRemoteSwiftPackageReference "generative-ai-swift" */;
 			productName = GoogleGenerativeAI;
 		};
 /* End XCSwiftPackageProductDependency section */
