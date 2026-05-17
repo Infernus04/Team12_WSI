@@ -210,7 +210,7 @@ private struct SearchProductCard: View {
         VStack(alignment: .leading, spacing: 0) {
             CustomAsyncImage(url: product.imageURL)
                 .frame(maxWidth: .infinity)
-                .aspectRatio(0.85, contentMode: .fit)
+                .frame(height: 190)   // Fixed height — uniform across all cards
                 .clipped()
 
             VStack(alignment: .leading, spacing: 4) {
@@ -218,6 +218,7 @@ private struct SearchProductCard: View {
                     .font(.wsBody(size: 12))
                     .foregroundColor(.wsCharcoal)
                     .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
                     .padding(.top, 8)
 
                 if let price = product.price {
@@ -225,9 +226,12 @@ private struct SearchProductCard: View {
                         .font(.system(size: 12, weight: .semibold))
                         .foregroundColor(.wsCrimson)
                 }
+
+                Spacer().frame(height: 4)
             }
-            .padding(.horizontal, 8)
-            .padding(.bottom, 10)
+            .padding(.horizontal, 10)
+            .padding(.bottom, 12)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
         .background(Color.white)
         .cornerRadius(2)

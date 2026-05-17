@@ -37,6 +37,10 @@ struct RegistryView: View {
     @EnvironmentObject var cartRepo: CartRepository
     @EnvironmentObject var tabBarVM: WSTabBarViewModel
 
+    // TEMP DEMO ENTRY POINT FOR RECEIVER FLOW
+    // Remove this @State or replace with deep-link / iMessage share navigation later.
+    @State private var showReceiverFlowDemo = false
+
     var body: some View {
         NavigationStack(path: $tabBarVM.registryPath) {
             ZStack {
@@ -95,6 +99,12 @@ struct RegistryView: View {
                 case .categoryProducts(let title):
                     RegistryCategoryProductsView(sectionTitle: title)
                 }
+            }
+        }
+        // TEMP DEMO ENTRY POINT FOR RECEIVER FLOW
+        .fullScreenCover(isPresented: $showReceiverFlowDemo) {
+            NavigationView {
+                RegistryLandingView()
             }
         }
         .onAppear {
@@ -333,7 +343,59 @@ private extension RegistryView {
             ) {
                 tabBarVM.registryPath.append(RegistryRoute.pastRegistries)
             }
+
+            // TEMP DEMO ENTRY POINT FOR RECEIVER FLOW
+            // This button can be removed or replaced with deep-link / iMessage share navigation later.
+            receiverFlowDemoButton
         }
+    }
+
+    // MARK: - Receiver Flow Demo Entry Point
+    // TEMP DEMO ENTRY POINT FOR RECEIVER FLOW
+    private var receiverFlowDemoButton: some View {
+        Button {
+            showReceiverFlowDemo = true
+        } label: {
+            HStack(spacing: 14) {
+                Image(systemName: "gift.fill")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundStyle(WSRegistryPalette.gold)
+                    .frame(width: 42, height: 42)
+                    .background(
+                        WSRegistryPalette.gold.opacity(0.13),
+                        in: RoundedRectangle(cornerRadius: 13, style: .continuous)
+                    )
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Trial Receiver Side View")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(WSRegistryPalette.espresso)
+                    Text("Preview the guest registry experience")
+                        .font(.system(size: 13, weight: .regular))
+                        .foregroundStyle(WSRegistryPalette.warmGray)
+                        .lineLimit(2)
+                }
+
+                Spacer(minLength: 10)
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundStyle(WSRegistryPalette.warmGray.opacity(0.65))
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 14)
+            .frame(maxWidth: .infinity, minHeight: 72, alignment: .leading)
+            .background(
+                WSRegistryPalette.porcelain,
+                in: RoundedRectangle(cornerRadius: 18, style: .continuous)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 19, style: .continuous)
+                    .stroke(WSRegistryPalette.gold.opacity(0.28), lineWidth: 1)
+            )
+            .shadow(color: WSRegistryPalette.espresso.opacity(0.05), radius: 12, x: 0, y: 6)
+        }
+        .buttonStyle(.plain)
     }
 
     func actionRow(icon: String, title: String, subtitle: String, action: @escaping () -> Void = {}) -> some View {

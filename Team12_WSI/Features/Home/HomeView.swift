@@ -10,16 +10,19 @@ struct HomeView: View {
     @State private var selectedProduct: ProductItem?
     @State private var showSearch = false
     @State private var showConcierge = false
-    @State private var showAIExplanation = false
     @State private var showMoodboard = false
     @State private var selectedArticle: EditorialArticle?
     @State private var expandedSceneID: UUID?
     @State private var expandedBundleID: UUID?
+    @State private var selectedBundle: AestheticBundle?
+    @State private var selectedScene: LifestyleScene?     // For Your Home navigation
     @State private var heroPage = 0
     @State private var conciergeScale: CGFloat = 1.0
     @State private var s1On = false; @State private var s2On = false
     @State private var s4On = false; @State private var s5On = false
     @State private var s6On = false; @State private var s8On = false
+    // Hero CTA navigation
+    @State private var showHeroCollection = false
 
     private let heroMoods = SeasonalContextEngine.heroMoods()
 
@@ -62,7 +65,27 @@ struct HomeView: View {
         .sheet(isPresented: $showMoodboard) {
             NavigationStack { MoodboardView(allProducts: viewModel.products) }
         }
-        .sheet(isPresented: $showAIExplanation) { aiExplainSheet }
+        .sheet(isPresented: $showHeroCollection) {
+            HomeSearchView(allProducts: viewModel.products, onSelectProduct: { selectedProduct = $0 })
+        }
+        .fullScreenCover(item: $selectedBundle) { bundle in
+            BundleDetailView(
+                bundle: bundle,
+                products: viewModel.bundleProducts(for: bundle),
+                onSelectProduct: { selectedProduct = $0 },
+                onAddToCart: { viewModel.addToCart($0) },
+                onAddToRegistry: { viewModel.addToRegistry($0) }
+            )
+        }
+        .fullScreenCover(item: $selectedScene) { scene in
+            LifestyleSceneDetailView(
+                scene: scene,
+                allProducts: viewModel.products,
+                onSelectProduct: { selectedProduct = $0 },
+                onAddToCart: { viewModel.addToCart($0) },
+                onAddToRegistry: { viewModel.addToRegistry($0) }
+            )
+        }
         .onAppear {
             Task { viewModel.bind(cartRepository: cartRepository, registryRepository: registryRepository); await viewModel.fetchProducts() }
             withAnimation(.easeInOut(duration: 1.4).repeatForever(autoreverses: true)) { conciergeScale = 1.08 }
@@ -101,39 +124,79 @@ struct HomeView: View {
 
     // MARK: Section 1 — Hero
     private var heroSection: some View {
-        VStack(spacing: 0) {
-            TabView(selection: $heroPage) {
-                ForEach(heroMoods.indices, id: \.self) { i in
-                    heroCard(mood: heroMoods[i], productIndex: i).tag(i)
-                }
+        TabView(selection: $heroPage) {
+            ForEach(heroMoods.indices, id: \.self) { i in
+                heroCard(mood: heroMoods[i], productIndex: i).tag(i)
             }
-            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .automatic))
-            .frame(height: 480)
         }
+        .tabViewStyle(PageTabViewStyle(indexDisplayMode: .automatic))
+        .frame(height: 500)
+        // Clip so the TabView page dots don't bleed outside
+        .clipped()
     }
 
     private func heroCard(mood: SeasonalMood, productIndex: Int) -> some View {
-        ZStack(alignment: .bottomLeading) {
-            if let url = viewModel.product(at: productIndex)?.imageURL {
-                CustomAsyncImage(url: url).frame(maxWidth: .infinity).frame(height: 480).clipped()
-            } else {
-                LinearGradient(colors: [Color(hex: "#C9C0B3"), Color.wsChampagne], startPoint: .top, endPoint: .bottom).frame(height: 480)
-            }
-            LinearGradient(colors: [.clear, Color.wsCharcoal.opacity(0.72)], startPoint: .center, endPoint: .bottom).frame(height: 480)
-            VStack(alignment: .leading, spacing: 14) {
-                Text("THE SEASONAL MOOD").font(.wsLabel(size: 9)).tracking(2).foregroundColor(.wsMutedBrass)
-                Text(mood.headline).font(.wsDisplay(size: 34)).foregroundColor(.white).lineSpacing(3)
-                Text(mood.subtitle).font(.wsSerif(size: 15)).foregroundColor(.white.opacity(0.8))
-                Button(action: {}) {
-                    Text(mood.cta).font(.wsLabel(size: 11)).tracking(1.5)
-                        .padding(.horizontal, 22).padding(.vertical, 13)
-                        .background(Color.white).foregroundColor(.wsCharcoal)
+        GeometryReader { geo in
+            ZStack(alignment: .bottomLeading) {
+                // Background image fills the card exactly
+                Group {
+                    if let url = viewModel.product(at: productIndex)?.imageURL {
+                        CustomAsyncImage(url: url)
+                            .frame(width: geo.size.width, height: geo.size.height)
+                            .clipped()
+                    } else {
+                        LinearGradient(
+                            colors: [Color(hex: "#C9C0B3"), Color.wsChampagne],
+                            startPoint: .top, endPoint: .bottom
+                        )
+                        .frame(width: geo.size.width, height: geo.size.height)
+                    }
                 }
-                .padding(.top, 4)
+
+                // Scrim gradient
+                LinearGradient(
+                    colors: [.clear, Color.wsCharcoal.opacity(0.75)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .frame(width: geo.size.width, height: geo.size.height)
+
+                // Text + CTA — fixed to bottom-left, consistent across all cards
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("THE SEASONAL MOOD")
+                        .font(.wsLabel(size: 9))
+                        .tracking(2)
+                        .foregroundColor(.wsMutedBrass)
+
+                    Text(mood.headline)
+                        .font(.wsDisplay(size: 32))
+                        .foregroundColor(.white)
+                        .lineSpacing(3)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    Text(mood.subtitle)
+                        .font(.wsSerif(size: 14))
+                        .foregroundColor(.white.opacity(0.85))
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    Button(action: { showHeroCollection = true }) {
+                        Text(mood.cta)
+                            .font(.wsLabel(size: 11))
+                            .tracking(1.5)
+                            .foregroundColor(.wsCharcoal)
+                            .padding(.horizontal, 22)
+                            .padding(.vertical, 13)
+                            .background(Color.white)
+                    }
+                    .padding(.top, 6)
+                }
+                .padding(.horizontal, 28)
+                .padding(.bottom, 40)
+                .frame(width: geo.size.width, alignment: .leading)
             }
-            .padding(30)
         }
-        .onLongPressGesture { showAIExplanation = true }
+        // GeometryReader needs an explicit height or it collapses
+        .frame(height: 500)
     }
 
     // MARK: Section 2 — For Your Home
@@ -149,7 +212,12 @@ struct HomeView: View {
             .padding(.horizontal, 20)
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 18) {
-                    ForEach(HomeEditorialData.scenes) { scene in sceneCard(scene) }
+                    ForEach(HomeEditorialData.scenes) { scene in
+                        Button(action: { selectedScene = scene }) {
+                            sceneCard(scene)
+                        }
+                        .buttonStyle(.plain)
+                    }
                 }
                 .padding(.horizontal, 20)
             }
@@ -214,39 +282,97 @@ struct HomeView: View {
     }
 
     private func bundleCard(_ bundle: AestheticBundle) -> some View {
-        VStack(alignment: .leading, spacing: 14) {
-            // 2x2 image grid
-            let prods = viewModel.bundleProducts(for: bundle)
-            LazyVGrid(columns: [GridItem(.flexible(), spacing: 3), GridItem(.flexible(), spacing: 3)], spacing: 3) {
-                ForEach(prods.prefix(4)) { p in
-                    CustomAsyncImage(url: p.imageURL).frame(width: 128, height: 128).clipped()
-                }
-                if prods.count < 4 {
-                    ForEach(0..<(4-prods.count), id: \.self) { _ in Rectangle().fill(Color.wsChampagne).frame(width: 128, height: 128) }
-                }
-            }
-            .frame(width: 262).cornerRadius(2)
-            .overlay(alignment: .topTrailing) {
-                Text("\(bundle.compatibilityScore)% MATCH").font(.wsLabel(size: 9)).tracking(0.5).foregroundColor(.white)
-                    .padding(.horizontal, 8).padding(.vertical, 5).background(Color.wsMutedBrass).padding(10)
-            }
+        let prods = viewModel.bundleProducts(for: bundle)
+        return VStack(alignment: .leading, spacing: 14) {
+            // 2x2 image grid — tappable → BundleDetailView
+            Button(action: { selectedBundle = bundle }) {
+                ZStack(alignment: .topTrailing) {
+                    LazyVGrid(
+                        columns: [GridItem(.fixed(129), spacing: 3), GridItem(.fixed(129), spacing: 3)],
+                        spacing: 3
+                    ) {
+                        ForEach(prods.prefix(4)) { p in
+                            CustomAsyncImage(url: p.imageURL)
+                                .frame(width: 129, height: 129)
+                                .clipped()
+                        }
+                        if prods.count < 4 {
+                            ForEach(0..<(4 - prods.count), id: \.self) { _ in
+                                Rectangle().fill(Color.wsChampagne).frame(width: 129, height: 129)
+                            }
+                        }
+                    }
+                    .frame(width: 261)
+                    .cornerRadius(2)
 
-            VStack(alignment: .leading, spacing: 6) {
-                Text(bundle.title).font(.wsSerif(size: 16, weight: .semibold)).foregroundColor(.wsCharcoal)
-                Text(bundle.description).font(.wsBody(size: 12)).foregroundColor(.wsSecondary).lineLimit(2)
-                Button(action: { withAnimation(.spring()) { expandedBundleID = expandedBundleID == bundle.id ? nil : bundle.id } }) {
-                    HStack(spacing: 5) { Image(systemName: "sparkles").font(.system(size: 9)); Text("WHY THIS WORKS").font(.wsLabel(size: 9)).tracking(0.5) }.foregroundColor(.wsMutedBrass)
+                    Text("\(bundle.compatibilityScore)% MATCH")
+                        .font(.wsLabel(size: 9))
+                        .tracking(0.5)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 5)
+                        .background(Color.wsMutedBrass)
+                        .padding(10)
                 }
+            }
+            .buttonStyle(.plain)
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text(bundle.title)
+                    .font(.wsSerif(size: 16, weight: .semibold))
+                    .foregroundColor(.wsCharcoal)
+
+                Text(bundle.description)
+                    .font(.wsBody(size: 12))
+                    .foregroundColor(.wsSecondary)
+                    .lineLimit(2)
+
+                Button(action: {
+                    withAnimation(.spring()) {
+                        expandedBundleID = expandedBundleID == bundle.id ? nil : bundle.id
+                    }
+                }) {
+                    HStack(spacing: 5) {
+                        Image(systemName: "info.circle")
+                            .font(.system(size: 9))
+                        Text("WHY THIS WORKS")
+                            .font(.wsLabel(size: 9))
+                            .tracking(0.5)
+                    }
+                    .foregroundColor(.wsMutedBrass)
+                }
+
                 if expandedBundleID == bundle.id {
-                    Text(bundle.aiReason).font(.wsBody(size: 12)).foregroundColor(.wsSecondary).lineSpacing(3).transition(.opacity)
+                    Text(bundle.aiReason)
+                        .font(.wsBody(size: 12))
+                        .foregroundColor(.wsSecondary)
+                        .lineSpacing(3)
+                        .transition(.opacity)
                 }
-                Button(action: { viewModel.addBundleToCart(bundle) }) {
-                    Text("ADD BUNDLE").font(.wsLabel(size: 11)).tracking(1.5).foregroundColor(.wsCharcoal)
-                        .frame(width: 262, height: 38).overlay(Rectangle().stroke(Color.wsCharcoal, lineWidth: 1))
+
+                HStack(spacing: 8) {
+                    Button(action: { viewModel.addBundleToCart(bundle) }) {
+                        Text("ADD ALL")
+                            .font(.wsLabel(size: 11))
+                            .tracking(1.5)
+                            .foregroundColor(.wsCharcoal)
+                            .frame(maxWidth: .infinity, minHeight: 38)
+                            .overlay(Rectangle().stroke(Color.wsCharcoal, lineWidth: 1))
+                    }
+
+                    Button(action: { selectedBundle = bundle }) {
+                        Text("VIEW")
+                            .font(.wsLabel(size: 11))
+                            .tracking(1.5)
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity, minHeight: 38)
+                            .background(Color.wsCharcoal)
+                    }
                 }
+                .frame(width: 261)
             }
         }
-        .frame(width: 262)
+        .frame(width: 261)
     }
 
     // MARK: Section 5 — AI Moodboard Teaser
@@ -297,7 +423,15 @@ struct HomeView: View {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Editorial Intelligence").font(.wsDisplay(size: 24)).foregroundColor(.wsCharcoal)
-                    HStack(spacing: 5) { Image(systemName: "sparkles").font(.system(size: 9)).foregroundColor(.wsMutedBrass); Text("CURATED BY AURA AI").font(.wsLabel(size: 9)).tracking(1).foregroundColor(.wsMutedBrass) }
+                    HStack(spacing: 5) {
+                        Image(systemName: "text.page")
+                            .font(.system(size: 9))
+                            .foregroundColor(.wsMutedBrass)
+                        Text("STORIES FROM THE COLLECTION")
+                            .font(.wsLabel(size: 9))
+                            .tracking(1)
+                            .foregroundColor(.wsMutedBrass)
+                    }
                 }
                 Spacer()
             }
@@ -313,29 +447,75 @@ struct HomeView: View {
     }
 
     private func editorialCard(_ article: EditorialArticle) -> some View {
-        ZStack(alignment: .bottomLeading) {
+        ZStack(alignment: .bottom) {
             if let url = viewModel.product(at: article.productOffset)?.imageURL {
-                CustomAsyncImage(url: url).frame(maxWidth: .infinity).frame(height: 360).clipped().cornerRadius(2)
+                CustomAsyncImage(url: url)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 380)
+                    .clipped()
+                    .cornerRadius(4)
             } else {
-                RoundedRectangle(cornerRadius: 2).fill(Color.wsChampagne).frame(height: 360)
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(Color.wsChampagne)
+                    .frame(height: 380)
             }
-            VStack(alignment: .leading, spacing: 0) {
-                Spacer()
-                VStack(alignment: .leading, spacing: 10) {
-                    HStack(spacing: 8) {
-                        Text(article.category).font(.wsLabel(size: 9)).tracking(2).foregroundColor(.wsMutedBrass)
-                            .padding(.horizontal, 8).padding(.vertical, 4).background(Color.white.opacity(0.15)).cornerRadius(2)
-                        Text(article.readTime).font(.wsBody(size: 11)).foregroundColor(.white.opacity(0.7))
-                    }
-                    Text(article.title).font(.wsSerif(size: 22, weight: .bold)).foregroundColor(.white).lineSpacing(3)
-                    Text(article.subtitle).font(.wsSerif(size: 14)).foregroundColor(.white.opacity(0.8)).italic()
-                    Text("Curated by Aura AI  ✦").font(.wsLabel(size: 9)).tracking(1).foregroundColor(.wsMutedBrass)
+
+            // Stronger scrim for readability — starts at 40% down the card
+            LinearGradient(
+                colors: [
+                    .clear,
+                    Color.black.opacity(0.3),
+                    Color.black.opacity(0.82)
+                ],
+                startPoint: .init(x: 0.5, y: 0.35),
+                endPoint: .bottom
+            )
+            .frame(maxWidth: .infinity)
+            .frame(height: 380)
+            .cornerRadius(4)
+
+            // Text block — opaque dark panel for maximum legibility
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(spacing: 8) {
+                    Text(article.category)
+                        .font(.wsLabel(size: 9))
+                        .tracking(2)
+                        .foregroundColor(.wsMutedBrass)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.black.opacity(0.35))
+                        .cornerRadius(2)
+
+                    Text(article.readTime)
+                        .font(.wsBody(size: 11))
+                        .foregroundColor(.white.opacity(0.75))
                 }
-                .padding(22)
-                .background(.ultraThinMaterial)
+
+                Text(article.title)
+                    .font(.wsSerif(size: 21, weight: .bold))
+                    .foregroundColor(.white)
+                    .lineSpacing(3)
+                    .shadow(color: Color.black.opacity(0.5), radius: 3, x: 0, y: 1)
+
+                Text(article.subtitle)
+                    .font(.wsSerif(size: 13))
+                    .foregroundColor(.white.opacity(0.88))
+                    .italic()
+                    .shadow(color: Color.black.opacity(0.4), radius: 2, x: 0, y: 1)
             }
-            .cornerRadius(2)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 20)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                LinearGradient(
+                    colors: [Color.black.opacity(0), Color.black.opacity(0.55)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .cornerRadius(4)
+            )
         }
+        .cornerRadius(4)
     }
 
     // MARK: Section 8 — Seasonal
@@ -406,7 +586,6 @@ struct HomeView: View {
                         Text(article.subtitle).font(.wsSerif(size: 16)).foregroundColor(.wsSecondary).italic().lineSpacing(4)
                         WSDivider()
                         Text(article.body).font(.wsSerif(size: 15)).foregroundColor(.wsCharcoal).lineSpacing(7)
-                        Text("Curated by Aura AI  ✦").font(.wsLabel(size: 10)).tracking(1).foregroundColor(.wsMutedBrass).padding(.top, 8)
                         WSDivider()
                         Text("Related Products").font(.wsSerif(size: 18, weight: .semibold)).foregroundColor(.wsCharcoal)
                         ScrollView(.horizontal, showsIndicators: false) {
@@ -431,20 +610,7 @@ struct HomeView: View {
         .presentationDetents([.large])
     }
 
-    // MARK: AI Explain Sheet
-    private var aiExplainSheet: some View {
-        ZStack {
-            Color.wsWarmIvory.ignoresSafeArea()
-            VStack(alignment: .leading, spacing: 20) {
-                HStack { HStack(spacing: 6) { Image(systemName: "sparkles").foregroundColor(.wsMutedBrass); Text("AURA AI").font(.wsLabel(size: 10)).tracking(2).foregroundColor(.wsMutedBrass) }; Spacer(); Button(action: { showAIExplanation = false }) { Image(systemName: "xmark").foregroundColor(.wsCharcoal) } }
-                Text("Why This Moment?").font(.wsDisplay(size: 24)).foregroundColor(.wsCharcoal)
-                Text("This hero was generated from your warm aesthetic preferences, seasonal context, and browsing history. The mood, imagery, and editorial tone are composed to reflect the living experience you're building — not just products to buy.").font(.wsSerif(size: 15)).foregroundColor(.wsSecondary).lineSpacing(5)
-                Spacer()
-            }
-            .padding(30)
-        }
-        .presentationDetents([.medium])
-    }
+    // AI Explain Sheet removed per design decision
 }
 
 struct HomeView_Previews: PreviewProvider {
