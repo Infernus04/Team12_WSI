@@ -135,3 +135,39 @@ struct WSGhostButtonStyle: ButtonStyle {
             .scaleEffect(configuration.isPressed ? 0.97 : 1.0)
     }
 }
+
+// MARK: - Parallax Hero Image
+// Reusable component — produces native iOS "image flooding" on overscroll
+// and a subtle parallax as the user scrolls up. Drop this inside a ScrollView.
+
+struct ParallaxHeroImage: View {
+    let url: URL?
+    /// Visible container height (e.g. 420). The image itself is rendered taller
+    /// to provide parallax headroom; `parallaxFactor` controls how much.
+    var height: CGFloat = 420
+    /// 0.0 = no parallax, 0.5 = image moves at half scroll speed (recommended: 0.35–0.45)
+    var parallaxFactor: CGFloat = 0.40
+
+    var body: some View {
+        GeometryReader { geo in
+            let minY = geo.frame(in: .global).minY
+            // Extra height added so the image never shows a gap during parallax scroll
+            let parallaxHeadroom = height * parallaxFactor
+            // When pulling down (minY > 0): rubber-band — image grows to flood the gap
+            // When scrolling up (minY < 0): image moves up at (parallaxFactor) speed
+            let extraHeight = minY > 0 ? minY : 0
+            let offsetY: CGFloat = minY > 0
+                ? -minY                        // Anchor top edge on pull-down
+                : minY * parallaxFactor        // Slow upward parallax on scroll
+
+            CustomAsyncImage(url: url)
+                .frame(maxWidth: .infinity)
+                .frame(height: height + parallaxHeadroom + extraHeight)
+                .clipped()
+                .offset(y: offsetY)
+        }
+        .frame(height: height)
+        // Clip the GeometryReader container so extra height doesn't bleed
+        .clipped()
+    }
+}

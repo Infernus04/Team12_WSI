@@ -12,6 +12,7 @@ struct Team12_WSIApp: App {
     @StateObject private var cartRepository = CartRepository()
     @StateObject private var registryRepository = RegistryRepository()
     @StateObject private var tabBarViewModel = WSTabBarViewModel()
+    @StateObject private var saveForLaterRepository = SaveForLaterRepository()
     
     var body: some Scene {
         WindowGroup {
@@ -19,6 +20,10 @@ struct Team12_WSIApp: App {
                 .environmentObject(cartRepository)
                 .environmentObject(registryRepository)
                 .environmentObject(tabBarViewModel)
+                .environmentObject(saveForLaterRepository)
+                .onAppear {
+                    registryRepository.loadPersistedState()
+                }
         }
     }
 }

@@ -13,20 +13,28 @@ enum RegistryRoute: Hashable {
     case details
     case findRegistry
     case pastRegistries
-    case existingRegistryDetails
+    case existingRegistryDetails(UUID)
     case categoryProducts(String)
+    case recommendations(RegistryQuestionnairePayload)
+    case chronicle
+    case activity
+}
+
+private enum RegistryOrigin: String, Hashable {
+    case own = "Mine"
+    case participated = "Participated"
 }
 
 enum WSRegistryPalette {
-    static let ivory = Color(red: 0.975, green: 0.956, blue: 0.922)
-    static let cream = Color(red: 0.992, green: 0.984, blue: 0.962)
-    static let porcelain = Color(red: 0.998, green: 0.996, blue: 0.988)
-    static let espresso = Color(red: 0.185, green: 0.125, blue: 0.086)
-    static let cocoa = Color(red: 0.355, green: 0.260, blue: 0.188)
-    static let gold = Color(red: 0.680, green: 0.545, blue: 0.285)
-    static let sage = Color(red: 0.475, green: 0.545, blue: 0.420)
-    static let warmGray = Color(red: 0.500, green: 0.470, blue: 0.425)
-    static let hairline = Color(red: 0.855, green: 0.825, blue: 0.770)
+    static let ivory = Color.wsWarmIvory
+    static let cream = Color.wsSurface
+    static let porcelain = Color.wsSurface
+    static let espresso = Color.wsCharcoal
+    static let cocoa = Color.wsSecondary
+    static let gold = Color.wsMutedBrass
+    static let sage = Color(hex: "#6F8768")
+    static let warmGray = Color.wsSecondary
+    static let hairline = Color.wsDivider
 }
 
 struct RegistryView: View {
@@ -37,6 +45,18 @@ struct RegistryView: View {
     @EnvironmentObject var cartRepo: CartRepository
     @EnvironmentObject var tabBarVM: WSTabBarViewModel
 
+    @State private var s1On = false
+    @State private var s2On = false
+    @State private var s3On = false
+    @State private var s4On = false
+    @State private var showActivitySheet = false
+    @State private var showReceiverFlowDemo = false
+    /// Flag set when the user completes gifting and taps "Continue Browsing".
+    /// Checked in onDismiss of the receiver flow to present Browse Registry cleanly.
+    @State private var pendingBrowseAfterGifting = false
+    /// Controls the Browse Registry fullScreenCover (presented from RegistryView root).
+    @State private var showBrowseRegistryFromRoot = false
+
     var body: some View {
         NavigationStack(path: $tabBarVM.registryPath) {
             ZStack {
@@ -46,12 +66,22 @@ struct RegistryView: View {
                 ScrollView(showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 24) {
                         headerSection
-                        heroImage
-                        primaryCTACard
+                            .opacity(s1On ? 1 : 0).offset(y: s1On ? 0 : 16)
+                            .onAppear { withAnimation(.easeOut(duration: 0.5)) { s1On = true } }
+
+                        createRegistryButton
+                            .opacity(s2On ? 1 : 0).offset(y: s2On ? 0 : 20)
+                            .onAppear { withAnimation(.easeOut(duration: 0.5).delay(0.1)) { s2On = true } }
+
                         if viewModel.hasRegistry {
-                            registrySummaryCard
+                            currentRegistriesSection
+                                .opacity(s3On ? 1 : 0).offset(y: s3On ? 0 : 20)
+                                .onAppear { withAnimation(.easeOut(duration: 0.5).delay(0.15)) { s3On = true } }
                         }
+
                         secondaryActions
+                            .opacity(s4On ? 1 : 0).offset(y: s4On ? 0 : 20)
+                            .onAppear { withAnimation(.easeOut(duration: 0.5).delay(0.2)) { s4On = true } }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 18)
@@ -64,18 +94,34 @@ struct RegistryView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
+                        showActivitySheet = true
                     } label: {
-                        Image(systemName: "bell")
-                            .font(.system(size: 17, weight: .semibold))
-                            .foregroundStyle(WSRegistryPalette.espresso)
-                            .frame(width: 36, height: 36)
-                            .background(WSRegistryPalette.porcelain, in: Circle())
-                            .overlay(
+                        ZStack(alignment: .topTrailing) {
+                            Image(systemName: "bell")
+                                .font(.system(size: 17, weight: .semibold))
+                                .foregroundStyle(WSRegistryPalette.espresso)
+                                .frame(width: 36, height: 36)
+                                .background(WSRegistryPalette.porcelain, in: Circle())
+                                .overlay(
+                                    Circle()
+                                        .stroke(WSRegistryPalette.hairline.opacity(0.55), lineWidth: 1)
+                                )
+
+                            if !registryRepo.activities.isEmpty {
                                 Circle()
-                                    .stroke(WSRegistryPalette.hairline.opacity(0.55), lineWidth: 1)
-                            )
+                                    .fill(WSRegistryPalette.gold)
+                                    .frame(width: 10, height: 10)
+                                    .offset(x: 2, y: -1)
+                            }
+                        }
                     }
-                    .accessibilityLabel("Notifications")
+                    .accessibilityLabel("Activity")
+                }
+            }
+            .sheet(isPresented: $showActivitySheet) {
+                NavigationStack {
+                    RegistryActivityView()
+                        .environmentObject(registryRepo)
                 }
             }
             .navigationDestination(for: RegistryRoute.self) { route in
@@ -90,12 +136,48 @@ struct RegistryView: View {
                     FindRegistryView()
                 case .pastRegistries:
                     PastRegistriesView()
-                case .existingRegistryDetails:
-                    ExistingRegistryDetailsView(registry: ExistingRegistry.gayatri)
+                case .existingRegistryDetails(let registryID):
+                    ExistingRegistryDetailsView(registry: ExistingRegistry.lookup(registryID, ownedRegistries: registryRepo.registries))
                 case .categoryProducts(let title):
                     RegistryCategoryProductsView(sectionTitle: title)
+                case .recommendations(let payload):
+                    AURARecommendationReviewView(payload: payload, registryRepo: registryRepo)
+                case .chronicle:
+                    HomeChronicleView()
+                case .activity:
+                    RegistryActivityView()
                 }
             }
+        }
+        // TEMP DEMO ENTRY POINT FOR RECEIVER FLOW
+        .fullScreenCover(isPresented: $showReceiverFlowDemo, onDismiss: {
+            // Called after the RegistryLandingView fullScreenCover has fully animated away.
+            // If the user completed gifting and tapped "Continue Browsing", open Browse
+            // Registry cleanly from RegistryView — no stacked covers, clean back navigation.
+            if pendingBrowseAfterGifting {
+                pendingBrowseAfterGifting = false
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    showBrowseRegistryFromRoot = true
+                }
+            }
+        }) {
+            NavigationView {
+                RegistryLandingView()
+            }
+        }
+        // Browse Registry presented cleanly from RegistryView (root level).
+        // Back chevron dismisses this → returns to RegistryView (the owner tab).
+        .fullScreenCover(isPresented: $showBrowseRegistryFromRoot) {
+            NavigationView {
+                RegistryProductListView()
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("OpenBrowseRegistryFromRoot"))) { _ in
+            // Step 1: Flag that Browse Registry should open after the receiver cover dismisses.
+            pendingBrowseAfterGifting = true
+            // Step 2: Dismiss the receiver landing flow (RegistryLandingView fullScreenCover).
+            // This triggers the onDismiss callback above after the animation completes.
+            showReceiverFlowDemo = false
         }
         .onAppear {
             viewModel.bind(repository: registryRepo)
@@ -106,24 +188,28 @@ struct RegistryView: View {
 private extension RegistryView {
     var headerSection: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text("WILLIAMS SONOMA")
-                .font(.system(size: 14, weight: .semibold, design: .serif))
-                .tracking(1.8)
-                .foregroundStyle(WSRegistryPalette.espresso)
-                .lineLimit(1)
-                .minimumScaleFactor(0.82)
+            HStack(spacing: 8) {
+                Image(systemName: "sparkles")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundStyle(WSRegistryPalette.gold)
+                Text("WILLIAMS SONOMA")
+                    .font(.wsLabel(size: 10))
+                    .tracking(2.2)
+                    .foregroundStyle(WSRegistryPalette.gold)
+            }
 
             VStack(alignment: .leading, spacing: 8) {
-                Text("Home Registry")
-                    .font(.system(size: 39, weight: .regular, design: .serif))
+                Text("Gift Registry")
+                    .font(.wsDisplay(size: 36))
                     .foregroundStyle(WSRegistryPalette.espresso)
                     .lineSpacing(1)
                     .lineLimit(1)
                     .minimumScaleFactor(0.82)
 
-                Text("Build the home you’ll grow into.")
-                    .font(.system(size: 16, weight: .regular))
+                Text("Create, manage, and share registries for every milestone.")
+                    .font(.wsSerif(size: 15))
                     .foregroundStyle(WSRegistryPalette.warmGray)
+                    .lineSpacing(3)
                     .lineLimit(2)
             }
         }
@@ -131,147 +217,242 @@ private extension RegistryView {
         .padding(.top, 4)
     }
 
-    var heroImage: some View {
-        GeometryReader { proxy in
-            Image("giftdna_living_room")
-                .resizable()
-                .scaledToFill()
-                .frame(width: proxy.size.width, height: 218)
-                .clipped()
-                .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-                .shadow(color: WSRegistryPalette.espresso.opacity(0.10), radius: 18, x: 0, y: 10)
-        }
-        .frame(height: 218)
-        .frame(maxWidth: .infinity)
-    }
+    // MARK: - Create Registry Button
 
-    var primaryCTACard: some View {
+    var createRegistryButton: some View {
         Button {
             tabBarVM.registryPath.append(RegistryRoute.create)
         } label: {
-            HStack(spacing: 16) {
-                Image(systemName: "sparkles")
-                    .font(.system(size: 22, weight: .medium))
-                    .foregroundStyle(WSRegistryPalette.gold)
-                    .frame(width: 48, height: 48)
-                    .background(WSRegistryPalette.cream.opacity(0.10), in: Circle())
+            HStack(spacing: 14) {
+                Image(systemName: "plus.circle.fill")
+                    .font(.system(size: 22, weight: .semibold))
+                    .foregroundStyle(.white)
 
-                VStack(alignment: .leading, spacing: 5) {
-                    Text("Start Your Home Profile")
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundStyle(WSRegistryPalette.cream)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Create New Registry")
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundStyle(.white)
+                    Text("Start a registry for a wedding, housewarming, or event")
+                        .font(.system(size: 13, weight: .regular))
+                        .foregroundStyle(.white.opacity(0.8))
                         .lineLimit(1)
-                        .minimumScaleFactor(0.82)
-                    Text("Create your intelligent registry")
-                        .font(.system(size: 14, weight: .regular))
-                        .foregroundStyle(WSRegistryPalette.cream.opacity(0.72))
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.88)
                 }
 
                 Spacer(minLength: 8)
 
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 15, weight: .bold))
-                    .foregroundStyle(WSRegistryPalette.gold)
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundStyle(.white.opacity(0.65))
             }
             .padding(.horizontal, 18)
-            .padding(.vertical, 20)
-            .frame(maxWidth: .infinity, minHeight: 98, alignment: .leading)
-            .background {
+            .frame(maxWidth: .infinity, minHeight: 68, alignment: .leading)
+            .background(
                 LinearGradient(
-                    colors: [
-                        WSRegistryPalette.espresso,
-                        Color(red: 0.245, green: 0.165, blue: 0.110),
-                        WSRegistryPalette.cocoa
-                    ],
+                    colors: [WSRegistryPalette.espresso, Color(red: 0.245, green: 0.165, blue: 0.110)],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
-                )
-            }
-            .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: 22, style: .continuous)
-                    .stroke(WSRegistryPalette.gold.opacity(0.28), lineWidth: 1)
+                ),
+                in: RoundedRectangle(cornerRadius: 14, style: .continuous)
             )
-            .shadow(color: WSRegistryPalette.espresso.opacity(0.18), radius: 18, x: 0, y: 10)
+            .shadow(color: WSRegistryPalette.espresso.opacity(0.16), radius: 14, x: 0, y: 8)
         }
         .buttonStyle(.plain)
     }
 
-    var registrySummaryCard: some View {
-        VStack(alignment: .leading, spacing: 18) {
-            HStack(alignment: .top, spacing: 12) {
-                VStack(alignment: .leading, spacing: 7) {
-                    Text("Your Registry")
-                        .font(.system(size: 23, weight: .semibold, design: .serif))
+    // MARK: - Current Registries (Horizontal Scroll)
+
+    var currentRegistriesSection: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack {
+                HStack(spacing: 8) {
+                    Image(systemName: "heart.text.square")
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundStyle(WSRegistryPalette.gold)
+                    Text("Your Registries")
+                        .font(.wsSerif(size: 20, weight: .semibold))
                         .foregroundStyle(WSRegistryPalette.espresso)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.86)
                 }
+                Spacer()
+                Text("\(registryRepo.registries.count)")
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundStyle(WSRegistryPalette.warmGray)
+            }
 
-                Spacer(minLength: 8)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 14) {
+                    ForEach(registryRepo.registries.sorted(by: { $0.date > $1.date })) { registry in
+                        registryHorizontalCard(registry)
+                    }
+                }
+                .padding(.horizontal, 2)
+                .padding(.vertical, 4)
+            }
+        }
+    }
 
-                Image(systemName: "sparkles")
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundStyle(WSRegistryPalette.gold)
-                    .padding(.top, 2)
+    func registryHorizontalCard(_ registry: Registry) -> some View {
+        let items = registry.items
+        let isActive = registryRepo.activeRegistryID == registry.id
+
+        return Button {
+            registryRepo.selectRegistry(id: registry.id)
+            tabBarVM.registryPath.append(RegistryRoute.details)
+        } label: {
+            ZStack(alignment: .bottomLeading) {
+                Image("giftdna_living_room")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 260, height: 170)
+                    .clipped()
+                    .overlay(
+                        LinearGradient(
+                            colors: [.clear, WSRegistryPalette.espresso.opacity(0.82)],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+
+                VStack(alignment: .leading, spacing: 8) {
+                    if isActive {
+                        Text("ACTIVE")
+                            .font(.system(size: 9, weight: .bold))
+                            .tracking(1.2)
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 3)
+                            .background(WSRegistryPalette.gold, in: Capsule())
+                    }
+
+                    Text(registry.displayName)
+                        .font(.wsSerif(size: 17, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .lineLimit(2)
+
+                    Text(registry.event.rawValue + " • " + registry.date.formatted(date: .abbreviated, time: .omitted))
+                        .font(.system(size: 12, weight: .regular))
+                        .foregroundStyle(.white.opacity(0.8))
+
+                    HStack(spacing: 10) {
+                        registryHeroStat(value: "\(RegistryDetailContent.totalItems(from: items))", label: "Items")
+                        registryHeroStat(value: "\(RegistryDetailContent.collectionCount(from: items))", label: "Collections")
+                    }
+                }
+                .padding(16)
+            }
+            .frame(width: 260, height: 170)
+            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .stroke(
+                        isActive ? WSRegistryPalette.gold.opacity(0.6) : Color.clear,
+                        lineWidth: 2
+                    )
+            )
+            .shadow(color: WSRegistryPalette.espresso.opacity(0.12), radius: 14, x: 0, y: 6)
+        }
+        .buttonStyle(.plain)
+    }
+
+    func registryHeroStat(value: String, label: String) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(value)
+                .font(.system(size: 18, weight: .bold))
+                .foregroundStyle(.white)
+            Text(label)
+                .font(.system(size: 10, weight: .regular))
+                .foregroundStyle(.white.opacity(0.7))
+        }
+    }
+
+    // MARK: - Recent Activity Feed
+
+    var recentActivitySection: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack {
+                HStack(spacing: 8) {
+                    Image(systemName: "chart.line.uptrend.xyaxis")
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundStyle(WSRegistryPalette.gold)
+                    Text("Recent Activity")
+                        .font(.wsSerif(size: 20, weight: .semibold))
+                        .foregroundStyle(WSRegistryPalette.espresso)
+                }
+                Spacer()
+                Button {
+                    tabBarVM.registryPath.append(RegistryRoute.activity)
+                } label: {
+                    Text("View All")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(WSRegistryPalette.gold)
+                }
             }
 
             VStack(spacing: 0) {
-                ForEach(Array(RegistrySummaryItem.samples.enumerated()), id: \.element.id) { index, item in
-                    registrySummaryRow(item)
-
-                    if index < RegistrySummaryItem.samples.count - 1 {
-                        Divider()
-                            .overlay(WSRegistryPalette.hairline.opacity(0.48))
-                            .padding(.leading, 64)
-                    }
+                ForEach(Array(registryRepo.activities.prefix(5).enumerated()), id: \.element.id) { index, activity in
+                    activityFeedRow(activity, isLast: index == min(4, registryRepo.activities.count - 1))
                 }
             }
-
-            Button {
-                tabBarVM.registryPath.append(RegistryRoute.details)
-            } label: {
-                HStack(spacing: 12) {
-                    Spacer()
-
-                    Text("View Registry")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(WSRegistryPalette.cream)
-
-                    Spacer()
-
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 14, weight: .bold))
-                        .foregroundStyle(WSRegistryPalette.cream.opacity(0.78))
-                }
-                .padding(.horizontal, 18)
-                .frame(maxWidth: .infinity, minHeight: 56)
-                .background {
-                    LinearGradient(
-                        colors: [
-                            WSRegistryPalette.espresso,
-                            Color(red: 0.245, green: 0.165, blue: 0.110)
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                }
-                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel("View Registry")
+            .padding(14)
+            .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .stroke(WSRegistryPalette.hairline.opacity(0.42), lineWidth: 1)
+            )
+            .shadow(color: WSRegistryPalette.espresso.opacity(0.03), radius: 12, x: 0, y: 5)
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 20)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .stroke(WSRegistryPalette.hairline.opacity(0.50), lineWidth: 1)
-        )
-        .shadow(color: WSRegistryPalette.espresso.opacity(0.05), radius: 16, x: 0, y: 8)
+    }
+
+    func activityFeedRow(_ activity: RegistryActivity, isLast: Bool) -> some View {
+        HStack(alignment: .top, spacing: 12) {
+            VStack(spacing: 0) {
+                Circle()
+                    .fill(activity.type.accentColor.opacity(0.18))
+                    .frame(width: 34, height: 34)
+                    .overlay(
+                        Image(systemName: activity.type.systemImage)
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundStyle(activity.type.accentColor)
+                    )
+                if !isLast {
+                    Rectangle()
+                        .fill(WSRegistryPalette.hairline.opacity(0.45))
+                        .frame(width: 1)
+                        .frame(maxHeight: .infinity)
+                }
+            }
+
+            VStack(alignment: .leading, spacing: 3) {
+                HStack {
+                    Text(activity.productName)
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(WSRegistryPalette.espresso)
+                        .lineLimit(1)
+                    Spacer(minLength: 4)
+                    Text(activity.relativeTimeText)
+                        .font(.system(size: 11, weight: .regular))
+                        .foregroundStyle(WSRegistryPalette.warmGray)
+                }
+                Text(activity.detail)
+                    .font(.system(size: 12, weight: .regular))
+                    .foregroundStyle(WSRegistryPalette.cocoa.opacity(0.82))
+                    .lineLimit(1)
+            }
+            .padding(.bottom, isLast ? 0 : 14)
+        }
+    }
+
+    func statPill(value: String, label: String) -> some View {
+        HStack(spacing: 4) {
+            Text(value)
+                .font(.wsLabel(size: 10))
+                .foregroundStyle(WSRegistryPalette.espresso)
+            Text(label.uppercased())
+                .font(.wsLabel(size: 9))
+                .foregroundStyle(WSRegistryPalette.warmGray)
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 5)
+        .background(WSRegistryPalette.ivory, in: RoundedRectangle(cornerRadius: 2, style: .continuous))
     }
 
     func registrySummaryRow(_ item: RegistrySummaryItem) -> some View {
@@ -282,7 +463,7 @@ private extension RegistryView {
                     .font(.system(size: 22, weight: .semibold))
                     .foregroundStyle(item.tint)
                     .frame(width: 50, height: 50)
-                    .background(item.tint.opacity(0.12), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                    .background(item.tint.opacity(0.12), in: RoundedRectangle(cornerRadius: 2, style: .continuous))
 
                 VStack(alignment: .leading, spacing: 5) {
                     Text(item.title)
@@ -308,7 +489,7 @@ private extension RegistryView {
                     .minimumScaleFactor(0.76)
                     .padding(.horizontal, 10)
                     .frame(width: 74, height: 32)
-                    .background(item.tint.opacity(0.13), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .background(item.tint.opacity(0.13), in: RoundedRectangle(cornerRadius: 2, style: .continuous))
 
             }
             .padding(.vertical, 14)
@@ -318,32 +499,86 @@ private extension RegistryView {
     }
 
     var secondaryActions: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 10) {
             actionRow(
                 icon: "magnifyingglass",
-                title: "Find a Registry",
-                subtitle: "Search by name or email"
+                title: "Find Other Registries",
+                subtitle: "Search by name or email",
+                accentColor: WSRegistryPalette.cocoa
             ) {
                 tabBarVM.registryPath.append(RegistryRoute.findRegistry)
             }
+
             actionRow(
-                icon: "heart.text.square",
-                title: "View Past Registry",
-                subtitle: "View and track your past registry"
+                icon: "clock.arrow.circlepath",
+                title: "Past Registries",
+                subtitle: "Registries you created or participated in",
+                accentColor: WSRegistryPalette.warmGray
             ) {
                 tabBarVM.registryPath.append(RegistryRoute.pastRegistries)
             }
+
+            // TEMP DEMO ENTRY POINT FOR RECEIVER FLOW
+            receiverFlowDemoButton
         }
     }
 
-    func actionRow(icon: String, title: String, subtitle: String, action: @escaping () -> Void = {}) -> some View {
+    // MARK: - Receiver Flow Demo Entry Point
+    // TEMP DEMO ENTRY POINT FOR RECEIVER FLOW
+    private var receiverFlowDemoButton: some View {
+        Button {
+            showReceiverFlowDemo = true
+        } label: {
+            HStack(spacing: 14) {
+                Image(systemName: "gift.fill")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundStyle(WSRegistryPalette.gold)
+                    .frame(width: 42, height: 42)
+                    .background(
+                        WSRegistryPalette.gold.opacity(0.13),
+                        in: RoundedRectangle(cornerRadius: 13, style: .continuous)
+                    )
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Trial Receiver Side View")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(WSRegistryPalette.espresso)
+                    Text("Preview the guest registry experience")
+                        .font(.system(size: 13, weight: .regular))
+                        .foregroundStyle(WSRegistryPalette.warmGray)
+                        .lineLimit(2)
+                }
+
+                Spacer(minLength: 10)
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundStyle(WSRegistryPalette.warmGray.opacity(0.65))
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 14)
+            .frame(maxWidth: .infinity, minHeight: 72, alignment: .leading)
+            .background(
+                WSRegistryPalette.porcelain,
+                in: RoundedRectangle(cornerRadius: 18, style: .continuous)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 19, style: .continuous)
+                    .stroke(WSRegistryPalette.gold.opacity(0.28), lineWidth: 1)
+            )
+            .shadow(color: WSRegistryPalette.espresso.opacity(0.05), radius: 12, x: 0, y: 6)
+        }
+        .buttonStyle(.plain)
+    }
+
+    func actionRow(icon: String, title: String, subtitle: String, accentColor: Color, action: @escaping () -> Void = {}) -> some View {
         Button(action: action) {
             HStack(spacing: 14) {
                 Image(systemName: icon)
                     .font(.system(size: 17, weight: .semibold))
-                    .foregroundStyle(WSRegistryPalette.espresso)
+                    .foregroundStyle(accentColor)
                     .frame(width: 42, height: 42)
-                    .background(WSRegistryPalette.ivory, in: RoundedRectangle(cornerRadius: 13, style: .continuous))
+                    .background(accentColor.opacity(0.12), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title)
@@ -364,11 +599,12 @@ private extension RegistryView {
             .padding(.horizontal, 16)
             .padding(.vertical, 14)
             .frame(maxWidth: .infinity, minHeight: 72, alignment: .leading)
-            .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: 19, style: .continuous)
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
                     .stroke(WSRegistryPalette.hairline.opacity(0.55), lineWidth: 1)
             )
+            .shadow(color: WSRegistryPalette.espresso.opacity(0.03), radius: 10, x: 0, y: 4)
         }
         .buttonStyle(.plain)
     }
@@ -376,9 +612,11 @@ private extension RegistryView {
 
 
 private struct ExistingRegistry: Identifiable, Hashable {
-    let id = UUID()
+    let id: UUID
     let coupleName: String
     let email: String
+    let relationship: RegistryRelationship
+    let origin: RegistryOrigin
     let event: String
     let eventDate: String
     let shortDate: String
@@ -392,10 +630,17 @@ private struct ExistingRegistry: Identifiable, Hashable {
     var itemCount: String { stats.first(where: { $0.label == "Items" })?.value ?? "0" }
     var purchasedCount: String { stats.first(where: { $0.label == "Purchased" })?.value ?? "0" }
     var fulfilledText: String { stats.first(where: { $0.label == "Fulfilled" })?.value ?? "-" }
+    var contributionsCountText: String { "\(contributions.count) gift\(contributions.count == 1 ? "" : "s")" }
+    var featuredProductsText: String { "\(products.count) products" }
+    var topContributionDetail: String { contributions.first?.detail ?? "No recent contributions yet" }
+    var topContributionTime: String { contributions.first?.time ?? "—" }
 
     static let gayatri = ExistingRegistry(
+        id: UUID(),
         coupleName: "Priya & Arjun",
-        email: "priya.com",
+        email: "priya.arjun@example.com",
+        relationship: .friends,
+        origin: .participated,
         event: "Wedding",
         eventDate: "August 24, 2024",
         shortDate: "Aug 24, 2024",
@@ -418,8 +663,11 @@ private struct ExistingRegistry: Identifiable, Hashable {
     static let pastSamples: [ExistingRegistry] = [
         .gayatri,
         ExistingRegistry(
+            id: UUID(),
             coupleName: "Priya’s Housewarming",
-            email: "priya.com",
+            email: "priya.housewarming@example.com",
+            relationship: .family,
+            origin: .participated,
             event: "Housewarming",
             eventDate: "January 15, 2023",
             shortDate: "Jan 15, 2023",
@@ -431,8 +679,11 @@ private struct ExistingRegistry: Identifiable, Hashable {
             contributions: []
         ),
         ExistingRegistry(
+            id: UUID(),
             coupleName: "Engagement Celebration",
-            email: "priya.com",
+            email: "engagement@example.com",
+            relationship: .friends,
+            origin: .participated,
             event: "Special Occasion",
             eventDate: "May 10, 2022",
             shortDate: "May 10, 2022",
@@ -444,8 +695,11 @@ private struct ExistingRegistry: Identifiable, Hashable {
             contributions: []
         ),
         ExistingRegistry(
+            id: UUID(),
             coupleName: "Holiday Registry",
-            email: "priya.com",
+            email: "holiday.registry@example.com",
+            relationship: .family,
+            origin: .participated,
             event: "Holiday",
             eventDate: "December 1, 2021",
             shortDate: "Dec 1, 2021",
@@ -468,6 +722,43 @@ private struct ExistingRegistry: Identifiable, Hashable {
     static func == (lhs: ExistingRegistry, rhs: ExistingRegistry) -> Bool { lhs.id == rhs.id }
 
     func hash(into hasher: inout Hasher) { hasher.combine(id) }
+
+    static func lookup(_ id: UUID, ownedRegistries: [Registry]) -> ExistingRegistry {
+        let own = ownedRegistries.map(Self.fromOwnedRegistry)
+        return (own + [gayatri] + pastSamples).first(where: { $0.id == id }) ?? gayatri
+    }
+
+    static func fromOwnedRegistry(_ registry: Registry) -> ExistingRegistry {
+        let dateLabel = registry.date.formatted(date: .long, time: .omitted)
+        let shortDate = registry.date.formatted(date: .abbreviated, time: .omitted)
+        let totalItems = registry.items.reduce(0) { $0 + $1.quantity }
+        return ExistingRegistry(
+            id: registry.id,
+            coupleName: "\(registry.firstName) & \(registry.lastName)",
+            email: "my.registry@example.com",
+            relationship: .friends,
+            origin: .own,
+            event: registry.event.rawValue,
+            eventDate: dateLabel,
+            shortDate: shortDate,
+            message: "Thanks for celebrating with us and helping us build our registry.",
+            about: "Our registry for \(registry.event.rawValue.lowercased()) with curated gift picks.",
+            status: "Completed",
+            stats: [
+                RegistryStat(value: "\(totalItems)", label: "Items"),
+                RegistryStat(value: "0", label: "Purchased"),
+                RegistryStat(value: totalItems == 0 ? "0%" : "-", label: "Fulfilled"),
+                RegistryStat(value: shortDate, label: "Event Date")
+            ],
+            products: registry.items.prefix(3).map { RegistryDisplayProduct(item: $0) },
+            contributions: []
+        )
+    }
+}
+
+private enum RegistryRelationship: String, Hashable {
+    case friends = "My Friends"
+    case family = "Family"
 }
 
 private struct RegistryStat: Hashable {
@@ -484,13 +775,33 @@ private struct RegistryContribution: Hashable, Identifiable {
 
 private struct PastRegistriesView: View {
     @EnvironmentObject var tabBarVM: WSTabBarViewModel
+    @EnvironmentObject var registryRepo: RegistryRepository
     @State private var selectedFilter = "All"
 
-    private let filters = ["All", "Completed", "Archived"]
+    private let filters = ["All", "Mine", "Participated"]
+
+    private var ownPastRegistries: [ExistingRegistry] {
+        let today = Calendar.current.startOfDay(for: Date())
+        return registryRepo.registries
+            .filter { Calendar.current.startOfDay(for: $0.date) < today }
+            .map(ExistingRegistry.fromOwnedRegistry)
+    }
+
+    private var participatedPastRegistries: [ExistingRegistry] {
+        ExistingRegistry.pastSamples.filter { $0.origin == .participated }
+    }
 
     private var visibleRegistries: [ExistingRegistry] {
-        ExistingRegistry.pastSamples.filter { registry in
-            selectedFilter == "All" || registry.status == selectedFilter
+        let all = ownPastRegistries + participatedPastRegistries
+        return all.filter { registry in
+            switch selectedFilter {
+            case "Mine":
+                return registry.origin == .own
+            case "Participated":
+                return registry.origin == .participated
+            default:
+                return true
+            }
         }
     }
 
@@ -531,13 +842,13 @@ private struct PastRegistriesView: View {
                 )
 
             VStack(alignment: .leading, spacing: 10) {
-                Text("Your Past Registries")
+                Text("Past Registries")
                     .font(.system(size: 30, weight: .regular, design: .serif))
                     .foregroundStyle(WSRegistryPalette.espresso)
                     .lineLimit(1)
                     .minimumScaleFactor(0.76)
 
-                Text("View and track your previous celebrations and purchases.")
+                Text("See your past registries and events where you participated.")
                     .font(.system(size: 16, weight: .regular))
                     .foregroundStyle(WSRegistryPalette.cocoa.opacity(0.86))
                     .lineSpacing(3)
@@ -546,7 +857,7 @@ private struct PastRegistriesView: View {
             .padding(.leading, 16)
         }
         .frame(height: 176)
-        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 2, style: .continuous))
     }
 
     private var filterTabs: some View {
@@ -563,15 +874,15 @@ private struct PastRegistriesView: View {
                         .frame(maxWidth: .infinity, minHeight: 42)
                         .background(
                             selectedFilter == filter ? WSRegistryPalette.espresso : WSRegistryPalette.porcelain,
-                            in: Capsule()
+                            in: RoundedRectangle(cornerRadius: 2, style: .continuous)
                         )
                 }
                 .buttonStyle(.plain)
             }
         }
         .padding(6)
-        .background(WSRegistryPalette.porcelain.opacity(0.92), in: Capsule())
-        .overlay(Capsule().stroke(WSRegistryPalette.hairline.opacity(0.38), lineWidth: 1))
+        .background(WSRegistryPalette.porcelain.opacity(0.92), in: RoundedRectangle(cornerRadius: 2, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 2, style: .continuous).stroke(WSRegistryPalette.hairline.opacity(0.38), lineWidth: 1))
     }
 
     private var registryList: some View {
@@ -584,7 +895,7 @@ private struct PastRegistriesView: View {
 
     private func pastRegistryRow(_ registry: ExistingRegistry, imageOffset: Int) -> some View {
         Button {
-            tabBarVM.registryPath.append(RegistryRoute.existingRegistryDetails)
+            tabBarVM.registryPath.append(RegistryRoute.existingRegistryDetails(registry.id))
         } label: {
             HStack(spacing: 14) {
                 Image("giftdna_living_room")
@@ -593,7 +904,7 @@ private struct PastRegistriesView: View {
                     .frame(width: 118, height: 132)
                     .offset(x: CGFloat(-imageOffset * 16))
                     .clipped()
-                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: 2, style: .continuous))
 
                 VStack(alignment: .leading, spacing: 10) {
                     HStack(alignment: .top, spacing: 8) {
@@ -637,8 +948,8 @@ private struct PastRegistriesView: View {
                 .padding(.trailing, 12)
             }
             .frame(maxWidth: .infinity, minHeight: 132, alignment: .leading)
-            .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(WSRegistryPalette.hairline.opacity(0.42), lineWidth: 1))
+            .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 2, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 2, style: .continuous).stroke(WSRegistryPalette.hairline.opacity(0.42), lineWidth: 1))
             .shadow(color: WSRegistryPalette.espresso.opacity(0.035), radius: 12, x: 0, y: 5)
         }
         .buttonStyle(.plain)
@@ -674,10 +985,10 @@ private struct PastRegistriesView: View {
                 .background(WSRegistryPalette.gold.opacity(0.13), in: Circle())
 
             VStack(alignment: .leading, spacing: 4) {
-                Text("Can’t find an old registry?")
+                Text("Need help finding an older registry?")
                     .font(.system(size: 17, weight: .regular, design: .serif))
                     .foregroundStyle(WSRegistryPalette.espresso)
-                Text("If your past registry isn’t listed here, it may have been archived.")
+                Text("If it isn’t listed, it may be archived or under a different email.")
                     .font(.system(size: 13, weight: .regular))
                     .foregroundStyle(WSRegistryPalette.cocoa.opacity(0.84))
                     .lineSpacing(2)
@@ -690,7 +1001,7 @@ private struct PastRegistriesView: View {
                 .foregroundStyle(WSRegistryPalette.espresso.opacity(0.72))
         }
         .padding(18)
-        .background(WSRegistryPalette.cream, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .background(WSRegistryPalette.cream, in: RoundedRectangle(cornerRadius: 2, style: .continuous))
     }
 }
 
@@ -701,10 +1012,31 @@ private struct FindRegistryView: View {
     @State private var selectedFilter = "All"
 
     private let filters = ["All", "My Friends", "Family", "By Name", "By Email"]
-    private let registries = [ExistingRegistry.gayatri]
+    private let registries: [ExistingRegistry] = {
+        var seen = Set<UUID>()
+        return ([ExistingRegistry.gayatri] + ExistingRegistry.pastSamples).filter { registry in
+            seen.insert(registry.id).inserted
+        }
+    }()
 
     private var visibleRegistries: [ExistingRegistry] {
-        registries.filter { $0.matches(searchText) }
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        return registries.filter { registry in
+            guard registry.matches(searchText) else { return false }
+
+            switch selectedFilter {
+            case "My Friends":
+                return registry.relationship == .friends
+            case "Family":
+                return registry.relationship == .family
+            case "By Name":
+                return query.isEmpty || registry.coupleName.lowercased().contains(query)
+            case "By Email":
+                return query.isEmpty || registry.email.lowercased().contains(query)
+            default:
+                return true
+            }
+        }
     }
 
     var body: some View {
@@ -737,7 +1069,7 @@ private struct FindRegistryView: View {
                 .padding(.bottom, 40)
             }
         }
-        .navigationTitle("Find a Registry")
+        .navigationTitle("Find Registry")
         .navigationBarTitleDisplayMode(.inline)
     }
 
@@ -754,9 +1086,9 @@ private struct FindRegistryView: View {
         }
         .padding(.horizontal, 14)
         .frame(maxWidth: .infinity, minHeight: 52)
-        .background(WSRegistryPalette.ivory, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .background(WSRegistryPalette.ivory, in: RoundedRectangle(cornerRadius: 2, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
+            RoundedRectangle(cornerRadius: 2, style: .continuous)
                 .stroke(WSRegistryPalette.hairline.opacity(0.5), lineWidth: 1)
         )
     }
@@ -775,10 +1107,10 @@ private struct FindRegistryView: View {
                             .frame(height: 38)
                             .background(
                                 selectedFilter == filter ? WSRegistryPalette.gold.opacity(0.24) : WSRegistryPalette.porcelain,
-                                in: RoundedRectangle(cornerRadius: 9, style: .continuous)
+                                in: RoundedRectangle(cornerRadius: 2, style: .continuous)
                             )
                             .overlay(
-                                RoundedRectangle(cornerRadius: 9, style: .continuous)
+                                RoundedRectangle(cornerRadius: 2, style: .continuous)
                                     .stroke(WSRegistryPalette.hairline.opacity(0.55), lineWidth: 1)
                             )
                     }
@@ -789,23 +1121,23 @@ private struct FindRegistryView: View {
     }
 
     private var emptySearchState: some View {
-        Text("No registry found for that search.")
+        Text("No registries match this search.")
             .font(.system(size: 15, weight: .regular))
             .foregroundStyle(WSRegistryPalette.warmGray)
             .frame(maxWidth: .infinity, minHeight: 96)
-            .background(WSRegistryPalette.ivory, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .background(WSRegistryPalette.ivory, in: RoundedRectangle(cornerRadius: 2, style: .continuous))
     }
 
     private func existingRegistryRow(_ registry: ExistingRegistry) -> some View {
         Button {
-            tabBarVM.registryPath.append(RegistryRoute.existingRegistryDetails)
+            tabBarVM.registryPath.append(RegistryRoute.existingRegistryDetails(registry.id))
         } label: {
             HStack(spacing: 12) {
                 Image("giftdna_living_room")
                     .resizable()
                     .scaledToFill()
                     .frame(width: 86, height: 86)
-                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: 2, style: .continuous))
 
                 VStack(alignment: .leading, spacing: 5) {
                     Text(registry.coupleName)
@@ -824,17 +1156,17 @@ private struct FindRegistryView: View {
 
                 Spacer(minLength: 8)
 
-                Text("View")
+                Text("Open")
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundStyle(WSRegistryPalette.cream)
                     .frame(width: 70, height: 44)
-                    .background(WSRegistryPalette.espresso, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .background(WSRegistryPalette.espresso, in: RoundedRectangle(cornerRadius: 2, style: .continuous))
             }
             .padding(10)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 2, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                RoundedRectangle(cornerRadius: 2, style: .continuous)
                     .stroke(WSRegistryPalette.hairline.opacity(0.42), lineWidth: 1)
             )
             .shadow(color: WSRegistryPalette.espresso.opacity(0.04), radius: 12, x: 0, y: 6)
@@ -863,13 +1195,13 @@ private struct ExistingRegistryDetailsView: View {
                 .padding(.bottom, 180)
             }
         }
-        .navigationTitle("Registry Summary")
+        .navigationTitle("Registry Details")
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(WSRegistryPalette.ivory, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button { } label: {
+                ShareLink(item: "\(registry.coupleName) Registry • \(registry.event) • \(registry.eventDate)") {
                     Image(systemName: "square.and.arrow.up")
                         .font(.system(size: 18, weight: .semibold))
                         .foregroundStyle(WSRegistryPalette.espresso)
@@ -935,9 +1267,9 @@ private struct ExistingRegistryDetailsView: View {
             .padding(.top, 66)
             .padding(.bottom, 18)
         }
-        .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(WSRegistryPalette.hairline.opacity(0.42), lineWidth: 1))
+        .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 2, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 2, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 2, style: .continuous).stroke(WSRegistryPalette.hairline.opacity(0.42), lineWidth: 1))
         .shadow(color: WSRegistryPalette.espresso.opacity(0.035), radius: 14, x: 0, y: 6)
     }
 
@@ -979,26 +1311,26 @@ private struct ExistingRegistryDetailsView: View {
                     .lineSpacing(5)
                     .fixedSize(horizontal: false, vertical: true)
 
-                Button("View Note") { }
+                Button("Guest note") { }
                     .font(.system(size: 15, weight: .semibold))
                     .foregroundStyle(WSRegistryPalette.gold)
             }
         }
         .padding(20)
-        .background(WSRegistryPalette.cream, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .background(WSRegistryPalette.cream, in: RoundedRectangle(cornerRadius: 2, style: .continuous))
     }
 
     private var overviewCard: some View {
-        summarySection(title: "Registry Overview") {
-            summaryRow(icon: "clipboard", title: "View All Items", detail: registry.itemCount + " Items")
-            summaryRow(icon: "bag", title: "Purchased Items", detail: registry.purchasedCount + " Items")
-            summaryRow(icon: "gift", title: "Contributions", detail: "18 Gifts")
-            summaryRow(icon: "square.grid.2x2", title: "Collections", detail: "12 Collections", showDivider: false)
+        summarySection(title: "Registry Snapshot") {
+            summaryRow(icon: "clipboard", title: "Total Items", detail: registry.itemCount + " items")
+            summaryRow(icon: "bag", title: "Gifts Purchased", detail: registry.purchasedCount + " items")
+            summaryRow(icon: "gift", title: "Contributions", detail: registry.contributionsCountText)
+            summaryRow(icon: "square.grid.2x2", title: "Featured Products", detail: registry.featuredProductsText, showDivider: false)
         }
     }
 
     private var activityCard: some View {
-        summarySection(title: "Activity Summary") {
+        summarySection(title: "Recent Activity") {
             HStack(spacing: 14) {
                 Image(systemName: "gift")
                     .font(.system(size: 22, weight: .regular))
@@ -1006,15 +1338,15 @@ private struct ExistingRegistryDetailsView: View {
                     .frame(width: 44, height: 44)
                     .background(WSRegistryPalette.gold.opacity(0.12), in: Circle())
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Most contributed to")
+                    Text("Latest contribution")
                         .font(.system(size: 13, weight: .regular))
                         .foregroundStyle(WSRegistryPalette.warmGray)
-                    Text("Kitchen Essentials")
+                    Text(registry.topContributionDetail)
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundStyle(WSRegistryPalette.espresso)
                 }
                 Spacer()
-                Text("12 Gifts")
+                Text(registry.topContributionTime)
                     .font(.system(size: 14, weight: .regular))
                     .foregroundStyle(WSRegistryPalette.warmGray)
             }
@@ -1022,9 +1354,9 @@ private struct ExistingRegistryDetailsView: View {
     }
 
     private var timelineCard: some View {
-        summarySection(title: "Registry Timeline") {
-            summaryRow(icon: "calendar.badge.plus", title: "Created on", detail: "April 20, 2024")
-            summaryRow(icon: "calendar.badge.checkmark", title: "Completed on", detail: registry.eventDate, showDivider: false)
+        summarySection(title: "Event Timeline") {
+            summaryRow(icon: "calendar", title: "Event Date", detail: registry.eventDate)
+            summaryRow(icon: "checkmark.seal", title: "Registry Status", detail: registry.status, showDivider: false)
         }
     }
 
@@ -1036,8 +1368,8 @@ private struct ExistingRegistryDetailsView: View {
             content()
         }
         .padding(18)
-        .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(WSRegistryPalette.hairline.opacity(0.42), lineWidth: 1))
+        .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 2, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 2, style: .continuous).stroke(WSRegistryPalette.hairline.opacity(0.42), lineWidth: 1))
         .shadow(color: WSRegistryPalette.espresso.opacity(0.025), radius: 10, x: 0, y: 5)
     }
 
@@ -1077,10 +1409,24 @@ private struct ExistingRegistryDetailsView: View {
 
 private struct RegistryDetailsView: View {
     @EnvironmentObject var registryRepo: RegistryRepository
+    @EnvironmentObject var cartRepo: CartRepository
     @EnvironmentObject var tabBarVM: WSTabBarViewModel
 
     private var registryItems: [RegistryItem] {
         registryRepo.currentRegistry?.items ?? []
+    }
+
+    private var availableRegistries: [Registry] {
+        registryRepo.registries.sorted { $0.date > $1.date }
+    }
+
+    private var registryDescriptor: String {
+        guard let registry = registryRepo.currentRegistry else {
+            return "A curated registry built around your gifting priorities."
+        }
+        let eventLabel = registry.event.rawValue
+        let dateLabel = registry.date.formatted(date: .abbreviated, time: .omitted)
+        return "\(registry.firstName) & \(registry.lastName) • \(eventLabel) • \(dateLabel)"
     }
 
     private var sections: [RegistryDetailSection] {
@@ -1103,6 +1449,51 @@ private struct RegistryDetailsView: View {
         RegistryDetailContent.completionText(from: registryItems)
     }
 
+    private var followupRecommendationPayload: RegistryQuestionnairePayload {
+        let existing = registryRepo.currentRegistry
+        let categorySeed = Set(
+            RegistryDetailContent.sections(from: registryItems)
+                .prefix(4)
+                .map(\.title)
+        )
+        return QuestionnaireReducer.buildPayload(
+            registryID: existing?.id ?? UUID(),
+            moodboardVibe: "timeless functional registry with balanced gifting options",
+            moodboardPhotoCount: 0,
+            homeType: nil,
+            hobbies: [],
+            hobbiesSkipped: true,
+            productCategories: categorySeed,
+            budgetPreference: nil,
+            homeVision: nil
+        )
+    }
+
+    private var shareSummaryText: String {
+        if let registry = registryRepo.currentRegistry {
+            return "\(registry.displayName) • \(registry.date.formatted(date: .abbreviated, time: .omitted)) • \(totalItems) items"
+        }
+        return "My Williams Sonoma registry"
+    }
+
+    private var bundleCompletionSuggestions: [String] {
+        let sections = RegistryDetailContent.sections(from: registryItems)
+        let thinSections = sections
+            .filter { $0.itemCount < 4 }
+            .prefix(3)
+            .map { "Complete \( $0.title ) bundle (\($0.itemCount) saved)." }
+
+        if !thinSections.isEmpty {
+            return Array(thinSections)
+        }
+
+        if sections.isEmpty {
+            return ["Start with AI Personalized Set or Top 100 Essentials."]
+        }
+
+        return ["Your core bundles are in progress. Refresh recommendations for finishing picks."]
+    }
+
     var body: some View {
         ZStack {
             WSRegistryPalette.porcelain
@@ -1110,11 +1501,19 @@ private struct RegistryDetailsView: View {
 
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 28) {
+                    if availableRegistries.count > 1 {
+                        registrySwitcher
+                    }
                     homeStoryCard
                     statsCard
                     addItemsButton
-                    ForEach(sections) { section in
-                        registrySection(section)
+                    recommendationActionsCard
+                    if sections.isEmpty {
+                        emptyRegistryState
+                    } else {
+                        ForEach(sections) { section in
+                            registrySection(section)
+                        }
                     }
                 }
                 .padding(.horizontal, 18)
@@ -1126,8 +1525,7 @@ private struct RegistryDetailsView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                } label: {
+                ShareLink(item: shareSummaryText) {
                     HStack(spacing: 6) {
                         Image(systemName: "square.and.arrow.up")
                         Text("Share")
@@ -1140,30 +1538,46 @@ private struct RegistryDetailsView: View {
     }
 
     private var homeStoryCard: some View {
-        HStack(alignment: .top, spacing: 18) {
+        ZStack(alignment: .bottomLeading) {
             Image("giftdna_living_room")
                 .resizable()
                 .scaledToFill()
-                .frame(width: 112, height: 150)
-                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .frame(maxWidth: .infinity)
+                .frame(height: 180)
+                .clipped()
+                .overlay(
+                    LinearGradient(
+                        colors: [.clear, WSRegistryPalette.espresso.opacity(0.82)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
 
-            VStack(alignment: .leading, spacing: 14) {
-                Text("Your Home Story")
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(spacing: 6) {
+                    Image(systemName: "sparkles")
+                        .font(.system(size: 9))
+                        .foregroundStyle(WSRegistryPalette.gold)
+                    Text("AURA REGISTRY")
+                        .font(.wsLabel(size: 9))
+                        .tracking(1.5)
+                        .foregroundStyle(WSRegistryPalette.gold)
+                }
+
+                Text("Your Registry Story")
                     .font(.system(size: 24, weight: .semibold, design: .serif))
-                    .foregroundStyle(WSRegistryPalette.espresso)
-                    .lineLimit(2)
-                    .minimumScaleFactor(0.82)
+                    .foregroundStyle(.white)
 
-                Text("A warm, social home centered around shared meals, intimate hosting, and slow mornings together.")
-                    .font(.system(size: 16, weight: .regular))
-                    .foregroundStyle(WSRegistryPalette.cocoa.opacity(0.86))
-                    .lineSpacing(5)
-                    .fixedSize(horizontal: false, vertical: true)
+                Text(registryDescriptor)
+                    .font(.system(size: 14, weight: .regular))
+                    .foregroundStyle(.white.opacity(0.85))
+                    .lineSpacing(3)
+                    .lineLimit(2)
             }
+            .padding(20)
         }
-        .padding(16)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(WSRegistryPalette.ivory, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .shadow(color: WSRegistryPalette.espresso.opacity(0.12), radius: 16, x: 0, y: 8)
     }
 
     private var statsCard: some View {
@@ -1178,9 +1592,9 @@ private struct RegistryDetailsView: View {
         }
         .padding(.vertical, 20)
         .frame(maxWidth: .infinity)
-        .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
                 .stroke(WSRegistryPalette.hairline.opacity(0.48), lineWidth: 1)
         )
         .shadow(color: WSRegistryPalette.espresso.opacity(0.05), radius: 12, x: 0, y: 6)
@@ -1193,7 +1607,7 @@ private struct RegistryDetailsView: View {
             HStack(spacing: 12) {
                 Image(systemName: "plus.circle.fill")
                     .font(.system(size: 20, weight: .semibold))
-                Text("Add items to your registry")
+                Text("Browse and add gifts")
                     .font(.system(size: 17, weight: .semibold))
                     .lineLimit(1)
                     .minimumScaleFactor(0.82)
@@ -1204,11 +1618,134 @@ private struct RegistryDetailsView: View {
             .foregroundStyle(WSRegistryPalette.porcelain)
             .padding(.horizontal, 18)
             .frame(maxWidth: .infinity, minHeight: 58, alignment: .leading)
-            .background(WSRegistryPalette.espresso, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .background(
+                LinearGradient(
+                    colors: [WSRegistryPalette.espresso, Color(red: 0.245, green: 0.165, blue: 0.110)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ),
+                in: RoundedRectangle(cornerRadius: 14, style: .continuous)
+            )
             .shadow(color: WSRegistryPalette.espresso.opacity(0.16), radius: 14, x: 0, y: 8)
         }
         .buttonStyle(.plain)
         .accessibilityLabel("Add items to your registry")
+    }
+
+    private var registrySwitcher: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(availableRegistries) { registry in
+                    let isActive = registryRepo.activeRegistryID == registry.id
+                    Button {
+                        registryRepo.selectRegistry(id: registry.id)
+                    } label: {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(registry.event.rawValue)
+                                .font(.wsLabel(size: 10))
+                            Text(registry.date.formatted(date: .abbreviated, time: .omitted))
+                                .font(.wsBody(size: 11))
+                        }
+                        .foregroundStyle(isActive ? WSRegistryPalette.cream : WSRegistryPalette.espresso)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 7)
+                        .background(
+                            isActive ? WSRegistryPalette.espresso : WSRegistryPalette.ivory,
+                            in: RoundedRectangle(cornerRadius: 2, style: .continuous)
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 2, style: .continuous)
+                                .stroke(WSRegistryPalette.hairline.opacity(0.6), lineWidth: 1)
+                        )
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+    }
+
+    private var recommendationActionsCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 8) {
+                Image(systemName: "sparkles")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundStyle(WSRegistryPalette.gold)
+                Text("AI AESTHETIC BUNDLES")
+                    .font(.system(size: 11, weight: .bold))
+                    .tracking(1.5)
+                    .foregroundStyle(WSRegistryPalette.gold)
+            }
+
+            Text("AI Registry Recommendations")
+                .font(.wsSerif(size: 20, weight: .semibold))
+                .foregroundStyle(WSRegistryPalette.espresso)
+
+            Text("Continue from your onboarding results: add items one-by-one, add bundles, or quick-add essentials.")
+                .font(.wsBody(size: 13))
+                .foregroundStyle(WSRegistryPalette.warmGray)
+
+            Button {
+                tabBarVM.registryPath.append(RegistryRoute.recommendations(followupRecommendationPayload))
+            } label: {
+                HStack {
+                    Image(systemName: "sparkles")
+                        .font(.system(size: 14, weight: .semibold))
+                    Text("Open Recommendations")
+                        .font(.wsLabel(size: 11))
+                        .tracking(1.0)
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 12, weight: .semibold))
+                }
+                .foregroundStyle(WSRegistryPalette.cream)
+                .padding(.horizontal, 14)
+                .frame(maxWidth: .infinity, minHeight: 46)
+                .background(
+                    LinearGradient(
+                        colors: [WSRegistryPalette.espresso, Color(red: 0.245, green: 0.165, blue: 0.110)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    in: RoundedRectangle(cornerRadius: 10, style: .continuous)
+                )
+            }
+            .buttonStyle(.plain)
+
+            VStack(alignment: .leading, spacing: 6) {
+                ForEach(bundleCompletionSuggestions, id: \.self) { suggestion in
+                    Text("• \(suggestion)")
+                        .font(.wsBody(size: 12))
+                        .foregroundStyle(WSRegistryPalette.cocoa.opacity(0.9))
+                        .lineLimit(2)
+                }
+            }
+        }
+        .padding(14)
+        .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .stroke(WSRegistryPalette.hairline.opacity(0.5), lineWidth: 1)
+        )
+        .shadow(color: WSRegistryPalette.espresso.opacity(0.04), radius: 12, x: 0, y: 6)
+    }
+
+    private var emptyRegistryState: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Your registry is ready to curate.")
+                .font(.system(size: 20, weight: .semibold, design: .serif))
+                .foregroundStyle(WSRegistryPalette.espresso)
+            Text("Add essentials, AI picks, or complete sets to start your registry.")
+                .font(.system(size: 14, weight: .regular))
+                .foregroundStyle(WSRegistryPalette.warmGray)
+                .lineSpacing(3)
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(WSRegistryPalette.ivory, in: RoundedRectangle(cornerRadius: 2, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 2, style: .continuous)
+                .stroke(WSRegistryPalette.hairline.opacity(0.48), lineWidth: 1)
+        )
     }
 
     private var divider: some View {
@@ -1238,10 +1775,10 @@ private struct RegistryDetailsView: View {
             HStack(alignment: .bottom) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(section.title)
-                        .font(.system(size: 24, weight: .semibold, design: .serif))
+                        .font(.system(size: 22, weight: .semibold, design: .serif))
                         .foregroundStyle(WSRegistryPalette.espresso)
                     Text("\(section.itemCount) Items")
-                        .font(.system(size: 15, weight: .semibold))
+                        .font(.system(size: 14, weight: .semibold))
                         .foregroundStyle(section.tint)
                 }
 
@@ -1250,18 +1787,19 @@ private struct RegistryDetailsView: View {
                 Button("View All") {
                     tabBarVM.registryPath.append(RegistryRoute.categoryProducts(section.title))
                 }
-                .font(.system(size: 15, weight: .semibold))
+                .font(.system(size: 14, weight: .semibold))
                 .foregroundStyle(WSRegistryPalette.gold)
             }
 
-            LazyVGrid(
-                columns: Array(repeating: GridItem(.flexible(), spacing: 14), count: 3),
-                alignment: .leading,
-                spacing: 14
-            ) {
-                ForEach(section.products.prefix(3)) { product in
-                    registryProductCard(product)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 12) {
+                    ForEach(section.products.prefix(6)) { product in
+                        registryProductCard(product)
+                            .frame(width: 170)
+                    }
                 }
+                .padding(.horizontal, 2)
+                .padding(.vertical, 4)
             }
 
             GeometryReader { proxy in
@@ -1278,28 +1816,32 @@ private struct RegistryDetailsView: View {
     }
 
     private func registryProductCard(_ product: RegistryDisplayProduct) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            CustomAsyncImage(url: product.imageURL)
-                .frame(height: 138)
-                .frame(maxWidth: .infinity)
-                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        let productItem = ProductItem(
+            id: product.id,
+            name: product.name,
+            price: product.numericPrice,
+            path: product.imagePath,
+            productType: nil,
+            brand: product.brand
+        )
+        let cartQuantity = cartRepo.items.first(where: { $0.id == product.id })?.quantity ?? 0
+        let registryQuantity = registryRepo.currentRegistry?.items.first(where: { $0.id == product.id })?.quantity ?? 0
 
-            Text(product.brand)
-                .font(.system(size: 12, weight: .bold))
-                .foregroundStyle(WSRegistryPalette.espresso)
-                .lineLimit(1)
-                .minimumScaleFactor(0.72)
-
-            Text(product.name)
-                .font(.system(size: 12, weight: .regular))
-                .foregroundStyle(WSRegistryPalette.cocoa.opacity(0.88))
-                .lineLimit(2)
-                .minimumScaleFactor(0.76)
-
-            Text(product.priceText)
-                .font(.system(size: 14, weight: .bold))
-                .foregroundStyle(WSRegistryPalette.espresso)
-        }
+        return ProductCardView(
+            product: productItem,
+            quantity: cartQuantity,
+            registryQuantity: registryQuantity,
+            onAdd: { cartRepo.add(product: productItem) },
+            onRemove: { cartRepo.remove(productId: product.id) },
+            onAddToRegistry: {
+                registryRepo.addProduct(
+                    productItem,
+                    collectionName: product.collectionName,
+                    sourceTag: nil
+                )
+            },
+            onRemoveFromRegistry: { registryRepo.removeItem(product.id) }
+        )
     }
 }
 
@@ -1307,6 +1849,7 @@ private struct RegistryDetailsView: View {
 private struct RegistryCategoryProductsView: View {
     let sectionTitle: String
     @EnvironmentObject var registryRepo: RegistryRepository
+    @EnvironmentObject var cartRepo: CartRepository
     @State private var selectedProduct: RegistryDisplayProduct?
     @State private var removedProductIDs = Set<String>()
 
@@ -1316,6 +1859,7 @@ private struct RegistryCategoryProductsView: View {
 
     private var products: [RegistryDisplayProduct] {
         RegistryDetailContent.sections(from: registryItems)
+            .filter { $0.title == sectionTitle }
             .flatMap(\.products)
             .filter { !removedProductIDs.contains($0.id) }
     }
@@ -1326,11 +1870,22 @@ private struct RegistryCategoryProductsView: View {
                 .ignoresSafeArea()
 
             ScrollView(showsIndicators: false) {
-                VStack(alignment: .leading, spacing: 0) {
+                VStack(alignment: .leading, spacing: 14) {
                     listToolbar
 
-                    ForEach(products) { product in
-                        registryProductListRow(product)
+                    LazyVGrid(
+                        columns: [
+                            GridItem(.flexible(), spacing: 12),
+                            GridItem(.flexible(), spacing: 12)
+                        ],
+                        spacing: 14
+                    ) {
+                        ForEach(products) { product in
+                            registryProductListRow(product)
+                                .onLongPressGesture {
+                                    selectedProduct = product
+                                }
+                        }
                     }
                 }
                 .padding(.horizontal, 18)
@@ -1338,11 +1893,14 @@ private struct RegistryCategoryProductsView: View {
                 .padding(.bottom, 40)
             }
         }
-        .navigationTitle("Registry Items")
+        .navigationTitle(sectionTitle)
         .navigationBarTitleDisplayMode(.inline)
         .sheet(item: $selectedProduct) { product in
             RegistryProductActionSheet(
                 product: product,
+                onMoveToCollection: { collection in
+                    registryRepo.moveToCollection(productId: product.id, collectionName: collection)
+                },
                 onRemove: { removeProduct(product) }
             )
             .presentationDetents([.height(620), .large])
@@ -1368,111 +1926,52 @@ private struct RegistryCategoryProductsView: View {
             } label: {
                 HStack(spacing: 6) {
                     Text("Sort: Recently Added")
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(.system(size: 14, weight: .semibold))
                         .lineLimit(1)
                     Image(systemName: "chevron.down")
-                        .font(.system(size: 13, weight: .bold))
+                        .font(.system(size: 12, weight: .bold))
                 }
                 .foregroundStyle(WSRegistryPalette.espresso)
             }
 
             Spacer(minLength: 8)
+
+            Text("\(products.count) items")
+                .font(.system(size: 13, weight: .regular))
+                .foregroundStyle(WSRegistryPalette.warmGray)
         }
-        .padding(.bottom, 14)
+        .padding(.bottom, 6)
     }
 
     private func registryProductListRow(_ product: RegistryDisplayProduct) -> some View {
-        Button {
-            selectedProduct = product
-        } label: {
-            HStack(spacing: 10) {
-                CustomAsyncImage(url: product.imageURL)
-                    .frame(width: 86, height: 86)
-                    .clipShape(RoundedRectangle(cornerRadius: 11, style: .continuous))
+        let productItem = ProductItem(
+            id: product.id,
+            name: product.name,
+            price: product.numericPrice,
+            path: product.imagePath,
+            productType: nil,
+            brand: product.brand
+        )
+        let cartQuantity = cartRepo.items.first(where: { $0.id == product.id })?.quantity ?? 0
+        let registryQuantity = registryRepo.currentRegistry?.items.first(where: { $0.id == product.id })?.quantity ?? 0
 
-                VStack(alignment: .leading, spacing: 7) {
-                    Text(product.brand)
-                        .font(.system(size: 16, weight: .bold))
-                        .foregroundStyle(WSRegistryPalette.espresso)
-                        .lineLimit(1)
-
-                    Text(product.name)
-                        .font(.system(size: 15, weight: .regular))
-                        .foregroundStyle(WSRegistryPalette.cocoa.opacity(0.86))
-                        .lineLimit(2)
-
-                    if let detail = product.detail {
-                        Text(detail)
-                            .font(.system(size: 15, weight: .regular))
-                            .foregroundStyle(WSRegistryPalette.cocoa.opacity(0.86))
-                            .lineLimit(1)
-                    }
-
-                    Text(product.priceText)
-                        .font(.system(size: 18, weight: .bold))
-                        .foregroundStyle(WSRegistryPalette.espresso)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(product.isPurchased ? "Purchased" : "Unpurchased")
-                        .font(.system(size: 11, weight: .semibold))
-                        .foregroundStyle(product.isPurchased ? WSRegistryPalette.sage : WSRegistryPalette.cocoa)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.82)
-                        .padding(.horizontal, 9)
-                        .padding(.vertical, 5)
-                        .background(
-                            (product.isPurchased ? WSRegistryPalette.sage.opacity(0.14) : WSRegistryPalette.gold.opacity(0.14)),
-                            in: Capsule()
-                        )
-
-                    if product.isPurchased, let purchaserName = product.purchaserName {
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("Purchased by")
-                                .font(.system(size: 12, weight: .regular))
-                                .foregroundStyle(WSRegistryPalette.cocoa.opacity(0.86))
-                                .lineLimit(1)
-
-                            HStack(spacing: 6) {
-                                Text(product.purchaserInitials)
-                                    .font(.system(size: 9, weight: .bold))
-                                    .foregroundStyle(WSRegistryPalette.porcelain)
-                                    .frame(width: 24, height: 24)
-                                    .background(WSRegistryPalette.cocoa.opacity(0.72), in: Circle())
-
-                                Text(purchaserName)
-                                    .font(.system(size: 12, weight: .semibold))
-                                    .foregroundStyle(WSRegistryPalette.cocoa.opacity(0.9))
-                                    .lineLimit(1)
-                                    .minimumScaleFactor(0.72)
-                            }
-                        }
-                    }
-                }
-                .frame(width: 92, alignment: .leading)
-
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(WSRegistryPalette.espresso.opacity(0.85))
-            }
-            .padding(.vertical, 12)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .contentShape(Rectangle())
-            .overlay(
-                Rectangle()
-                    .fill(WSRegistryPalette.hairline.opacity(0.45))
-                    .frame(height: 1)
-                    .padding(.leading, 98),
-                alignment: .bottom
-            )
-        }
-        .buttonStyle(.plain)
+        return ProductCardView(
+            product: productItem,
+            quantity: cartQuantity,
+            registryQuantity: registryQuantity,
+            onAdd: { cartRepo.add(product: productItem) },
+            onRemove: { cartRepo.remove(productId: product.id) },
+            onAddToRegistry: {
+                registryRepo.addProduct(productItem, collectionName: product.collectionName, sourceTag: nil)
+            },
+            onRemoveFromRegistry: { registryRepo.removeItem(product.id) }
+        )
     }
 }
 
 private struct RegistryProductActionSheet: View {
     let product: RegistryDisplayProduct
+    let onMoveToCollection: (String) -> Void
     let onRemove: () -> Void
     @Environment(\.dismiss) private var dismiss
     @State private var noteText = ""
@@ -1493,7 +1992,7 @@ private struct RegistryProductActionSheet: View {
             HStack(alignment: .top, spacing: 16) {
                 CustomAsyncImage(url: product.imageURL)
                     .frame(width: 126, height: 126)
-                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: 2, style: .continuous))
 
                 VStack(alignment: .leading, spacing: 8) {
                     Text(product.brand)
@@ -1532,9 +2031,22 @@ private struct RegistryProductActionSheet: View {
             Text("Add a private note for this registry item.")
         }
         .confirmationDialog("Move to Collection", isPresented: $isShowingCollectionPicker, titleVisibility: .visible) {
-            Button("Daily Cooking") { collection = "Daily Cooking" }
-            Button("Hosting") { collection = "Hosting" }
-            Button("Shared Dining") { collection = "Shared Dining" }
+            Button("Daily Cooking") {
+                collection = "Daily Cooking"
+                onMoveToCollection(collection)
+            }
+            Button("Hosting") {
+                collection = "Hosting"
+                onMoveToCollection(collection)
+            }
+            Button("Shared Dining") {
+                collection = "Shared Dining"
+                onMoveToCollection(collection)
+            }
+            Button("Morning Rituals") {
+                collection = "Morning Rituals"
+                onMoveToCollection(collection)
+            }
             Button("Cancel", role: .cancel) { }
         }
         .confirmationDialog("Edit Priority", isPresented: $isShowingPriorityPicker, titleVisibility: .visible) {
@@ -1551,6 +2063,11 @@ private struct RegistryProductActionSheet: View {
             Button("Cancel", role: .cancel) { }
         } message: {
             Text("This item will be removed from your registry list.")
+        }
+        .onAppear {
+            if let collectionName = product.collectionName, !collectionName.isEmpty {
+                collection = collectionName
+            }
         }
     }
 
@@ -1582,7 +2099,7 @@ private struct RegistryProductActionSheet: View {
         }
         .padding(18)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(WSRegistryPalette.ivory.opacity(0.68), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .background(WSRegistryPalette.ivory.opacity(0.68), in: RoundedRectangle(cornerRadius: 2, style: .continuous))
     }
 
     private var actionList: some View {
@@ -1605,9 +2122,9 @@ private struct RegistryProductActionSheet: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 6)
-        .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 2, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
+            RoundedRectangle(cornerRadius: 2, style: .continuous)
                 .stroke(WSRegistryPalette.hairline.opacity(0.55), lineWidth: 1)
         )
     }
@@ -1661,9 +2178,9 @@ private struct RegistryProductActionSheet: View {
                 .font(.system(size: 18, weight: .semibold))
                 .foregroundStyle(WSRegistryPalette.espresso)
                 .frame(maxWidth: .infinity, minHeight: 58)
-                .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 2, style: .continuous))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    RoundedRectangle(cornerRadius: 2, style: .continuous)
                         .stroke(WSRegistryPalette.hairline.opacity(0.9), lineWidth: 1)
                 )
         }
@@ -1674,8 +2191,8 @@ private struct RegistryProductActionSheet: View {
 
 private enum RegistryDetailContent {
     static func sections(from registryItems: [RegistryItem]) -> [RegistryDetailSection] {
-        guard !registryItems.isEmpty else { return RegistryDetailSection.samples }
-        return userSections(from: registryItems) + RegistryDetailSection.samples.dropFirst()
+        guard !registryItems.isEmpty else { return [] }
+        return userSections(from: registryItems)
     }
 
     static func totalItems(from registryItems: [RegistryItem]) -> Int {
@@ -1684,7 +2201,7 @@ private enum RegistryDetailContent {
 
     static func collectionCount(from registryItems: [RegistryItem]) -> Int {
         guard !registryItems.isEmpty else { return 0 }
-        return userSections(from: registryItems).filter { !$0.products.isEmpty }.count
+        return Set(registryItems.map { $0.collectionName ?? "My Registry" }).count
     }
 
     static func purchasedItems(from registryItems: [RegistryItem]) -> Int {
@@ -1692,7 +2209,7 @@ private enum RegistryDetailContent {
         return userSections(from: registryItems)
             .flatMap(\.products)
             .filter(\.isPurchased)
-            .count
+            .reduce(0) { $0 + $1.quantity }
     }
 
     static func completionText(from registryItems: [RegistryItem]) -> String {
@@ -1703,14 +2220,21 @@ private enum RegistryDetailContent {
     }
 
     private static func userSections(from registryItems: [RegistryItem]) -> [RegistryDetailSection] {
-        [
-            RegistryDetailSection(
-                title: "Daily Cooking",
-                itemCount: registryItems.reduce(0) { $0 + $1.quantity },
-                tint: WSRegistryPalette.sage,
-                products: registryItems.map { RegistryDisplayProduct(item: $0) }
-            )
-        ]
+        let grouped = Dictionary(grouping: registryItems) { $0.collectionName ?? "My Registry" }
+        let tintPalette: [Color] = [WSRegistryPalette.sage, WSRegistryPalette.gold, WSRegistryPalette.cocoa]
+        return grouped
+            .keys
+            .sorted()
+            .enumerated()
+            .map { index, collection in
+                let items = grouped[collection] ?? []
+                return RegistryDetailSection(
+                    title: collection,
+                    itemCount: items.reduce(0) { $0 + $1.quantity },
+                    tint: tintPalette[index % tintPalette.count],
+                    products: items.map { RegistryDisplayProduct(item: $0) }
+                )
+            }
     }
 }
 
@@ -1722,12 +2246,14 @@ private struct RegistryDetailSection: Identifiable {
     let products: [RegistryDisplayProduct]
 
     var progress: CGFloat {
-        switch title {
-        case "Daily Cooking": return 0.38
-        case "Hosting": return 0.30
-        case "Shared Dining": return 0.22
-        default: return 0.34
-        }
+        guard !products.isEmpty else { return 0.1 }
+        let totalQuantity = products.reduce(0) { $0 + $1.quantity }
+        guard totalQuantity > 0 else { return 0.2 }
+        let purchasedQuantity = products
+            .filter(\.isPurchased)
+            .reduce(0) { $0 + $1.quantity }
+        if purchasedQuantity == 0 { return 0.2 }
+        return min(1.0, max(0.2, CGFloat(purchasedQuantity) / CGFloat(totalQuantity)))
     }
 
     static let samples: [RegistryDetailSection] = [
@@ -1770,9 +2296,13 @@ private struct RegistryDisplayProduct: Identifiable {
     let name: String
     let detail: String?
     let priceText: String
+    let numericPrice: Double
+    let imagePath: String?
     let imageURL: URL?
     let isPurchased: Bool
     let purchaserName: String?
+    let collectionName: String?
+    let quantity: Int
 
     var statusDetailText: String {
         if let purchaserName {
@@ -1800,28 +2330,42 @@ private struct RegistryDisplayProduct: Identifiable {
         priceText: String,
         imagePath: String,
         isPurchased: Bool = false,
-        purchaserName: String? = nil
+        purchaserName: String? = nil,
+        collectionName: String? = nil,
+        quantity: Int = 1
     ) {
         self.id = id ?? "\(brand)-\(name)"
         self.brand = brand
         self.name = name
         self.detail = detail
         self.priceText = priceText
+        self.numericPrice = RegistryDisplayProduct.parsePrice(priceText) ?? 0
+        self.imagePath = imagePath
         self.imageURL = URL(string: AppConstants.API.imageBasePath + imagePath)
         self.isPurchased = isPurchased
         self.purchaserName = purchaserName
+        self.collectionName = collectionName
+        self.quantity = max(1, quantity)
     }
 
     init(item: RegistryItem) {
-        let parts = item.name.split(separator: " ", maxSplits: 1).map(String.init)
         self.id = item.id
-        self.brand = parts.first ?? "Williams Sonoma"
-        self.name = parts.count > 1 ? parts[1] : item.name
+        self.brand = "WSI Curated"
+        self.name = item.name
         self.detail = nil
         self.priceText = item.price.formatted(.currency(code: "USD"))
+        self.numericPrice = item.price
+        self.imagePath = item.imageUrl
         self.imageURL = URL(string: AppConstants.API.imageBasePath + item.imageUrl)
         self.isPurchased = false
         self.purchaserName = nil
+        self.collectionName = item.collectionName
+        self.quantity = max(1, item.quantity)
+    }
+
+    private static func parsePrice(_ priceText: String) -> Double? {
+        let clean = priceText.replacingOccurrences(of: "[^0-9.]", with: "", options: .regularExpression)
+        return Double(clean)
     }
 }
 
@@ -1832,6 +2376,48 @@ private struct RegistrySummaryItem: Identifiable {
     let subtitle: String
     let status: String
     let tint: Color
+
+    static func from(registryItems: [RegistryItem]) -> [RegistrySummaryItem] {
+        guard !registryItems.isEmpty else {
+            return [
+                RegistrySummaryItem(
+                    title: "Registry Ready",
+                    systemImage: "sparkles",
+                    subtitle: "Start adding gifts from recommendations, essentials, or your own picks.",
+                    status: "Start",
+                    tint: WSRegistryPalette.gold
+                )
+            ]
+        }
+
+        let grouped = Dictionary(grouping: registryItems) { $0.collectionName ?? "My Registry" }
+        let sorted = grouped.keys.sorted()
+        let palette: [Color] = [WSRegistryPalette.sage, WSRegistryPalette.gold, WSRegistryPalette.cocoa]
+
+        return sorted.enumerated().map { index, name in
+            let items = grouped[name] ?? []
+            let count = items.reduce(0) { $0 + $1.quantity }
+            let status = count >= 6 ? "Established" : (count >= 3 ? "Growing" : "Starting")
+            return RegistrySummaryItem(
+                title: name,
+                systemImage: icon(for: name),
+                subtitle: "\(count) item\(count == 1 ? "" : "s") saved in this collection.",
+                status: status,
+                tint: palette[index % palette.count]
+            )
+        }
+        .prefix(4)
+        .map { $0 }
+    }
+
+    private static func icon(for collection: String) -> String {
+        let normalized = collection.lowercased()
+        if normalized.contains("cook") || normalized.contains("kitchen") { return "frying.pan" }
+        if normalized.contains("host") { return "wineglass" }
+        if normalized.contains("dining") || normalized.contains("table") { return "fork.knife" }
+        if normalized.contains("morning") || normalized.contains("coffee") { return "cup.and.saucer" }
+        return "square.grid.2x2"
+    }
 
     static let samples: [RegistrySummaryItem] = [
         RegistrySummaryItem(

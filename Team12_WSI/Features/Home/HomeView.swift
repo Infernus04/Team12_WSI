@@ -6,11 +6,11 @@ struct HomeView: View {
     @EnvironmentObject var cartRepository: CartRepository
     @EnvironmentObject var registryRepository: RegistryRepository
     @EnvironmentObject var tabBarVM: WSTabBarViewModel
+    @EnvironmentObject var saveForLaterRepository: SaveForLaterRepository
 
-    @State private var selectedProduct: ProductItem?
+    @State private var navigationPath = NavigationPath()
     @State private var showSearch = false
     @State private var showConcierge = false
-    @State private var showAIExplanation = false
     @State private var showMoodboard = false
     @State private var selectedArticle: EditorialArticle?
     @State private var expandedSceneID: UUID?
@@ -20,53 +20,163 @@ struct HomeView: View {
     @State private var s1On = false; @State private var s2On = false
     @State private var s4On = false; @State private var s5On = false
     @State private var s6On = false; @State private var s8On = false
+    @State private var showSaveForLater = false          // Buy Later list
+    @State private var showProfile = false               // Profile sheet
+    // Hero CTA navigation
+    @State private var showHeroCollection = false
 
     private let heroMoods = SeasonalContextEngine.heroMoods()
 
     var body: some View {
-        ZStack(alignment: .bottomTrailing) {
-            Color.wsWarmIvory.ignoresSafeArea()
-            VStack(spacing: 0) {
-                navBar
-                if viewModel.isLoading { loadingView }
-                else {
-                    ScrollView(showsIndicators: false) {
-                        VStack(spacing: 48) {
-                            heroSection.opacity(s1On ? 1 : 0).offset(y: s1On ? 0 : 16).onAppear { withAnimation(.easeOut(duration: 0.5)) { s1On = true } }
-                            forYourHomeSection.opacity(s2On ? 1 : 0).offset(y: s2On ? 0 : 20).onAppear { withAnimation(.easeOut(duration: 0.5).delay(0.1)) { s2On = true } }
-                            designedTogetherSection.opacity(s4On ? 1 : 0).offset(y: s4On ? 0 : 20).onAppear { withAnimation(.easeOut(duration: 0.5).delay(0.15)) { s4On = true } }
-                            moodboardSection.opacity(s5On ? 1 : 0).offset(y: s5On ? 0 : 20).onAppear { withAnimation(.easeOut(duration: 0.5).delay(0.2)) { s5On = true } }
-                            editorialSection.opacity(s6On ? 1 : 0).offset(y: s6On ? 0 : 20).onAppear { withAnimation(.easeOut(duration: 0.5).delay(0.25)) { s6On = true } }
-                            seasonalSection.opacity(s8On ? 1 : 0).offset(y: s8On ? 0 : 20).onAppear { withAnimation(.easeOut(duration: 0.5).delay(0.3)) { s8On = true } }
-                            Spacer().frame(height: 100)
+        NavigationStack(path: $navigationPath) {
+            ZStack(alignment: .bottomTrailing) {
+                Color.wsWarmIvory.ignoresSafeArea()
+                VStack(spacing: 0) {
+                    navBar
+                    if viewModel.isLoading { loadingView }
+                    else {
+                        ScrollView(showsIndicators: false) {
+                            VStack(spacing: 48) {
+                                heroSection.opacity(s1On ? 1 : 0).offset(y: s1On ? 0 : 16).onAppear { withAnimation(.easeOut(duration: 0.5)) { s1On = true } }
+                                forYourHomeSection.opacity(s2On ? 1 : 0).offset(y: s2On ? 0 : 20).onAppear { withAnimation(.easeOut(duration: 0.5).delay(0.1)) { s2On = true } }
+                                designedTogetherSection.opacity(s4On ? 1 : 0).offset(y: s4On ? 0 : 20).onAppear { withAnimation(.easeOut(duration: 0.5).delay(0.15)) { s4On = true } }
+                                moodboardSection.opacity(s5On ? 1 : 0).offset(y: s5On ? 0 : 20).onAppear { withAnimation(.easeOut(duration: 0.5).delay(0.2)) { s5On = true } }
+                                editorialSection.opacity(s6On ? 1 : 0).offset(y: s6On ? 0 : 20).onAppear { withAnimation(.easeOut(duration: 0.5).delay(0.25)) { s6On = true } }
+                                seasonalSection.opacity(s8On ? 1 : 0).offset(y: s8On ? 0 : 20).onAppear { withAnimation(.easeOut(duration: 0.5).delay(0.3)) { s8On = true } }
+                                Spacer().frame(height: 100)
+                            }
                         }
                     }
                 }
+                conciergeButton
             }
-            conciergeButton
+            .navigationBarHidden(true)
+            .navigationDestination(for: HomeRoute.self) { route in
+                homeDestination(for: route)
+            }
+            .sheet(isPresented: $showSearch) {
+                HomeSearchView(
+                    allProducts: viewModel.products,
+                    onSelectProduct: { navigateToProduct($0) },
+                    onAddToCart: { viewModel.addToCart($0) },
+                    onAddToRegistry: { viewModel.addToRegistry($0) }
+                )
+            }
+            .sheet(isPresented: $showConcierge) {
+                AIConciergeView(allProducts: viewModel.products, registryRepository: registryRepository, onSelectProduct: { navigateToProduct($0) })
+            }
+            .sheet(item: $selectedArticle) { article in articleSheet(article) }
+            .sheet(isPresented: $showMoodboard) {
+                NavigationStack { MoodboardView(allProducts: viewModel.products) }
+            }
+            .sheet(isPresented: $showHeroCollection) {
+                HomeSearchView(
+                    allProducts: viewModel.products,
+                    onSelectProduct: { navigateToProduct($0) },
+                    onAddToCart: { viewModel.addToCart($0) },
+                    onAddToRegistry: { viewModel.addToRegistry($0) }
+                )
+            }
+            .sheet(isPresented: $showProfile) {
+                ProfileView()
+            }
+            .sheet(isPresented: $showSaveForLater) {
+                SaveForLaterView()
+                    .environmentObject(saveForLaterRepository)
+                    .environmentObject(cartRepository)
+            }
+            .onAppear {
+                Task {
+                    viewModel.bind(
+                        cartRepository: cartRepository,
+                        registryRepository: registryRepository,
+                        saveForLaterRepository: saveForLaterRepository
+                    )
+                    await viewModel.fetchProducts()
+                }
+                withAnimation(.easeInOut(duration: 1.4).repeatForever(autoreverses: true)) { conciergeScale = 1.08 }
+            }
         }
-        .fullScreenCover(item: $selectedProduct) { p in
-            ProductDetailView(product: p, allProducts: viewModel.products,
-                onAddToCart: { viewModel.addToCart($0) },
-                onAddToRegistry: { viewModel.addToRegistry($0) },
-                cartQuantity: viewModel.cartQuantity(for: p),
-                registryQuantity: viewModel.registryQuantity(for: p))
+    }
+
+    private enum HomeRoute: Hashable {
+        case product(String)
+        case bundle(UUID)
+        case scene(UUID)
+    }
+
+    private func navigateToProduct(_ product: ProductItem) {
+        navigationPath.append(HomeRoute.product(product.id))
+    }
+
+    private func navigateToBundle(_ bundle: AestheticBundle) {
+        navigationPath.append(HomeRoute.bundle(bundle.id))
+    }
+
+    private func navigateToScene(_ scene: LifestyleScene) {
+        navigationPath.append(HomeRoute.scene(scene.id))
+    }
+
+    @ViewBuilder
+    private func homeDestination(for route: HomeRoute) -> some View {
+        switch route {
+        case .product(let id):
+            if let product = viewModel.products.first(where: { $0.id == id }) {
+                ProductDetailView(
+                    product: product,
+                    allProducts: viewModel.products,
+                    onAddToCart: { viewModel.addToCart($0) },
+                    onAddToRegistry: { viewModel.addToRegistry($0) },
+                    onAddToSaveForLater: { viewModel.addToSaveForLater($0) },
+                    cartQuantity: viewModel.cartQuantity(for: product),
+                    registryQuantity: viewModel.registryQuantity(for: product),
+                    isInSaveForLater: viewModel.isInSaveForLater(product),
+                    onSelectRelatedProduct: { navigateToProduct($0) }
+                )
+                .toolbar(.hidden, for: .tabBar)
+            } else {
+                unavailableDetailView
+            }
+        case .bundle(let id):
+            if let bundle = HomeEditorialData.bundles.first(where: { $0.id == id }) {
+                BundleDetailView(
+                    bundle: bundle,
+                    products: viewModel.bundleProducts(for: bundle),
+                    onSelectProduct: { navigateToProduct($0) },
+                    onAddToCart: { viewModel.addToCart($0) },
+                    onAddToRegistry: { viewModel.addToRegistry($0) }
+                )
+                .toolbar(.hidden, for: .tabBar)
+            } else {
+                unavailableDetailView
+            }
+        case .scene(let id):
+            if let scene = HomeEditorialData.scenes.first(where: { $0.id == id }) {
+                LifestyleSceneDetailView(
+                    scene: scene,
+                    allProducts: viewModel.products,
+                    onSelectProduct: { navigateToProduct($0) },
+                    onAddToCart: { viewModel.addToCart($0) },
+                    onAddToRegistry: { viewModel.addToRegistry($0) }
+                )
+                .toolbar(.hidden, for: .tabBar)
+            } else {
+                unavailableDetailView
+            }
         }
-        .sheet(isPresented: $showSearch) {
-            HomeSearchView(allProducts: viewModel.products, onSelectProduct: { selectedProduct = $0 })
+    }
+
+    private var unavailableDetailView: some View {
+        VStack(spacing: 12) {
+            Image(systemName: "exclamationmark.triangle")
+                .font(.system(size: 24, weight: .light))
+                .foregroundColor(.wsMutedBrass)
+            Text("This detail is no longer available.")
+                .font(.wsSerif(size: 18))
+                .foregroundColor(.wsCharcoal)
         }
-        .sheet(isPresented: $showConcierge) {
-            AIConciergeView(allProducts: viewModel.products, registryRepository: registryRepository, onSelectProduct: { selectedProduct = $0 })
-        }
-        .sheet(item: $selectedArticle) { article in articleSheet(article) }
-        .sheet(isPresented: $showMoodboard) {
-            NavigationStack { MoodboardView(allProducts: viewModel.products) }
-        }
-        .sheet(isPresented: $showAIExplanation) { aiExplainSheet }
-        .onAppear {
-            Task { viewModel.bind(cartRepository: cartRepository, registryRepository: registryRepository); await viewModel.fetchProducts() }
-            withAnimation(.easeInOut(duration: 1.4).repeatForever(autoreverses: true)) { conciergeScale = 1.08 }
-        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.wsWarmIvory)
     }
 
     // MARK: Loading
@@ -90,9 +200,25 @@ struct HomeView: View {
             Text("WILLIAMS\nSONOMA").font(.system(size: 8, weight: .bold)).tracking(2).multilineTextAlignment(.center).foregroundColor(.wsCharcoal)
             Spacer()
             HStack(spacing: 16) {
-                Button(action: { showConcierge = true }) { Image(systemName: "sparkles").foregroundColor(.wsMutedBrass).font(.system(size: 16)) }
+                // Buy Later list button (replaces sparkles)
+                ZStack(alignment: .topTrailing) {
+                    Button(action: { showSaveForLater = true }) {
+                        Image(systemName: "bookmark")
+                            .foregroundColor(.wsMutedBrass)
+                            .font(.system(size: 16))
+                    }
+                    if saveForLaterRepository.totalItems > 0 {
+                        Text("\(saveForLaterRepository.totalItems)")
+                            .font(.system(size: 8, weight: .bold))
+                            .foregroundColor(.white)
+                            .frame(width: 14, height: 14)
+                            .background(Color.wsCrimson)
+                            .clipShape(Circle())
+                            .offset(x: 6, y: -6)
+                    }
+                }
                 Button(action: { showSearch = true }) { Image(systemName: "magnifyingglass").foregroundColor(.wsCharcoal).font(.system(size: 16)) }
-                Button(action: {}) { Image(systemName: "person.circle").foregroundColor(.wsCharcoal).font(.system(size: 16)) }
+                Button(action: { showProfile = true }) { Image(systemName: "person.circle").foregroundColor(.wsCharcoal).font(.system(size: 16)) }
             }
         }
         .padding(.horizontal, 20).padding(.vertical, 14)
@@ -101,39 +227,79 @@ struct HomeView: View {
 
     // MARK: Section 1 — Hero
     private var heroSection: some View {
-        VStack(spacing: 0) {
-            TabView(selection: $heroPage) {
-                ForEach(heroMoods.indices, id: \.self) { i in
-                    heroCard(mood: heroMoods[i], productIndex: i).tag(i)
-                }
+        TabView(selection: $heroPage) {
+            ForEach(heroMoods.indices, id: \.self) { i in
+                heroCard(mood: heroMoods[i], productIndex: i).tag(i)
             }
-            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .automatic))
-            .frame(height: 480)
         }
+        .tabViewStyle(PageTabViewStyle(indexDisplayMode: .automatic))
+        .frame(height: 500)
+        // Clip so the TabView page dots don't bleed outside
+        .clipped()
     }
 
     private func heroCard(mood: SeasonalMood, productIndex: Int) -> some View {
-        ZStack(alignment: .bottomLeading) {
-            if let url = viewModel.product(at: productIndex)?.imageURL {
-                CustomAsyncImage(url: url).frame(maxWidth: .infinity).frame(height: 480).clipped()
-            } else {
-                LinearGradient(colors: [Color(hex: "#C9C0B3"), Color.wsChampagne], startPoint: .top, endPoint: .bottom).frame(height: 480)
-            }
-            LinearGradient(colors: [.clear, Color.wsCharcoal.opacity(0.72)], startPoint: .center, endPoint: .bottom).frame(height: 480)
-            VStack(alignment: .leading, spacing: 14) {
-                Text("THE SEASONAL MOOD").font(.wsLabel(size: 9)).tracking(2).foregroundColor(.wsMutedBrass)
-                Text(mood.headline).font(.wsDisplay(size: 34)).foregroundColor(.white).lineSpacing(3)
-                Text(mood.subtitle).font(.wsSerif(size: 15)).foregroundColor(.white.opacity(0.8))
-                Button(action: {}) {
-                    Text(mood.cta).font(.wsLabel(size: 11)).tracking(1.5)
-                        .padding(.horizontal, 22).padding(.vertical, 13)
-                        .background(Color.white).foregroundColor(.wsCharcoal)
+        GeometryReader { geo in
+            ZStack(alignment: .bottomLeading) {
+                // Background image fills the card exactly
+                Group {
+                    if let url = viewModel.product(at: productIndex)?.imageURL {
+                        CustomAsyncImage(url: url)
+                            .frame(width: geo.size.width, height: geo.size.height)
+                            .clipped()
+                    } else {
+                        LinearGradient(
+                            colors: [Color(hex: "#C9C0B3"), Color.wsChampagne],
+                            startPoint: .top, endPoint: .bottom
+                        )
+                        .frame(width: geo.size.width, height: geo.size.height)
+                    }
                 }
-                .padding(.top, 4)
+
+                // Scrim gradient
+                LinearGradient(
+                    colors: [.clear, Color.wsCharcoal.opacity(0.75)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .frame(width: geo.size.width, height: geo.size.height)
+
+                // Text + CTA — fixed to bottom-left, consistent across all cards
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("THE SEASONAL MOOD")
+                        .font(.wsLabel(size: 9))
+                        .tracking(2)
+                        .foregroundColor(.wsMutedBrass)
+
+                    Text(mood.headline)
+                        .font(.wsDisplay(size: 32))
+                        .foregroundColor(.white)
+                        .lineSpacing(3)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    Text(mood.subtitle)
+                        .font(.wsSerif(size: 14))
+                        .foregroundColor(.white.opacity(0.85))
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    Button(action: { showHeroCollection = true }) {
+                        Text(mood.cta)
+                            .font(.wsLabel(size: 11))
+                            .tracking(1.5)
+                            .foregroundColor(.wsCharcoal)
+                            .padding(.horizontal, 22)
+                            .padding(.vertical, 13)
+                            .background(Color.white)
+                    }
+                    .padding(.top, 6)
+                }
+                .padding(.horizontal, 28)
+                .padding(.bottom, 40)
+                .frame(width: geo.size.width, alignment: .leading)
             }
-            .padding(30)
         }
-        .onLongPressGesture { showAIExplanation = true }
+        // GeometryReader needs an explicit height or it collapses
+        .frame(height: 500)
     }
 
     // MARK: Section 2 — For Your Home
@@ -149,7 +315,12 @@ struct HomeView: View {
             .padding(.horizontal, 20)
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 18) {
-                    ForEach(HomeEditorialData.scenes) { scene in sceneCard(scene) }
+                    ForEach(HomeEditorialData.scenes) { scene in
+                        Button(action: { navigateToScene(scene) }) {
+                            sceneCard(scene)
+                        }
+                        .buttonStyle(.plain)
+                    }
                 }
                 .padding(.horizontal, 20)
             }
@@ -170,7 +341,7 @@ struct HomeView: View {
                     Text(scene.subtitle).font(.wsBody(size: 13)).foregroundColor(.white.opacity(0.8))
                     // Mini product thumbnails
                     HStack(spacing: 6) {
-                        ForEach([(scene.productOffset+1)%max(1,viewModel.products.count), (scene.productOffset+2)%max(1,viewModel.products.count)], id: \.self) { idx in
+                        ForEach(Array([(scene.productOffset+1)%max(1,viewModel.products.count), (scene.productOffset+2)%max(1,viewModel.products.count)].enumerated()), id: \.offset) { index, idx in
                             if let url = viewModel.product(at: idx)?.imageURL {
                                 CustomAsyncImage(url: url).frame(width: 36, height: 36).clipped().clipShape(Circle()).overlay(Circle().stroke(Color.white.opacity(0.5), lineWidth: 1))
                             }
@@ -214,39 +385,97 @@ struct HomeView: View {
     }
 
     private func bundleCard(_ bundle: AestheticBundle) -> some View {
-        VStack(alignment: .leading, spacing: 14) {
-            // 2x2 image grid
-            let prods = viewModel.bundleProducts(for: bundle)
-            LazyVGrid(columns: [GridItem(.flexible(), spacing: 3), GridItem(.flexible(), spacing: 3)], spacing: 3) {
-                ForEach(prods.prefix(4)) { p in
-                    CustomAsyncImage(url: p.imageURL).frame(width: 128, height: 128).clipped()
-                }
-                if prods.count < 4 {
-                    ForEach(0..<(4-prods.count), id: \.self) { _ in Rectangle().fill(Color.wsChampagne).frame(width: 128, height: 128) }
-                }
-            }
-            .frame(width: 262).cornerRadius(2)
-            .overlay(alignment: .topTrailing) {
-                Text("\(bundle.compatibilityScore)% MATCH").font(.wsLabel(size: 9)).tracking(0.5).foregroundColor(.white)
-                    .padding(.horizontal, 8).padding(.vertical, 5).background(Color.wsMutedBrass).padding(10)
-            }
+        let prods = viewModel.bundleProducts(for: bundle)
+        return VStack(alignment: .leading, spacing: 14) {
+            // 2x2 image grid — tappable → BundleDetailView
+            Button(action: { navigateToBundle(bundle) }) {
+                ZStack(alignment: .topTrailing) {
+                    LazyVGrid(
+                        columns: [GridItem(.fixed(129), spacing: 3), GridItem(.fixed(129), spacing: 3)],
+                        spacing: 3
+                    ) {
+                        ForEach(prods.prefix(4)) { p in
+                            CustomAsyncImage(url: p.imageURL)
+                                .frame(width: 129, height: 129)
+                                .clipped()
+                        }
+                        if prods.count < 4 {
+                            ForEach(0..<(4 - prods.count), id: \.self) { _ in
+                                Rectangle().fill(Color.wsChampagne).frame(width: 129, height: 129)
+                            }
+                        }
+                    }
+                    .frame(width: 261)
+                    .cornerRadius(2)
 
-            VStack(alignment: .leading, spacing: 6) {
-                Text(bundle.title).font(.wsSerif(size: 16, weight: .semibold)).foregroundColor(.wsCharcoal)
-                Text(bundle.description).font(.wsBody(size: 12)).foregroundColor(.wsSecondary).lineLimit(2)
-                Button(action: { withAnimation(.spring()) { expandedBundleID = expandedBundleID == bundle.id ? nil : bundle.id } }) {
-                    HStack(spacing: 5) { Image(systemName: "sparkles").font(.system(size: 9)); Text("WHY THIS WORKS").font(.wsLabel(size: 9)).tracking(0.5) }.foregroundColor(.wsMutedBrass)
+                    Text("\(bundle.compatibilityScore)% MATCH")
+                        .font(.wsLabel(size: 9))
+                        .tracking(0.5)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 5)
+                        .background(Color.wsMutedBrass)
+                        .padding(10)
                 }
+            }
+            .buttonStyle(.plain)
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text(bundle.title)
+                    .font(.wsSerif(size: 16, weight: .semibold))
+                    .foregroundColor(.wsCharcoal)
+
+                Text(bundle.description)
+                    .font(.wsBody(size: 12))
+                    .foregroundColor(.wsSecondary)
+                    .lineLimit(2)
+
+                Button(action: {
+                    withAnimation(.spring()) {
+                        expandedBundleID = expandedBundleID == bundle.id ? nil : bundle.id
+                    }
+                }) {
+                    HStack(spacing: 5) {
+                        Image(systemName: "info.circle")
+                            .font(.system(size: 9))
+                        Text("WHY THIS WORKS")
+                            .font(.wsLabel(size: 9))
+                            .tracking(0.5)
+                    }
+                    .foregroundColor(.wsMutedBrass)
+                }
+
                 if expandedBundleID == bundle.id {
-                    Text(bundle.aiReason).font(.wsBody(size: 12)).foregroundColor(.wsSecondary).lineSpacing(3).transition(.opacity)
+                    Text(bundle.aiReason)
+                        .font(.wsBody(size: 12))
+                        .foregroundColor(.wsSecondary)
+                        .lineSpacing(3)
+                        .transition(.opacity)
                 }
-                Button(action: { viewModel.addBundleToCart(bundle) }) {
-                    Text("ADD BUNDLE").font(.wsLabel(size: 11)).tracking(1.5).foregroundColor(.wsCharcoal)
-                        .frame(width: 262, height: 38).overlay(Rectangle().stroke(Color.wsCharcoal, lineWidth: 1))
+
+                HStack(spacing: 8) {
+                    Button(action: { viewModel.addBundleToCart(bundle) }) {
+                        Text("ADD ALL")
+                            .font(.wsLabel(size: 11))
+                            .tracking(1.5)
+                            .foregroundColor(.wsCharcoal)
+                            .frame(maxWidth: .infinity, minHeight: 38)
+                            .overlay(Rectangle().stroke(Color.wsCharcoal, lineWidth: 1))
+                    }
+
+                    Button(action: { navigateToBundle(bundle) }) {
+                        Text("VIEW")
+                            .font(.wsLabel(size: 11))
+                            .tracking(1.5)
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity, minHeight: 38)
+                            .background(Color.wsCharcoal)
+                    }
                 }
+                .frame(width: 261)
             }
         }
-        .frame(width: 262)
+        .frame(width: 261)
     }
 
     // MARK: Section 5 — AI Moodboard Teaser
@@ -297,7 +526,15 @@ struct HomeView: View {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Editorial Intelligence").font(.wsDisplay(size: 24)).foregroundColor(.wsCharcoal)
-                    HStack(spacing: 5) { Image(systemName: "sparkles").font(.system(size: 9)).foregroundColor(.wsMutedBrass); Text("CURATED BY AURA AI").font(.wsLabel(size: 9)).tracking(1).foregroundColor(.wsMutedBrass) }
+                    HStack(spacing: 5) {
+                        Image(systemName: "text.page")
+                            .font(.system(size: 9))
+                            .foregroundColor(.wsMutedBrass)
+                        Text("STORIES FROM THE COLLECTION")
+                            .font(.wsLabel(size: 9))
+                            .tracking(1)
+                            .foregroundColor(.wsMutedBrass)
+                    }
                 }
                 Spacer()
             }
@@ -313,29 +550,75 @@ struct HomeView: View {
     }
 
     private func editorialCard(_ article: EditorialArticle) -> some View {
-        ZStack(alignment: .bottomLeading) {
+        ZStack(alignment: .bottom) {
             if let url = viewModel.product(at: article.productOffset)?.imageURL {
-                CustomAsyncImage(url: url).frame(maxWidth: .infinity).frame(height: 360).clipped().cornerRadius(2)
+                CustomAsyncImage(url: url)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 380)
+                    .clipped()
+                    .cornerRadius(4)
             } else {
-                RoundedRectangle(cornerRadius: 2).fill(Color.wsChampagne).frame(height: 360)
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(Color.wsChampagne)
+                    .frame(height: 380)
             }
-            VStack(alignment: .leading, spacing: 0) {
-                Spacer()
-                VStack(alignment: .leading, spacing: 10) {
-                    HStack(spacing: 8) {
-                        Text(article.category).font(.wsLabel(size: 9)).tracking(2).foregroundColor(.wsMutedBrass)
-                            .padding(.horizontal, 8).padding(.vertical, 4).background(Color.white.opacity(0.15)).cornerRadius(2)
-                        Text(article.readTime).font(.wsBody(size: 11)).foregroundColor(.white.opacity(0.7))
-                    }
-                    Text(article.title).font(.wsSerif(size: 22, weight: .bold)).foregroundColor(.white).lineSpacing(3)
-                    Text(article.subtitle).font(.wsSerif(size: 14)).foregroundColor(.white.opacity(0.8)).italic()
-                    Text("Curated by Aura AI  ✦").font(.wsLabel(size: 9)).tracking(1).foregroundColor(.wsMutedBrass)
+
+            // Stronger scrim for readability — starts at 40% down the card
+            LinearGradient(
+                colors: [
+                    .clear,
+                    Color.black.opacity(0.3),
+                    Color.black.opacity(0.82)
+                ],
+                startPoint: .init(x: 0.5, y: 0.35),
+                endPoint: .bottom
+            )
+            .frame(maxWidth: .infinity)
+            .frame(height: 380)
+            .cornerRadius(4)
+
+            // Text block — opaque dark panel for maximum legibility
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(spacing: 8) {
+                    Text(article.category)
+                        .font(.wsLabel(size: 9))
+                        .tracking(2)
+                        .foregroundColor(.wsMutedBrass)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.black.opacity(0.35))
+                        .cornerRadius(2)
+
+                    Text(article.readTime)
+                        .font(.wsBody(size: 11))
+                        .foregroundColor(.white.opacity(0.75))
                 }
-                .padding(22)
-                .background(.ultraThinMaterial)
+
+                Text(article.title)
+                    .font(.wsSerif(size: 21, weight: .bold))
+                    .foregroundColor(.white)
+                    .lineSpacing(3)
+                    .shadow(color: Color.black.opacity(0.5), radius: 3, x: 0, y: 1)
+
+                Text(article.subtitle)
+                    .font(.wsSerif(size: 13))
+                    .foregroundColor(.white.opacity(0.88))
+                    .italic()
+                    .shadow(color: Color.black.opacity(0.4), radius: 2, x: 0, y: 1)
             }
-            .cornerRadius(2)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 20)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                LinearGradient(
+                    colors: [Color.black.opacity(0), Color.black.opacity(0.55)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .cornerRadius(4)
+            )
         }
+        .cornerRadius(4)
     }
 
     // MARK: Section 8 — Seasonal
@@ -356,7 +639,7 @@ struct HomeView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 14) {
                     ForEach(viewModel.seasonalProducts().prefix(8)) { product in
-                        Button(action: { selectedProduct = product }) {
+                        Button(action: { navigateToProduct(product) }) {
                             seasonalProductTile(product)
                         }.buttonStyle(.plain)
                     }
@@ -406,13 +689,12 @@ struct HomeView: View {
                         Text(article.subtitle).font(.wsSerif(size: 16)).foregroundColor(.wsSecondary).italic().lineSpacing(4)
                         WSDivider()
                         Text(article.body).font(.wsSerif(size: 15)).foregroundColor(.wsCharcoal).lineSpacing(7)
-                        Text("Curated by Aura AI  ✦").font(.wsLabel(size: 10)).tracking(1).foregroundColor(.wsMutedBrass).padding(.top, 8)
                         WSDivider()
                         Text("Related Products").font(.wsSerif(size: 18, weight: .semibold)).foregroundColor(.wsCharcoal)
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 12) {
                                 ForEach(viewModel.products.prefix(4)) { p in
-                                    Button(action: { selectedProduct = p }) {
+                                    Button(action: { navigateToProduct(p) }) {
                                         VStack(alignment: .leading, spacing: 6) {
                                             CustomAsyncImage(url: p.imageURL).frame(width: 130, height: 130).clipped().cornerRadius(2)
                                             Text(p.name).font(.wsBody(size: 11)).foregroundColor(.wsCharcoal).lineLimit(2).frame(width: 130, alignment: .leading)
@@ -431,20 +713,7 @@ struct HomeView: View {
         .presentationDetents([.large])
     }
 
-    // MARK: AI Explain Sheet
-    private var aiExplainSheet: some View {
-        ZStack {
-            Color.wsWarmIvory.ignoresSafeArea()
-            VStack(alignment: .leading, spacing: 20) {
-                HStack { HStack(spacing: 6) { Image(systemName: "sparkles").foregroundColor(.wsMutedBrass); Text("AURA AI").font(.wsLabel(size: 10)).tracking(2).foregroundColor(.wsMutedBrass) }; Spacer(); Button(action: { showAIExplanation = false }) { Image(systemName: "xmark").foregroundColor(.wsCharcoal) } }
-                Text("Why This Moment?").font(.wsDisplay(size: 24)).foregroundColor(.wsCharcoal)
-                Text("This hero was generated from your warm aesthetic preferences, seasonal context, and browsing history. The mood, imagery, and editorial tone are composed to reflect the living experience you're building — not just products to buy.").font(.wsSerif(size: 15)).foregroundColor(.wsSecondary).lineSpacing(5)
-                Spacer()
-            }
-            .padding(30)
-        }
-        .presentationDetents([.medium])
-    }
+    // AI Explain Sheet removed per design decision
 }
 
 struct HomeView_Previews: PreviewProvider {
@@ -453,5 +722,6 @@ struct HomeView_Previews: PreviewProvider {
             .environmentObject(CartRepository())
             .environmentObject(RegistryRepository())
             .environmentObject(WSTabBarViewModel())
+            .environmentObject(SaveForLaterRepository())
     }
 }

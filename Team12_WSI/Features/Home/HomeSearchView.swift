@@ -6,6 +6,8 @@ import SwiftUI
 struct HomeSearchView: View {
     let allProducts: [ProductItem]
     let onSelectProduct: (ProductItem) -> Void
+    var onAddToCart: ((ProductItem) -> Void)? = nil
+    var onAddToRegistry: ((ProductItem) -> Void)? = nil
 
     @Environment(\.dismiss) private var dismiss
     @State private var searchText = ""
@@ -147,31 +149,24 @@ struct HomeSearchView: View {
                         .tracking(1.5)
                         .foregroundColor(.wsSecondary)
                     Spacer()
-                    if !searchText.isEmpty {
-                        HStack(spacing: 4) {
-                            Image(systemName: "sparkles")
-                                .font(.system(size: 9))
-                            Text("AI FILTERED")
-                                .font(.wsLabel(size: 9))
-                                .tracking(1)
-                        }
-                        .foregroundColor(.wsMutedBrass)
-                    }
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 16)
 
                 LazyVGrid(columns: columns, spacing: 16) {
                     ForEach(filteredProducts) { product in
-                        Button(action: {
-                            dismiss()
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                onSelectProduct(product)
-                            }
-                        }) {
-                            SearchProductCard(product: product)
-                        }
-                        .buttonStyle(.plain)
+                        SceneProductCard(
+                            product: product,
+                            onSelect: {
+                                dismiss()
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                    onSelectProduct(product)
+                                }
+                            },
+                            onAddToCart: { onAddToCart?(product) },
+                            onAddToRegistry: { onAddToRegistry?(product) },
+                            badgeLabel: nil  // No badge in search context
+                        )
                     }
                 }
                 .padding(.horizontal, 20)
@@ -201,36 +196,3 @@ struct HomeSearchView: View {
     }
 }
 
-// MARK: - Search Product Card
-
-private struct SearchProductCard: View {
-    let product: ProductItem
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            CustomAsyncImage(url: product.imageURL)
-                .frame(maxWidth: .infinity)
-                .aspectRatio(0.85, contentMode: .fit)
-                .clipped()
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text(product.name)
-                    .font(.wsBody(size: 12))
-                    .foregroundColor(.wsCharcoal)
-                    .lineLimit(2)
-                    .padding(.top, 8)
-
-                if let price = product.price {
-                    Text("$\(price, specifier: "%.2f")")
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundColor(.wsCrimson)
-                }
-            }
-            .padding(.horizontal, 8)
-            .padding(.bottom, 10)
-        }
-        .background(Color.white)
-        .cornerRadius(2)
-        .wsShadow()
-    }
-}

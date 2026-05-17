@@ -15,10 +15,14 @@ final class RegistryViewModel: ObservableObject {
     @Published private(set) var registry: Registry?
     
     private var cancellables = Set<AnyCancellable>()
+    private var hasBoundRepository = false
     
     // MARK: - Bind Repository
     
     func bind(repository: RegistryRepository) {
+        guard !hasBoundRepository else { return }
+        hasBoundRepository = true
+
         repository.$currentRegistry
             .receive(on: RunLoop.main)
             .assign(to: &$registry)

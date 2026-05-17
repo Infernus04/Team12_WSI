@@ -13,13 +13,16 @@ class HomeViewModel: ObservableObject {
     private var hasLoaded = false
     private var cartRepository: CartRepository?
     private var registryRepository: RegistryRepository?
+    private var saveForLaterRepository: SaveForLaterRepository?
 
     // MARK: - Binding
 
     func bind(cartRepository: CartRepository,
-              registryRepository: RegistryRepository) {
+              registryRepository: RegistryRepository,
+              saveForLaterRepository: SaveForLaterRepository? = nil) {
         self.cartRepository = cartRepository
         self.registryRepository = registryRepository
+        self.saveForLaterRepository = saveForLaterRepository
     }
 
     // MARK: - Cart
@@ -41,6 +44,20 @@ class HomeViewModel: ObservableObject {
     func addBundleToCart(_ bundle: AestheticBundle) {
         let bundleProducts = bundleProducts(for: bundle)
         bundleProducts.forEach { addToCart($0) }
+    }
+
+    // MARK: - Save For Later
+
+    func addToSaveForLater(_ product: ProductItem) {
+        saveForLaterRepository?.add(product: product)
+    }
+
+    func removeFromSaveForLater(_ product: ProductItem) {
+        saveForLaterRepository?.remove(productId: product.id)
+    }
+
+    func isInSaveForLater(_ product: ProductItem) -> Bool {
+        saveForLaterRepository?.contains(productId: product.id) ?? false
     }
 
     func bundleProducts(for bundle: AestheticBundle) -> [ProductItem] {
