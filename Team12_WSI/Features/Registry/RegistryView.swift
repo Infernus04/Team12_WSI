@@ -18,6 +18,7 @@ enum RegistryRoute: Hashable {
     case recommendations(RegistryQuestionnairePayload)
     case chronicle
     case activity
+    case registryInsights
 }
 
 private enum RegistryOrigin: String, Hashable {
@@ -146,6 +147,10 @@ struct RegistryView: View {
                     HomeChronicleView()
                 case .activity:
                     RegistryActivityView()
+                case .registryInsights:
+                    if let currentRegistry = registryRepo.currentRegistry {
+                        OwnerRegistryInsightsView(registry: currentRegistry)
+                    }
                 }
             }
         }
@@ -1506,6 +1511,7 @@ private struct RegistryDetailsView: View {
                     }
                     homeStoryCard
                     statsCard
+                    aiInsightsCard
                     addItemsButton
                     recommendationActionsCard
                     if sections.isEmpty {
@@ -1630,6 +1636,99 @@ private struct RegistryDetailsView: View {
         }
         .buttonStyle(.plain)
         .accessibilityLabel("Add items to your registry")
+    }
+
+    private var aiInsightsCard: some View {
+        let items = registryRepo.currentRegistry?.items ?? []
+        let hasItems = !items.isEmpty
+
+        // Compute a quick score preview
+        let collectionCount = Set(items.compactMap(\.collectionName)).count
+        let totalItems = items.reduce(0) { $0 + $1.quantity }
+        let prices = items.map(\.price)
+        let hasLow = prices.contains(where: { $0 < 3000 })
+        let hasMid = prices.contains(where: { $0 >= 3000 && $0 <= 15000 })
+        let hasHigh = prices.contains(where: { $0 > 15000 })
+        let rangeCount = [hasLow, hasMid, hasHigh].filter { $0 }.count
+
+        let quickScore: Double = hasItems
+            ? min(1.0, (Double(rangeCount) / 3.0 * 0.3)
+                + (min(1.0, Double(totalItems) / 15.0) * 0.3)
+                + (min(1.0, Double(collectionCount) / 3.0) * 0.4))
+            : 0.0
+        let scoreInt = Int((quickScore * 100).rounded())
+
+        return Button {
+            tabBarVM.registryPath.append(RegistryRoute.registryInsights)
+        } label: {
+            HStack(spacing: 16) {
+                // Mini score ring
+                ZStack {
+                    Circle()
+                        .stroke(WSRegistryPalette.hairline.opacity(0.3), lineWidth: 5)
+                        .frame(width: 52, height: 52)
+
+                    Circle()
+                        .trim(from: 0, to: CGFloat(quickScore))
+                        .stroke(
+                            AngularGradient(
+                                colors: [WSRegistryPalette.gold, WSRegistryPalette.gold.opacity(0.4)],
+                                center: .center
+                            ),
+                            style: StrokeStyle(lineWidth: 5, lineCap: .round)
+                        )
+                        .frame(width: 52, height: 52)
+                        .rotationEffect(.degrees(-90))
+
+                    Text("\(scoreInt)")
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundStyle(WSRegistryPalette.espresso)
+                }
+
+                VStack(alignment: .leading, spacing: 5) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "sparkles")
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundStyle(WSRegistryPalette.gold)
+                        Text("AI REGISTRY INSIGHTS")
+                            .font(.system(size: 10, weight: .bold))
+                            .tracking(1.2)
+                            .foregroundStyle(WSRegistryPalette.gold)
+                    }
+
+                    Text(hasItems
+                        ? "See your budget balance, aesthetic harmony, and completeness score."
+                        : "Add items to unlock personalized registry analysis.")
+                        .font(.system(size: 13, weight: .regular))
+                        .foregroundStyle(WSRegistryPalette.cocoa.opacity(0.85))
+                        .lineSpacing(2)
+                        .lineLimit(2)
+                }
+
+                Spacer(minLength: 8)
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundStyle(WSRegistryPalette.warmGray.opacity(0.65))
+            }
+            .padding(16)
+            .background(
+                LinearGradient(
+                    colors: [WSRegistryPalette.ivory, Color(red: 0.98, green: 0.96, blue: 0.92)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ),
+                in: RoundedRectangle(cornerRadius: 16, style: .continuous)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .stroke(WSRegistryPalette.gold.opacity(0.25), lineWidth: 1)
+            )
+            .shadow(color: WSRegistryPalette.gold.opacity(0.06), radius: 12, x: 0, y: 6)
+        }
+        .buttonStyle(.plain)
+        .disabled(!hasItems)
+        .opacity(hasItems ? 1.0 : 0.6)
     }
 
     private var registrySwitcher: some View {
