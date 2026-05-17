@@ -30,9 +30,9 @@ struct ContentView: View {
                 }
                 .tag(WSTab.cart)
         }
+        .tint(WSRegistryPalette.gold)
     }
 }
-
 
 #Preview {
     ContentView()
