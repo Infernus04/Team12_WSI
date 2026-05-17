@@ -3,7 +3,7 @@ import SwiftUI
 struct CartView: View {
     @StateObject private var viewModel = CartViewModel()
     @EnvironmentObject var cartRepository: CartRepository
-    @EnvironmentObject var registryRepository: RegistryRepository
+    @EnvironmentObject var saveForLaterRepository: SaveForLaterRepository
     @EnvironmentObject var tabBarVM: WSTabBarViewModel
     
     var body: some View {
@@ -40,7 +40,7 @@ struct CartView: View {
                                             onRemove: { viewModel.removeItem(item) },
                                             onRemoveAll: { viewModel.removeAll(of: item) },
                                             onToggleGiftWrap: { viewModel.toggleGiftWrap(for: item) },
-                                            onMoveToRegistry: { viewModel.moveToRegistry(item: item) }
+                                            onMoveToRegistry: { viewModel.moveToWishlist(item: item) }
                                         )
                                     }
                                 }
@@ -75,15 +75,16 @@ struct CartView: View {
             .navigationTitle(AppStrings.Cart.title)
             .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $viewModel.isCheckoutPresented) {
-                CheckoutFlowView(
+                QuickCheckoutView(
                     cartItems: viewModel.items,
+                    totalPrice: viewModel.totalPrice,
                     onClose: viewModel.dismissCheckout,
                     onOrderPlaced: viewModel.completeCheckout
                 )
             }
         }
         .onAppear {
-            viewModel.bind(cartRepository: cartRepository, registryRepository: registryRepository)
+            viewModel.bind(cartRepository: cartRepository, saveForLaterRepository: saveForLaterRepository)
         }
     }
     

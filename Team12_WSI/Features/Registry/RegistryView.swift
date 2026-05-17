@@ -1832,7 +1832,7 @@ private struct RegistryDetailsView: View {
             quantity: cartQuantity,
             registryQuantity: registryQuantity,
             onAdd: { cartRepo.add(product: productItem) },
-            onRemove: { cartRepo.remove(productId: product.id) },
+            onRemove: { cartRepo.removeOne(productId: product.id) },
             onAddToRegistry: {
                 registryRepo.addProduct(
                     productItem,
@@ -1960,7 +1960,7 @@ private struct RegistryCategoryProductsView: View {
             quantity: cartQuantity,
             registryQuantity: registryQuantity,
             onAdd: { cartRepo.add(product: productItem) },
-            onRemove: { cartRepo.remove(productId: product.id) },
+            onRemove: { cartRepo.removeOne(productId: product.id) },
             onAddToRegistry: {
                 registryRepo.addProduct(productItem, collectionName: product.collectionName, sourceTag: nil)
             },

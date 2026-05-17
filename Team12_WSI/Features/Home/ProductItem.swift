@@ -26,6 +26,7 @@ struct ProductItem: Identifiable, Hashable {
     var pattern: String? { allProperties?["pattern"] }
     var material: String? { allProperties?["material"] }
     var collection: String? { allProperties?["collection"] }
+    var canGiftWrap: Bool { allProperties?["canGiftWrap"]?.lowercased() == "true" }
 
     var imageURL: URL? {
         guard let path = path else { return nil }
@@ -48,6 +49,7 @@ extension ProductItem {
     ) {
         self.id = id
         self.name = name
+        self.shortName = nil
         self.price = price
         self.path = path
         
@@ -68,6 +70,7 @@ extension ProductItem {
     init(from dto: ProductItemDTO) {
         self.id = dto.id
         self.name = dto.name
+        self.shortName = dto.shortName
         self.price = dto.price?.sellingPrice ?? dto.price?.regularPrice ?? 0.0
         self.path = dto.media?.images?.first?.path
         

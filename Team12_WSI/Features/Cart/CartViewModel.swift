@@ -13,12 +13,12 @@ final class CartViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     private var analysisTask: Task<Void, Never>?
     private var repository: CartRepository?
-    private var registryRepository: RegistryRepository?
+    private var saveForLaterRepository: SaveForLaterRepository?
     private var lastCartSignature: String = ""
     
-    func bind(cartRepository: CartRepository, registryRepository: RegistryRepository) {
+    func bind(cartRepository: CartRepository, saveForLaterRepository: SaveForLaterRepository) {
         self.repository = cartRepository
-        self.registryRepository = registryRepository
+        self.saveForLaterRepository = saveForLaterRepository
         cancellables.removeAll()
         
         cartRepository.$items
@@ -66,29 +66,20 @@ final class CartViewModel: ObservableObject {
         repository?.toggleGiftWrap(productId: item.id)
     }
     
-    func moveToRegistry(item: CartItem) {
-        guard let registryRepo = registryRepository else { return }
-        
-        // If there's no active registry, we could either prompt to create one or silently fail.
-        // For hackathon purposes, assuming we have one or create a default one if needed.
-        if !registryRepo.isActiveRegistry {
-            registryRepo.createRegistry(firstName: "Guest", lastName: "User", event: .wedding, date: Date())
-        }
+    /// Move a cart item to the wishlist (Save for Later)
+    func moveToWishlist(item: CartItem) {
+        guard let saveRepo = saveForLaterRepository else { return }
         
         let product = ProductItem(
             id: item.id,
             name: item.name,
-            shortName: nil,
             price: item.price,
             path: item.path,
             productType: item.productType,
-            brand: item.brand,
-            canGiftWrap: item.canGiftWrap,
-            availability: item.availability,
-            deliveryEstimate: item.deliveryEstimate
+            brand: item.brand
         )
-        registryRepo.addProduct(product)
-        repository?.removeOne(productId: item.id)
+        saveRepo.add(product: product)
+        repository?.removeAll(productId: item.id)
     }
     
     func beginCheckout() {
@@ -100,12 +91,12 @@ final class CartViewModel: ObservableObject {
         isCheckoutPresented = false
     }
     
-    func completeCheckout(_ confirmation: CheckoutConfirmation) {
+    /// Called when checkout completes — clears cart
+    func completeCheckout() {
         repository?.clear()
         cartAnalysis = nil
         analysisErrorMessage = nil
         isCheckoutPresented = false
-        print("Checkout completed: \(confirmation.orderId)")
     }
     
     private func handleRepositoryUpdate(_ updatedItems: [CartItem]) {
