@@ -7,6 +7,7 @@ struct Registry: Identifiable, Codable {
     var event: RegistryEvent
     var date: Date
     var items: [RegistryItem]
+    var budget: Double?
     
     var displayName: String {
         "\(firstName) \(lastName)'s \(event.rawValue) Registry"
@@ -24,6 +25,7 @@ struct RegistryItem: Identifiable, Codable {
     var quantity: Int
     var collectionName: String?
     var sourceTag: String?
+    var pattern: String?
 
     init(
         id: String,
@@ -32,7 +34,8 @@ struct RegistryItem: Identifiable, Codable {
         imageUrl: String,
         quantity: Int,
         collectionName: String? = nil,
-        sourceTag: String? = nil
+        sourceTag: String? = nil,
+        pattern: String? = nil
     ) {
         self.id = id
         self.name = name
@@ -41,6 +44,7 @@ struct RegistryItem: Identifiable, Codable {
         self.quantity = quantity
         self.collectionName = collectionName
         self.sourceTag = sourceTag
+        self.pattern = pattern
     }
 
     private enum CodingKeys: String, CodingKey {
@@ -51,6 +55,7 @@ struct RegistryItem: Identifiable, Codable {
         case quantity
         case collectionName
         case sourceTag
+        case pattern
     }
 
     init(from decoder: Decoder) throws {
@@ -62,5 +67,7 @@ struct RegistryItem: Identifiable, Codable {
         quantity = try container.decode(Int.self, forKey: .quantity)
         collectionName = try container.decodeIfPresent(String.self, forKey: .collectionName)
         sourceTag = try container.decodeIfPresent(String.self, forKey: .sourceTag)
+        pattern = try container.decodeIfPresent(String.self, forKey: .pattern)
     }
 }
+
