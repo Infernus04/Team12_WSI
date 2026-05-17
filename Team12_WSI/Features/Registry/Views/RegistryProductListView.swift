@@ -160,7 +160,7 @@ struct RegistryProductListView: View {
             // Product List
             LazyVStack(spacing: 16) {
                 ForEach(RegistryMockData.items) { item in
-                    NavigationLink(destination: ProductDetailView(item: item)) {
+                    NavigationLink(destination: RegistryProductDetailView(item: item)) {
                         RegistryProductCardView(item: item)
                     }
                     .buttonStyle(.plain)

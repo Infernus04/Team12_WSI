@@ -11,12 +11,17 @@ struct ProductItemDTO: Codable {
     let shortName: String?
     let price: PriceDTO?
     let media: MediaDTO?
-    let properties: PropertiesDTO?
+    let properties: [String: String]? // Decodes EVERY property dynamically
+    let availability: String?
+    let deliveryEstimate: String?
 }
 
 struct PriceDTO: Codable {
     let regularPrice: Double?
+    let surcharge: Double?
+    let retailPrice: Double?
     let sellingPrice: Double?
+    let monogramOrPersonalizationPrice: Double?
 }
 
 struct MediaDTO: Codable {
@@ -25,9 +30,4 @@ struct MediaDTO: Codable {
 
 struct ImageDTO: Codable {
     let path: String?
-}
-
-struct PropertiesDTO: Codable {
-    let productType: String?
-    let brand: String?
 }
