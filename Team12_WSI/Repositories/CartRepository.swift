@@ -24,13 +24,7 @@ final class CartRepository: ObservableObject {
                 name: product.name,
                 price: priceValue,
                 path: product.path ?? "",
-                quantity: quantityDelta,
-                productType: product.productType,
-                brand: product.brand,
-                canGiftWrap: product.canGiftWrap,
-                isGiftWrapped: false,
-                availability: product.availability,
-                deliveryEstimate: product.deliveryEstimate
+                quantity: quantityDelta
             )
 
             items.append(newItem)
@@ -61,11 +55,7 @@ final class CartRepository: ObservableObject {
     }
     
     var totalPrice: Double {
-        items.reduce(0) { total, item in
-            let itemTotal = item.price * Double(item.quantity)
-            let wrapCost = item.isGiftWrapped ? 8.0 * Double(item.quantity) : 0.0
-            return total + itemTotal + wrapCost
-        }
+        items.reduce(0) { $0 + ($1.price * Double($1.quantity)) }
     }
     
     var totalItems: Int {
@@ -75,10 +65,5 @@ final class CartRepository: ObservableObject {
     func increaseQuantity(productId: String) {
         guard let index = items.firstIndex(where: { $0.id == productId }) else { return }
         items[index].quantity += 1
-    }
-    
-    func toggleGiftWrap(productId: String) {
-        guard let index = items.firstIndex(where: { $0.id == productId }) else { return }
-        items[index].isGiftWrapped.toggle()
     }
 }

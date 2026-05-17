@@ -9,13 +9,6 @@ struct CartItem: Identifiable, Codable {
     let path: String
     var quantity: Int
     
-    let productType: String?
-    let brand: String?
-    let canGiftWrap: Bool
-    var isGiftWrapped: Bool = false
-    let availability: String?
-    let deliveryEstimate: String?
-    
     var imageURL: URL? {
         if path.hasPrefix("http") {
             return URL(string: path)

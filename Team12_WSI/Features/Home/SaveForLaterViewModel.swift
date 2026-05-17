@@ -30,7 +30,7 @@ final class SaveForLaterViewModel: ObservableObject {
         // Reconstruct a minimal ProductItem to pass to CartRepository
         let product = ProductItem(
             id: item.id,
-            name: item.name,
+            name: item.name, shortName: item.name,
             price: item.price,
             path: item.path,
             productType: nil,

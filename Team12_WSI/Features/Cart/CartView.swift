@@ -3,7 +3,6 @@ import SwiftUI
 struct CartView: View {
     @StateObject private var viewModel = CartViewModel()
     @EnvironmentObject var cartRepository: CartRepository
-    @EnvironmentObject var registryRepository: RegistryRepository
     @EnvironmentObject var tabBarVM: WSTabBarViewModel
     
     var body: some View {
@@ -20,8 +19,6 @@ struct CartView: View {
                     VStack(spacing: 0) {
                         ScrollView(showsIndicators: false) {
                             VStack(spacing: 20) {
-                                freeShippingProgressView
-                                
                                 if let analysis = viewModel.cartAnalysis {
                                     AestheticConfidenceMeter(analysis: analysis)
                                 } else if viewModel.isAnalyzing {
@@ -38,9 +35,7 @@ struct CartView: View {
                                             item: item,
                                             onAdd: { viewModel.add(item) },
                                             onRemove: { viewModel.removeItem(item) },
-                                            onRemoveAll: { viewModel.removeAll(of: item) },
-                                            onToggleGiftWrap: { viewModel.toggleGiftWrap(for: item) },
-                                            onMoveToRegistry: { viewModel.moveToRegistry(item: item) }
+                                            onRemoveAll: { viewModel.removeAll(of: item) }
                                         )
                                     }
                                 }
@@ -83,7 +78,7 @@ struct CartView: View {
             }
         }
         .onAppear {
-            viewModel.bind(cartRepository: cartRepository, registryRepository: registryRepository)
+            viewModel.bind(repository: cartRepository)
         }
     }
     
@@ -112,42 +107,6 @@ struct CartView: View {
             Spacer()
         }
         .padding(18)
-        .background(Color.wsSurface)
-        .cornerRadius(2)
-        .wsLuxuryShadow()
-    }
-    
-    private var freeShippingProgressView: some View {
-        let threshold = 150.0
-        let current = viewModel.totalPrice
-        let remainder = max(0, threshold - current)
-        let percentage = min(1.0, current / threshold)
-        
-        return VStack(spacing: 8) {
-            HStack {
-                Text(remainder > 0 ? "You're \(remainder.currencyText) away from Free Shipping!" : "You've unlocked Free Shipping!")
-                    .font(.wsBody(size: 13, weight: .semibold))
-                    .foregroundColor(remainder > 0 ? .wsCharcoal : .green)
-                Spacer()
-            }
-            
-            GeometryReader { geo in
-                ZStack(alignment: .leading) {
-                    Rectangle()
-                        .fill(Color.wsDivider)
-                        .frame(height: 4)
-                        .cornerRadius(2)
-                    
-                    Rectangle()
-                        .fill(remainder > 0 ? Color.wsCharcoal : Color.green)
-                        .frame(width: geo.size.width * CGFloat(percentage), height: 4)
-                        .cornerRadius(2)
-                        .animation(.spring(), value: percentage)
-                }
-            }
-            .frame(height: 4)
-        }
-        .padding(16)
         .background(Color.wsSurface)
         .cornerRadius(2)
         .wsLuxuryShadow()

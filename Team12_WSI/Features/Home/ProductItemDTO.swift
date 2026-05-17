@@ -12,8 +12,6 @@ struct ProductItemDTO: Codable {
     let price: PriceDTO?
     let media: MediaDTO?
     let properties: PropertiesDTO?
-    let availability: String?
-    let deliveryEstimate: String?
 }
 
 struct PriceDTO: Codable {
@@ -32,5 +30,4 @@ struct ImageDTO: Codable {
 struct PropertiesDTO: Codable {
     let productType: String?
     let brand: String?
-    let canGiftWrap: String?
 }
