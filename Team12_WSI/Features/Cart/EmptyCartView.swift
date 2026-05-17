@@ -10,32 +10,31 @@ struct EmptyCartView: View {
     var onContinueShopping: (() -> Void)? = nil
     
     var body: some View {
-        VStack(spacing: 16) {
-            VStack {
-                HStack {
-                    Text(AppStrings.Cart.emptyMessage)
-                        .font(.headline)
-                        .fontWeight(.medium)
-                        .multilineTextAlignment(.leading)
-                        .foregroundColor(.black)
-                    Spacer()
-                }.padding(16)
-                 
-                Button(action: {
-                    onContinueShopping?()
-                }) {
-                    HStack {
-                        Text(AppStrings.Cart.emptyButton)
-                    }
-                    .foregroundColor(.white)
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(Color.black)
-                }
-                .padding(.horizontal, 16)
+        VStack(spacing: 24) {
+            Image(systemName: "bag")
+                .font(.system(size: 48, weight: .light))
+                .foregroundColor(.wsCharcoal.opacity(0.6))
+            
+            Text(AppStrings.Cart.emptyMessage)
+                .font(.wsDisplay(size: 24))
+                .foregroundColor(.wsCharcoal)
+                .multilineTextAlignment(.center)
+            
+            Text("Discover beautiful pieces to complete your space.")
+                .font(.wsBody(size: 16))
+                .foregroundColor(.wsCharcoal.opacity(0.7))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 32)
+            
+            Button(action: {
+                onContinueShopping?()
+            }) {
+                Text(AppStrings.Cart.emptyButton)
             }
-            .padding(.bottom, 16)
+            .buttonStyle(WSPrimaryButtonStyle())
+            .padding(.horizontal, 40)
         }
-        .background(Color.white)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.clear)
     }
 }

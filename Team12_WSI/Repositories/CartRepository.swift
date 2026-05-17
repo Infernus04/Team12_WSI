@@ -13,27 +13,31 @@ final class CartRepository: ObservableObject {
     
     @Published private(set) var items: [CartItem] = []
     
-    // MARK: - Add Item
-    func add(product: ProductItem, quantity: Int = 1) {
-        guard let priceValue = product.price else { return }
+    func add(product: ProductItem, quantityDelta: Int = 1) {
+        guard let priceValue = product.price, quantityDelta > 0 else { return }
         
         if let index = items.firstIndex(where: { $0.id == product.id }) {
-            items[index].quantity += 1
+            items[index].quantity += quantityDelta
         } else {
             let newItem = CartItem(
                 id: product.id,
                 name: product.name,
                 price: priceValue,
                 path: product.path ?? "",
-                quantity: quantity
+                quantity: quantityDelta,
+                productType: product.productType,
+                brand: product.brand,
+                canGiftWrap: product.canGiftWrap,
+                isGiftWrapped: false,
+                availability: product.availability,
+                deliveryEstimate: product.deliveryEstimate
             )
 
             items.append(newItem)
         }
     }
     
-    // MARK: - Remove Item
-    func remove(productId: String) {
+    func removeOne(productId: String) {
         guard let index = items.firstIndex(where: { $0.id == productId }) else { return }
         if items[index].quantity > 1 {
             items[index].quantity -= 1
@@ -42,12 +46,28 @@ final class CartRepository: ObservableObject {
         }
     }
     
-    // MARK: - Total Price
-    var totalPrice: Double {
-        items.reduce(0) { $0 + ($1.price * Double($1.quantity)) }
+    func removeAll(productId: String) {
+        items.removeAll { $0.id == productId }
     }
     
-    // MARK: - Total Count
+    func replaceItem(oldId: String, newItem: ProductItem) {
+        let existingQuantity = items.first(where: { $0.id == oldId })?.quantity ?? 1
+        removeAll(productId: oldId)
+        add(product: newItem, quantityDelta: existingQuantity)
+    }
+    
+    func clear() {
+        items.removeAll()
+    }
+    
+    var totalPrice: Double {
+        items.reduce(0) { total, item in
+            let itemTotal = item.price * Double(item.quantity)
+            let wrapCost = item.isGiftWrapped ? 8.0 * Double(item.quantity) : 0.0
+            return total + itemTotal + wrapCost
+        }
+    }
+    
     var totalItems: Int {
         items.reduce(0) { $0 + $1.quantity }
     }
@@ -55,5 +75,10 @@ final class CartRepository: ObservableObject {
     func increaseQuantity(productId: String) {
         guard let index = items.firstIndex(where: { $0.id == productId }) else { return }
         items[index].quantity += 1
+    }
+    
+    func toggleGiftWrap(productId: String) {
+        guard let index = items.firstIndex(where: { $0.id == productId }) else { return }
+        items[index].isGiftWrapped.toggle()
     }
 }

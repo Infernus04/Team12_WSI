@@ -4,6 +4,7 @@ enum APIError: Error {
     case invalidURL
     case noData
     case decodingError
+    case encodingError
     case serverError(String)
 }
 
@@ -12,14 +13,29 @@ class APIClient {
     private init() {}
     
     func request<T: Decodable>(_ endpoint: Endpoint) async throws -> T {
+        try await performRequest(endpoint, body: nil as Data?)
+    }
+    
+    func request<T: Decodable, Body: Encodable>(_ endpoint: Endpoint, body: Body) async throws -> T {
+        let encodedBody: Data
+        do {
+            encodedBody = try JSONEncoder().encode(body)
+        } catch {
+            throw APIError.encodingError
+        }
+        
+        return try await performRequest(endpoint, body: encodedBody)
+    }
+    
+    private func performRequest<T: Decodable>(_ endpoint: Endpoint, body: Data?) async throws -> T {
         guard let url = endpoint.url else {
             throw APIError.invalidURL
         }
         
         var request = URLRequest(url: url)
         request.httpMethod = endpoint.method.rawValue
+        request.httpBody = body
         
-        // Add headers if needed
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
         let (data, response) = try await URLSession.shared.data(for: request)
@@ -54,5 +70,16 @@ struct Endpoint {
     static func products() -> Endpoint {
         return Endpoint(path: "/skus", method: .get)
     }
+    
+    static func cartAnalyze() -> Endpoint {
+        Endpoint(path: "/cart/analyze", method: .post)
+    }
+    
+    static func checkoutQuote() -> Endpoint {
+        Endpoint(path: "/checkout/quote", method: .post)
+    }
+    
+    static func checkoutSubmit() -> Endpoint {
+        Endpoint(path: "/checkout/submit", method: .post)
+    }
 }
-

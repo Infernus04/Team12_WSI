@@ -18,7 +18,12 @@ final class SaveForLaterRepository: ObservableObject {
             name: product.name,
             price: price,
             path: product.path ?? "",
-            quantity: 1
+            quantity: 1,
+            productType: product.productType,
+            brand: product.brand,
+            canGiftWrap: false,
+            availability: product.availability,
+            deliveryEstimate: product.deliveryEstimate
         ))
     }
 

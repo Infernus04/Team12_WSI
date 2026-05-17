@@ -193,16 +193,32 @@ struct HomeView: View {
 
     // MARK: Nav Bar
     private var navBar: some View {
-        HStack {
+        HStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 3) {
-                Text("Good Evening, Ausaf").font(.wsSerif(size: 13)).foregroundColor(.wsSecondary)
-                Text("Welcome Home").font(.wsDisplay(size: 18)).foregroundColor(.wsCharcoal)
+                Text("Good Evening, Ausaf")
+                    .font(.wsSerif(size: 13))
+                    .foregroundColor(.wsSecondary)
+                    .lineLimit(1)
+                Text("Welcome Home")
+                    .font(.wsDisplay(size: 18))
+                    .foregroundColor(.wsCharcoal)
+                    .lineLimit(1)
             }
-            Spacer()
-            Text("WILLIAMS\nSONOMA").font(.system(size: 8, weight: .bold)).tracking(2).multilineTextAlignment(.center).foregroundColor(.wsCharcoal)
-            Spacer()
-            HStack(spacing: 16) {
-                // Buy Later list button (replaces sparkles)
+            .layoutPriority(1)
+            
+            Spacer(minLength: 8)
+            
+            Text("WILLIAMS\nSONOMA")
+                .font(.system(size: 8, weight: .bold))
+                .tracking(2)
+                .multilineTextAlignment(.center)
+                .foregroundColor(.wsCharcoal)
+                .fixedSize()
+            
+            Spacer(minLength: 8)
+            
+            HStack(spacing: 14) {
+                // Buy Later list button
                 ZStack(alignment: .topTrailing) {
                     Button(action: { showSaveForLater = true }) {
                         Image(systemName: "bookmark")
@@ -219,11 +235,15 @@ struct HomeView: View {
                             .offset(x: 6, y: -6)
                     }
                 }
-                Button(action: { showSearch = true }) { Image(systemName: "magnifyingglass").foregroundColor(.wsCharcoal).font(.system(size: 16)) }
-                Button(action: { showProfile = true }) { Image(systemName: "person.circle").foregroundColor(.wsCharcoal).font(.system(size: 16)) }
+                Button(action: { showSearch = true }) {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundColor(.wsCharcoal)
+                        .font(.system(size: 16))
+                }
             }
         }
-        .padding(.horizontal, 20).padding(.vertical, 14)
+        .padding(.horizontal, 20)
+        .padding(.vertical, 14)
         .background(Color.wsWarmIvory)
     }
 
@@ -277,12 +297,12 @@ struct HomeView: View {
                         .font(.wsDisplay(size: 32))
                         .foregroundColor(.white)
                         .lineSpacing(3)
-                        .fixedSize(horizontal: false, vertical: true)
+                        .lineLimit(3)
 
                     Text(mood.subtitle)
                         .font(.wsSerif(size: 14))
                         .foregroundColor(.white.opacity(0.85))
-                        .fixedSize(horizontal: false, vertical: true)
+                        .lineLimit(2)
 
                     Button(action: { showHeroCollection = true }) {
                         Text(mood.cta)
@@ -295,9 +315,9 @@ struct HomeView: View {
                     }
                     .padding(.top, 6)
                 }
-                .padding(.horizontal, 28)
+                .padding(.horizontal, 20)
                 .padding(.bottom, 40)
-                .frame(width: geo.size.width, alignment: .leading)
+                .frame(maxWidth: geo.size.width, alignment: .leading)
             }
         }
         // GeometryReader needs an explicit height or it collapses

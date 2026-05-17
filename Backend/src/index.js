@@ -1,7 +1,9 @@
 import { Hono } from 'hono'
 import { serveStatic } from '@hono/node-server/serve-static'
-import { promises as fs } from 'fs'
-import path from 'path'
+
+import { analyzeCart } from './lib/cartRecommender.js'
+import { getCatalog, getRawCatalog } from './lib/catalogRepository.js'
+import { quoteCheckout, submitCheckout } from './lib/mockCheckout.js'
 
 const app = new Hono()
 
@@ -16,9 +18,7 @@ app.get('/', (c) => {
 // Wedding Registry Recommendation Engine - Initial Filtering
 app.get('/products/wedding', async (c) => {
   try {
-    const filePath = path.join(process.cwd(), 'responses', 'skus.json')
-    const data = await fs.readFile(filePath, 'utf8')
-    const products = JSON.parse(data)
+    const products = await getRawCatalog()
 
     // Filter for wedding-appropriate items
     // High-level filter: Must be gift-wrappable and belong to core registry categories
@@ -51,16 +51,13 @@ app.get('/products/wedding', async (c) => {
 app.post('/recommendations', async (c) => {
   try {
     const { currentItems = [] } = await c.req.json()
-    
-    const filePath = path.join(process.cwd(), 'responses', 'skus.json')
-    const data = await fs.readFile(filePath, 'utf8')
-    const allProducts = JSON.parse(data)
+    const allProducts = await getCatalog()
 
     // Identify categories already in registry
     const registeredCategories = new Set()
     allProducts.forEach(p => {
       if (currentItems.includes(p.id)) {
-        const patterns = Array.isArray(p.properties.pattern) ? p.properties.pattern : [p.properties.pattern]
+        const patterns = p.patterns
         patterns.forEach(cat => registeredCategories.add(cat))
       }
     })
@@ -72,26 +69,64 @@ app.post('/recommendations', async (c) => {
     const suggestions = allProducts.filter(p => {
       // Don't suggest items already in registry
       if (currentItems.includes(p.id)) return false
-      
-      const patterns = Array.isArray(p.properties.pattern) ? p.properties.pattern : [p.properties.pattern]
-      return patterns.some(cat => missingCategories.includes(cat))
+
+      return p.patterns.some(cat => missingCategories.includes(cat))
     })
 
     return c.json({
       missingCategories,
-      recommendations: suggestions.slice(0, 10) // Return top 10 suggestions
+      recommendations: suggestions.slice(0, 10).map(product => product.raw) // Return top 10 suggestions
     })
   } catch (error) {
     return c.json({ error: 'Failed to generate recommendations' }, 500)
   }
 })
 
+app.post('/cart/analyze', async (c) => {
+  try {
+    const { items = [] } = await c.req.json()
+
+    if (!Array.isArray(items)) {
+      return c.json({ error: 'items must be an array' }, 400)
+    }
+
+    const analysis = await analyzeCart(items)
+    return c.json(analysis)
+  } catch (error) {
+    console.error('Error analyzing cart:', error)
+    return c.json({ error: 'Failed to analyze cart' }, 500)
+  }
+})
+
+app.post('/checkout/quote', async (c) => {
+  try {
+    const { items = [] } = await c.req.json()
+
+    if (!Array.isArray(items)) {
+      return c.json({ error: 'items must be an array' }, 400)
+    }
+
+    return c.json(await quoteCheckout(items))
+  } catch (error) {
+    console.error('Error quoting checkout:', error)
+    return c.json({ error: 'Failed to build checkout quote' }, 500)
+  }
+})
+
+app.post('/checkout/submit', async (c) => {
+  try {
+    const payload = await c.req.json()
+    return c.json(await submitCheckout(payload))
+  } catch (error) {
+    console.error('Error submitting checkout:', error)
+    return c.json({ error: 'Failed to submit checkout' }, 500)
+  }
+})
+
 // Unfiltered Product Catalogue
 app.get('/skus', async (c) => {
   try {
-    const filePath = path.join(process.cwd(), 'responses', 'skus.json')
-    const data = await fs.readFile(filePath, 'utf8')
-    const products = JSON.parse(data)
+    const products = await getRawCatalog()
     return c.json({
       count: products.length,
       products: products
@@ -102,7 +137,7 @@ app.get('/skus', async (c) => {
 })
 
 export default app
-
+export { app }
 
 
 
