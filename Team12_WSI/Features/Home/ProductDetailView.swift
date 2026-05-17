@@ -12,6 +12,7 @@ struct ProductDetailView: View {
     let cartQuantity: Int
     let registryQuantity: Int
     let isInSaveForLater: Bool
+    var onSelectRelatedProduct: ((ProductItem) -> Void)? = nil
 
     @Environment(\.dismiss) private var dismiss
 
@@ -74,7 +75,8 @@ struct ProductDetailView: View {
                 onAddToSaveForLater: onAddToSaveForLater,
                 cartQuantity: 0,
                 registryQuantity: 0,
-                isInSaveForLater: false
+                isInSaveForLater: false,
+                onSelectRelatedProduct: onSelectRelatedProduct
             )
         }
         .overlay(alignment: .bottom) {
@@ -343,7 +345,13 @@ struct ProductDetailView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 16) {
                     ForEach(products) { rec in
-                        Button(action: { selectedRecommendation = rec }) {
+                        Button(action: {
+                            if let onSelectRelatedProduct = onSelectRelatedProduct {
+                                onSelectRelatedProduct(rec)
+                            } else {
+                                selectedRecommendation = rec
+                            }
+                        }) {
                             RecommendationProductCard(product: rec)
                         }
                         .buttonStyle(.plain)

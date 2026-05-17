@@ -8,15 +8,13 @@ struct HomeView: View {
     @EnvironmentObject var tabBarVM: WSTabBarViewModel
     @EnvironmentObject var saveForLaterRepository: SaveForLaterRepository
 
-    @State private var selectedProduct: ProductItem?
+    @State private var navigationPath = NavigationPath()
     @State private var showSearch = false
     @State private var showConcierge = false
     @State private var showMoodboard = false
     @State private var selectedArticle: EditorialArticle?
     @State private var expandedSceneID: UUID?
     @State private var expandedBundleID: UUID?
-    @State private var selectedBundle: AestheticBundle?
-    @State private var selectedScene: LifestyleScene?     // For Your Home navigation
     @State private var heroPage = 0
     @State private var conciergeScale: CGFloat = 1.0
     @State private var s1On = false; @State private var s2On = false
@@ -30,99 +28,155 @@ struct HomeView: View {
     private let heroMoods = SeasonalContextEngine.heroMoods()
 
     var body: some View {
-        ZStack(alignment: .bottomTrailing) {
-            Color.wsWarmIvory.ignoresSafeArea()
-            VStack(spacing: 0) {
-                navBar
-                if viewModel.isLoading { loadingView }
-                else {
-                    ScrollView(showsIndicators: false) {
-                        VStack(spacing: 48) {
-                            heroSection.opacity(s1On ? 1 : 0).offset(y: s1On ? 0 : 16).onAppear { withAnimation(.easeOut(duration: 0.5)) { s1On = true } }
-                            forYourHomeSection.opacity(s2On ? 1 : 0).offset(y: s2On ? 0 : 20).onAppear { withAnimation(.easeOut(duration: 0.5).delay(0.1)) { s2On = true } }
-                            designedTogetherSection.opacity(s4On ? 1 : 0).offset(y: s4On ? 0 : 20).onAppear { withAnimation(.easeOut(duration: 0.5).delay(0.15)) { s4On = true } }
-                            moodboardSection.opacity(s5On ? 1 : 0).offset(y: s5On ? 0 : 20).onAppear { withAnimation(.easeOut(duration: 0.5).delay(0.2)) { s5On = true } }
-                            editorialSection.opacity(s6On ? 1 : 0).offset(y: s6On ? 0 : 20).onAppear { withAnimation(.easeOut(duration: 0.5).delay(0.25)) { s6On = true } }
-                            seasonalSection.opacity(s8On ? 1 : 0).offset(y: s8On ? 0 : 20).onAppear { withAnimation(.easeOut(duration: 0.5).delay(0.3)) { s8On = true } }
-                            Spacer().frame(height: 100)
+        NavigationStack(path: $navigationPath) {
+            ZStack(alignment: .bottomTrailing) {
+                Color.wsWarmIvory.ignoresSafeArea()
+                VStack(spacing: 0) {
+                    navBar
+                    if viewModel.isLoading { loadingView }
+                    else {
+                        ScrollView(showsIndicators: false) {
+                            VStack(spacing: 48) {
+                                heroSection.opacity(s1On ? 1 : 0).offset(y: s1On ? 0 : 16).onAppear { withAnimation(.easeOut(duration: 0.5)) { s1On = true } }
+                                forYourHomeSection.opacity(s2On ? 1 : 0).offset(y: s2On ? 0 : 20).onAppear { withAnimation(.easeOut(duration: 0.5).delay(0.1)) { s2On = true } }
+                                designedTogetherSection.opacity(s4On ? 1 : 0).offset(y: s4On ? 0 : 20).onAppear { withAnimation(.easeOut(duration: 0.5).delay(0.15)) { s4On = true } }
+                                moodboardSection.opacity(s5On ? 1 : 0).offset(y: s5On ? 0 : 20).onAppear { withAnimation(.easeOut(duration: 0.5).delay(0.2)) { s5On = true } }
+                                editorialSection.opacity(s6On ? 1 : 0).offset(y: s6On ? 0 : 20).onAppear { withAnimation(.easeOut(duration: 0.5).delay(0.25)) { s6On = true } }
+                                seasonalSection.opacity(s8On ? 1 : 0).offset(y: s8On ? 0 : 20).onAppear { withAnimation(.easeOut(duration: 0.5).delay(0.3)) { s8On = true } }
+                                Spacer().frame(height: 100)
+                            }
                         }
                     }
                 }
+                conciergeButton
             }
-            conciergeButton
-        }
-        .fullScreenCover(item: $selectedProduct) { p in
-            ProductDetailView(
-                product: p,
-                allProducts: viewModel.products,
-                onAddToCart: { viewModel.addToCart($0) },
-                onAddToRegistry: { viewModel.addToRegistry($0) },
-                onAddToSaveForLater: { viewModel.addToSaveForLater($0) },
-                cartQuantity: viewModel.cartQuantity(for: p),
-                registryQuantity: viewModel.registryQuantity(for: p),
-                isInSaveForLater: viewModel.isInSaveForLater(p)
-            )
-        }
-        .sheet(isPresented: $showSearch) {
-            HomeSearchView(
-                allProducts: viewModel.products,
-                onSelectProduct: { selectedProduct = $0 },
-                onAddToCart: { viewModel.addToCart($0) },
-                onAddToRegistry: { viewModel.addToRegistry($0) }
-            )
-        }
-        .sheet(isPresented: $showConcierge) {
-            AIConciergeView(allProducts: viewModel.products, registryRepository: registryRepository, onSelectProduct: { selectedProduct = $0 })
-        }
-        .sheet(item: $selectedArticle) { article in articleSheet(article) }
-        .sheet(isPresented: $showMoodboard) {
-            NavigationStack { MoodboardView(allProducts: viewModel.products) }
-        }
-        .sheet(isPresented: $showHeroCollection) {
-            HomeSearchView(
-                allProducts: viewModel.products,
-                onSelectProduct: { selectedProduct = $0 },
-                onAddToCart: { viewModel.addToCart($0) },
-                onAddToRegistry: { viewModel.addToRegistry($0) }
-            )
-        }
-        .fullScreenCover(item: $selectedBundle) { bundle in
-            BundleDetailView(
-                bundle: bundle,
-                products: viewModel.bundleProducts(for: bundle),
-                onSelectProduct: { selectedProduct = $0 },
-                onAddToCart: { viewModel.addToCart($0) },
-                onAddToRegistry: { viewModel.addToRegistry($0) }
-            )
-        }
-        .fullScreenCover(item: $selectedScene) { scene in
-            LifestyleSceneDetailView(
-                scene: scene,
-                allProducts: viewModel.products,
-                onSelectProduct: { selectedProduct = $0 },
-                onAddToCart: { viewModel.addToCart($0) },
-                onAddToRegistry: { viewModel.addToRegistry($0) }
-            )
-        }
-        .sheet(isPresented: $showProfile) {
-            ProfileView()
-        }
-        .sheet(isPresented: $showSaveForLater) {
-            SaveForLaterView()
-                .environmentObject(saveForLaterRepository)
-                .environmentObject(cartRepository)
-        }
-        .onAppear {
-            Task {
-                viewModel.bind(
-                    cartRepository: cartRepository,
-                    registryRepository: registryRepository,
-                    saveForLaterRepository: saveForLaterRepository
+            .navigationBarHidden(true)
+            .navigationDestination(for: HomeRoute.self) { route in
+                homeDestination(for: route)
+            }
+            .sheet(isPresented: $showSearch) {
+                HomeSearchView(
+                    allProducts: viewModel.products,
+                    onSelectProduct: { navigateToProduct($0) },
+                    onAddToCart: { viewModel.addToCart($0) },
+                    onAddToRegistry: { viewModel.addToRegistry($0) }
                 )
-                await viewModel.fetchProducts()
             }
-            withAnimation(.easeInOut(duration: 1.4).repeatForever(autoreverses: true)) { conciergeScale = 1.08 }
+            .sheet(isPresented: $showConcierge) {
+                AIConciergeView(allProducts: viewModel.products, registryRepository: registryRepository, onSelectProduct: { navigateToProduct($0) })
+            }
+            .sheet(item: $selectedArticle) { article in articleSheet(article) }
+            .sheet(isPresented: $showMoodboard) {
+                NavigationStack { MoodboardView(allProducts: viewModel.products) }
+            }
+            .sheet(isPresented: $showHeroCollection) {
+                HomeSearchView(
+                    allProducts: viewModel.products,
+                    onSelectProduct: { navigateToProduct($0) },
+                    onAddToCart: { viewModel.addToCart($0) },
+                    onAddToRegistry: { viewModel.addToRegistry($0) }
+                )
+            }
+            .sheet(isPresented: $showProfile) {
+                ProfileView()
+            }
+            .sheet(isPresented: $showSaveForLater) {
+                SaveForLaterView()
+                    .environmentObject(saveForLaterRepository)
+                    .environmentObject(cartRepository)
+            }
+            .onAppear {
+                Task {
+                    viewModel.bind(
+                        cartRepository: cartRepository,
+                        registryRepository: registryRepository,
+                        saveForLaterRepository: saveForLaterRepository
+                    )
+                    await viewModel.fetchProducts()
+                }
+                withAnimation(.easeInOut(duration: 1.4).repeatForever(autoreverses: true)) { conciergeScale = 1.08 }
+            }
         }
+    }
+
+    private enum HomeRoute: Hashable {
+        case product(String)
+        case bundle(UUID)
+        case scene(UUID)
+    }
+
+    private func navigateToProduct(_ product: ProductItem) {
+        navigationPath.append(HomeRoute.product(product.id))
+    }
+
+    private func navigateToBundle(_ bundle: AestheticBundle) {
+        navigationPath.append(HomeRoute.bundle(bundle.id))
+    }
+
+    private func navigateToScene(_ scene: LifestyleScene) {
+        navigationPath.append(HomeRoute.scene(scene.id))
+    }
+
+    @ViewBuilder
+    private func homeDestination(for route: HomeRoute) -> some View {
+        switch route {
+        case .product(let id):
+            if let product = viewModel.products.first(where: { $0.id == id }) {
+                ProductDetailView(
+                    product: product,
+                    allProducts: viewModel.products,
+                    onAddToCart: { viewModel.addToCart($0) },
+                    onAddToRegistry: { viewModel.addToRegistry($0) },
+                    onAddToSaveForLater: { viewModel.addToSaveForLater($0) },
+                    cartQuantity: viewModel.cartQuantity(for: product),
+                    registryQuantity: viewModel.registryQuantity(for: product),
+                    isInSaveForLater: viewModel.isInSaveForLater(product),
+                    onSelectRelatedProduct: { navigateToProduct($0) }
+                )
+                .toolbar(.hidden, for: .tabBar)
+            } else {
+                unavailableDetailView
+            }
+        case .bundle(let id):
+            if let bundle = HomeEditorialData.bundles.first(where: { $0.id == id }) {
+                BundleDetailView(
+                    bundle: bundle,
+                    products: viewModel.bundleProducts(for: bundle),
+                    onSelectProduct: { navigateToProduct($0) },
+                    onAddToCart: { viewModel.addToCart($0) },
+                    onAddToRegistry: { viewModel.addToRegistry($0) }
+                )
+                .toolbar(.hidden, for: .tabBar)
+            } else {
+                unavailableDetailView
+            }
+        case .scene(let id):
+            if let scene = HomeEditorialData.scenes.first(where: { $0.id == id }) {
+                LifestyleSceneDetailView(
+                    scene: scene,
+                    allProducts: viewModel.products,
+                    onSelectProduct: { navigateToProduct($0) },
+                    onAddToCart: { viewModel.addToCart($0) },
+                    onAddToRegistry: { viewModel.addToRegistry($0) }
+                )
+                .toolbar(.hidden, for: .tabBar)
+            } else {
+                unavailableDetailView
+            }
+        }
+    }
+
+    private var unavailableDetailView: some View {
+        VStack(spacing: 12) {
+            Image(systemName: "exclamationmark.triangle")
+                .font(.system(size: 24, weight: .light))
+                .foregroundColor(.wsMutedBrass)
+            Text("This detail is no longer available.")
+                .font(.wsSerif(size: 18))
+                .foregroundColor(.wsCharcoal)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.wsWarmIvory)
     }
 
     // MARK: Loading
@@ -262,7 +316,7 @@ struct HomeView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 18) {
                     ForEach(HomeEditorialData.scenes) { scene in
-                        Button(action: { selectedScene = scene }) {
+                        Button(action: { navigateToScene(scene) }) {
                             sceneCard(scene)
                         }
                         .buttonStyle(.plain)
@@ -334,7 +388,7 @@ struct HomeView: View {
         let prods = viewModel.bundleProducts(for: bundle)
         return VStack(alignment: .leading, spacing: 14) {
             // 2x2 image grid — tappable → BundleDetailView
-            Button(action: { selectedBundle = bundle }) {
+            Button(action: { navigateToBundle(bundle) }) {
                 ZStack(alignment: .topTrailing) {
                     LazyVGrid(
                         columns: [GridItem(.fixed(129), spacing: 3), GridItem(.fixed(129), spacing: 3)],
@@ -409,7 +463,7 @@ struct HomeView: View {
                             .overlay(Rectangle().stroke(Color.wsCharcoal, lineWidth: 1))
                     }
 
-                    Button(action: { selectedBundle = bundle }) {
+                    Button(action: { navigateToBundle(bundle) }) {
                         Text("VIEW")
                             .font(.wsLabel(size: 11))
                             .tracking(1.5)
@@ -585,7 +639,7 @@ struct HomeView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 14) {
                     ForEach(viewModel.seasonalProducts().prefix(8)) { product in
-                        Button(action: { selectedProduct = product }) {
+                        Button(action: { navigateToProduct(product) }) {
                             seasonalProductTile(product)
                         }.buttonStyle(.plain)
                     }
@@ -640,7 +694,7 @@ struct HomeView: View {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 12) {
                                 ForEach(viewModel.products.prefix(4)) { p in
-                                    Button(action: { selectedProduct = p }) {
+                                    Button(action: { navigateToProduct(p) }) {
                                         VStack(alignment: .leading, spacing: 6) {
                                             CustomAsyncImage(url: p.imageURL).frame(width: 130, height: 130).clipped().cornerRadius(2)
                                             Text(p.name).font(.wsBody(size: 11)).foregroundColor(.wsCharcoal).lineLimit(2).frame(width: 130, alignment: .leading)
