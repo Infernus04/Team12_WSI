@@ -39,9 +39,13 @@ struct CartView: View {
                                         )
                                     }
                                 }
-                                .background(AuraDesign.Colors.cream)
-                                .cornerRadius(12)
-                                .clipped()
+                                .background(AuraDesign.Colors.porcelain, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                        .stroke(AuraDesign.Colors.hairline.opacity(0.50), lineWidth: 1)
+                                )
+                                .shadow(color: AuraDesign.Colors.charcoal.opacity(0.05), radius: 16, x: 0, y: 8)
+                                .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
                                 
                                 if let analysis = viewModel.cartAnalysis, !analysis.pairings.isEmpty {
                                     CuratedPairingsCard(

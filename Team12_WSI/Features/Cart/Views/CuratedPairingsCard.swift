@@ -56,12 +56,12 @@ struct CuratedPairingsCard: View {
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
             .frame(height: 200)
         }
-        .background(Color.white)
-        .cornerRadius(12)
+        .background(AuraDesign.Colors.porcelain, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(AuraDesign.Colors.cream, lineWidth: 1)
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .stroke(AuraDesign.Colors.hairline.opacity(0.50), lineWidth: 1)
         )
+        .shadow(color: AuraDesign.Colors.charcoal.opacity(0.05), radius: 16, x: 0, y: 8)
     }
     
     @ViewBuilder

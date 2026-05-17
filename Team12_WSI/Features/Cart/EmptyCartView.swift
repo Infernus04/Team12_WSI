@@ -30,13 +30,22 @@ struct EmptyCartView: View {
                 onContinueShopping?()
             }) {
                 Text(AppStrings.Cart.emptyButton)
-                    .font(AuraDesign.Fonts.sansSerif(size: 15, weight: .medium))
-                    .foregroundColor(AuraDesign.Colors.ivory)
-                    .padding(.vertical, 16)
+                    .font(AuraDesign.Fonts.sansSerif(size: 15, weight: .semibold))
+                    .foregroundColor(AuraDesign.Colors.cream)
+                    .padding(.vertical, 14)
                     .padding(.horizontal, 40)
-                    .background(AuraDesign.Colors.charcoal)
+                    .background {
+                        LinearGradient(
+                            colors: [
+                                AuraDesign.Colors.charcoal,
+                                AuraDesign.Colors.cocoa
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    }
+                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
             }
-            .padding(.top, 16)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.clear)

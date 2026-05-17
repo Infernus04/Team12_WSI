@@ -36,7 +36,7 @@ struct CartItemRow: View {
                             .font(.system(size: 12, weight: .bold))
                             .foregroundColor(AuraDesign.Colors.charcoal)
                             .frame(width: 24, height: 24)
-                            .background(AuraDesign.Colors.cream)
+                            .background(AuraDesign.Colors.ivory)
                             .clipShape(Circle())
                     }
                     
@@ -49,7 +49,7 @@ struct CartItemRow: View {
                             .font(.system(size: 12, weight: .bold))
                             .foregroundColor(AuraDesign.Colors.charcoal)
                             .frame(width: 24, height: 24)
-                            .background(AuraDesign.Colors.cream)
+                            .background(AuraDesign.Colors.ivory)
                             .clipShape(Circle())
                     }
                     
@@ -58,7 +58,7 @@ struct CartItemRow: View {
                             .font(.system(size: 12, weight: .bold))
                             .foregroundColor(AuraDesign.Colors.errorRed)
                             .frame(width: 24, height: 24)
-                            .background(AuraDesign.Colors.cream)
+                            .background(AuraDesign.Colors.ivory)
                             .clipShape(Circle())
                     }
                 }
@@ -72,12 +72,12 @@ struct CartItemRow: View {
                 .foregroundColor(AuraDesign.Colors.charcoal)
         }
         .padding()
-        .background(Color.white)
-        // Refined shadow and border
+        .background(AuraDesign.Colors.porcelain)
+        // Refined shadow and border to match the Registry card rows
         .cornerRadius(0)
         .overlay(
             Rectangle()
-                .stroke(AuraDesign.Colors.cream, lineWidth: 1)
+                .stroke(AuraDesign.Colors.hairline.opacity(0.48), lineWidth: 0.5)
         )
     }
 }

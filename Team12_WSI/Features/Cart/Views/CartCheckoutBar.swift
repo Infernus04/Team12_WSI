@@ -35,13 +35,30 @@ struct CartCheckoutBar: View {
                     .font(AuraDesign.Fonts.sansSerif(size: 15, weight: .semibold))
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 15)
-                    .background(AuraDesign.Colors.charcoal)
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
+                    .background {
+                        LinearGradient(
+                            colors: [
+                                AuraDesign.Colors.charcoal,
+                                AuraDesign.Colors.cocoa
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    }
+                    .foregroundColor(AuraDesign.Colors.cream)
+                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
             }
         }
         .padding(22)
-        .background(Color.white)
-        .shadow(color: Color.black.opacity(0.06), radius: 12, x: 0, y: -4)
+        .background(AuraDesign.Colors.porcelain)
+        .overlay(
+            VStack {
+                Rectangle()
+                    .fill(AuraDesign.Colors.hairline.opacity(0.50))
+                    .frame(height: 1)
+                Spacer()
+            }
+        )
+        .shadow(color: AuraDesign.Colors.charcoal.opacity(0.05), radius: 16, x: 0, y: -8)
     }
 }
