@@ -9,7 +9,7 @@
       "surcharge": 0,
       "retailPrice": 129.95,
       "sellingPrice": 129.95,
-      "monogramOrPersonalizationPrice": 17.0
+      "monogramOrPersonalizationPrice": 17
     },
     "properties": {
       "isMarketPlace": "false",
@@ -34,7 +34,7 @@
       "images": [
         {
           "type": "prodimage",
-          "path": "/img17m.jpg",
+          "path": "/mc_mocha_kettle.jpg",
           "aspect": "q",
           "properties": {
             "altText": "Williams Sonoma End-Grain Cutting Board, Acacia, 15\" X 20\""
@@ -55,7 +55,7 @@
       "surcharge": 0,
       "retailPrice": 10.95,
       "sellingPrice": 10.95,
-      "monogramOrPersonalizationPrice": 17.0
+      "monogramOrPersonalizationPrice": 17
     },
     "properties": {
       "isMarketPlace": "false",
@@ -78,7 +78,7 @@
       "images": [
         {
           "type": "prodimage",
-          "path": "/img27m.jpg",
+          "path": "/lc_fondue_cerise.jpg",
           "aspect": "q",
           "properties": {
             "altText": "Williams Sonoma Board Oil"
@@ -99,7 +99,7 @@
       "surcharge": 0,
       "retailPrice": 89.95,
       "sellingPrice": 89.95,
-      "monogramOrPersonalizationPrice": 17.0
+      "monogramOrPersonalizationPrice": 17
     },
     "properties": {
       "isMarketPlace": "false",
@@ -123,7 +123,7 @@
       "images": [
         {
           "type": "prodimage",
-          "path": "/img64m.jpg",
+          "path": "/img153m.jpg",
           "aspect": "q",
           "properties": {
             "altText": "Hold Everything Lidded Ceramic Bowl, Ashwood, 12\""
@@ -144,7 +144,7 @@
       "surcharge": 0,
       "retailPrice": 34.95,
       "sellingPrice": 34.95,
-      "monogramOrPersonalizationPrice": 17.0
+      "monogramOrPersonalizationPrice": 17
     },
     "properties": {
       "isMarketPlace": "false",
@@ -169,7 +169,7 @@
       "images": [
         {
           "type": "prodimage",
-          "path": "/img95m.jpg",
+          "path": "/lc_heritage_rect_cerise.jpg",
           "aspect": "q",
           "properties": {
             "altText": "Apilco Tradition Porcelain Cup & Saucer, Each"
@@ -185,11 +185,11 @@
     "shortName": "Staub Enameled Cast Iron Round Dutch Oven, 7-Qt., Basil",
     "primaryGroupId": "staub-round-cocotte",
     "price": {
-      "regularPrice": 470.0,
+      "regularPrice": 470,
       "surcharge": 0,
-      "retailPrice": 470.0,
+      "retailPrice": 470,
       "sellingPrice": 299.95,
-      "monogramOrPersonalizationPrice": 17.0
+      "monogramOrPersonalizationPrice": 17
     },
     "freeShip": true,
     "properties": {
@@ -217,7 +217,7 @@
       "images": [
         {
           "type": "prodimage",
-          "path": "/img83m.jpg",
+          "path": "/lc_demi_semisalt.jpg",
           "aspect": "q",
           "properties": {
             "altText": "Staub Enameled Cast Iron Round Dutch Oven, 7-Qt., Basil"
@@ -238,7 +238,7 @@
       "surcharge": 0,
       "retailPrice": 119.95,
       "sellingPrice": 119.95,
-      "monogramOrPersonalizationPrice": 17.0
+      "monogramOrPersonalizationPrice": 17
     },
     "freeShip": true,
     "properties": {
@@ -291,7 +291,7 @@
       "surcharge": 0,
       "retailPrice": 59.95,
       "sellingPrice": 59.95,
-      "monogramOrPersonalizationPrice": 17.0
+      "monogramOrPersonalizationPrice": 17
     },
     "properties": {
       "isMarketPlace": "false",
@@ -316,7 +316,7 @@
       "images": [
         {
           "type": "prodimage",
-          "path": "/img153m.jpg",
+          "path": "/img236m.jpg",
           "aspect": "q",
           "properties": {
             "altText": "Hold Everything Lazy Susan, Small, Walnut Finish, 10\""
@@ -337,7 +337,7 @@
       "surcharge": 0,
       "retailPrice": 38.95,
       "sellingPrice": 38.95,
-      "monogramOrPersonalizationPrice": 17.0
+      "monogramOrPersonalizationPrice": 17
     },
     "properties": {
       "isMarketPlace": "false",
@@ -360,7 +360,7 @@
       "images": [
         {
           "type": "prodimage",
-          "path": "/img4m.jpg",
+          "path": "/img17m.jpg",
           "aspect": "q",
           "properties": {
             "altText": "Williams Sonoma Organic House Extra Virgin Olive Oil"
@@ -381,7 +381,7 @@
       "surcharge": 0,
       "retailPrice": 179.8,
       "sellingPrice": 179.8,
-      "monogramOrPersonalizationPrice": 17.0
+      "monogramOrPersonalizationPrice": 17
     },
     "properties": {
       "isMarketPlace": "false",
@@ -407,7 +407,7 @@
       "images": [
         {
           "type": "prodimage",
-          "path": "/img236m.jpg",
+          "path": "/lc_heritage_rect_cerise.jpg",
           "aspect": "q",
           "properties": {
             "altText": "Dorset Martini Glasses, Set of 4"
@@ -424,11 +424,11 @@
     "shortName": "Staub Enameled Cast Iron Traditional Deep Skillet, 8 1/2\", Citron",
     "primaryGroupId": "staub-traditional-skillet",
     "price": {
-      "regularPrice": 180.0,
+      "regularPrice": 180,
       "surcharge": 0,
-      "retailPrice": 180.0,
-      "sellingPrice": 180.0,
-      "monogramOrPersonalizationPrice": 17.0
+      "retailPrice": 180,
+      "sellingPrice": 180,
+      "monogramOrPersonalizationPrice": 17
     },
     "freeShip": true,
     "properties": {
@@ -457,27 +457,28 @@
       "images": [
         {
           "type": "prodimage",
-          "path": "/img5m.jpg",
+          "path": "/img27m.jpg",
           "aspect": "q",
           "properties": {
-            "altText": "Staub Enameled Cast Iron Traditional Deep Skillet, 8 1/2\\\", Citron"
+            "altText": "Staub Enameled Cast Iron Traditional Deep Skillet, 8 1/2\", Citron"
           }
         }
       ]
     },
     "availability": "ON_HAND",
     "deliveryEstimate": "TRANSIT"
-  },{
+  },
+  {
     "id": "15456207058931044427",
     "name": "Staub Enameled Cast Iron Traditional Fry Pan, 10\", Sapphire Blue",
     "shortName": "Staub Enameled Cast Iron Traditional Fry Pan, 10\", Sapphire Blue",
     "primaryGroupId": "staub-traditional-skillet",
     "price": {
-      "regularPrice": 199.0,
+      "regularPrice": 199,
       "surcharge": 0,
-      "retailPrice": 199.0,
-      "sellingPrice": 199.0,
-      "monogramOrPersonalizationPrice": 17.0
+      "retailPrice": 199,
+      "sellingPrice": 199,
+      "monogramOrPersonalizationPrice": 17
     },
     "freeShip": true,
     "properties": {
@@ -506,7 +507,7 @@
       "images": [
         {
           "type": "prodimage",
-          "path": "/img10s.jpg",
+          "path": "/img236m.jpg",
           "aspect": "q",
           "properties": {
             "altText": "Staub Enameled Cast Iron Traditional Fry Pan, 10\", Sapphire Blue"
@@ -516,17 +517,18 @@
     },
     "availability": "ON_HAND",
     "deliveryEstimate": "TRANSIT"
-  },{
+  },
+  {
     "id": "9046778551105555161",
     "name": "Staub Enameled Cast Iron Traditional Fry Pan, 12\", Cherry",
     "shortName": "Staub Enameled Cast Iron Traditional Fry Pan, 12\", Cherry",
     "primaryGroupId": "staub-traditional-skillet",
     "price": {
-      "regularPrice": 249.0,
+      "regularPrice": 249,
       "surcharge": 0,
-      "retailPrice": 249.0,
-      "sellingPrice": 249.0,
-      "monogramOrPersonalizationPrice": 17.0
+      "retailPrice": 249,
+      "sellingPrice": 249,
+      "monogramOrPersonalizationPrice": 17
     },
     "freeShip": true,
     "properties": {
@@ -555,7 +557,7 @@
       "images": [
         {
           "type": "prodimage",
-          "path": "/img12c.jpg",
+          "path": "/mauviel_crepe_brass.jpg",
           "aspect": "q",
           "properties": {
             "altText": "Staub Enameled Cast Iron Traditional Fry Pan, 12\", Cherry"
@@ -572,11 +574,11 @@
     "shortName": "Le Creuset Enamel On Steel Demi Tea Kettle, 1.25 Quart, Sea Salt",
     "primaryGroupId": "le-creuset-demi-kettle",
     "price": {
-      "regularPrice": 100.0,
+      "regularPrice": 100,
       "surcharge": 0,
-      "retailPrice": 100.0,
-      "sellingPrice": 100.0,
-      "monogramOrPersonalizationPrice": 0.0
+      "retailPrice": 100,
+      "sellingPrice": 100,
+      "monogramOrPersonalizationPrice": 0
     },
     "freeShip": true,
     "properties": {
@@ -605,7 +607,7 @@
       "images": [
         {
           "type": "prodimage",
-          "path": "/lc_demi_seasalt.jpg",
+          "path": "/lc_fondue_cerise.jpg",
           "aspect": "q",
           "properties": {
             "altText": "Le Creuset Enamel On Steel Demi Tea Kettle, 1.25 Quart, Sea Salt"
@@ -622,11 +624,11 @@
     "shortName": "MacKenzie-Childs Mocha Check Whistling Tea Kettle, 2 Quart",
     "primaryGroupId": "mackenzie-childs-tea-kettle",
     "price": {
-      "regularPrice": 150.0,
+      "regularPrice": 150,
       "surcharge": 0,
-      "retailPrice": 150.0,
-      "sellingPrice": 150.0,
-      "monogramOrPersonalizationPrice": 0.0
+      "retailPrice": 150,
+      "sellingPrice": 150,
+      "monogramOrPersonalizationPrice": 0
     },
     "freeShip": true,
     "properties": {
@@ -655,7 +657,7 @@
       "images": [
         {
           "type": "prodimage",
-          "path": "/mc_mocha_kettle.jpg",
+          "path": "/img5m.jpg",
           "aspect": "q",
           "properties": {
             "altText": "MacKenzie-Childs Mocha Check Whistling Tea Kettle, 2 Quart"
@@ -672,11 +674,11 @@
     "shortName": "Le Creuset Enameled Cast Iron Fondue Pot, 2.5-Qt., Cerise",
     "primaryGroupId": "le-creuset-fondue-set",
     "price": {
-      "regularPrice": 400.0,
+      "regularPrice": 400,
       "surcharge": 0,
-      "retailPrice": 400.0,
-      "sellingPrice": 400.0,
-      "monogramOrPersonalizationPrice": 0.0
+      "retailPrice": 400,
+      "sellingPrice": 400,
+      "monogramOrPersonalizationPrice": 0
     },
     "freeShip": true,
     "properties": {
@@ -705,7 +707,7 @@
       "images": [
         {
           "type": "prodimage",
-          "path": "/lc_fondue_cerise.jpg",
+          "path": "/img10s.jpg",
           "aspect": "q",
           "properties": {
             "altText": "Le Creuset Enameled Cast Iron Fondue Pot, 2.5-Qt., Cerise"
@@ -722,11 +724,11 @@
     "shortName": "Le Creuset Stoneware Heritage Rectangular Dish, 2.5 qt., Cerise",
     "primaryGroupId": "le-creuset-heritage-bakeware",
     "price": {
-      "regularPrice": 70.0,
+      "regularPrice": 70,
       "surcharge": 0,
-      "retailPrice": 70.0,
-      "sellingPrice": 70.0,
-      "monogramOrPersonalizationPrice": 0.0
+      "retailPrice": 70,
+      "sellingPrice": 70,
+      "monogramOrPersonalizationPrice": 0
     },
     "freeShip": true,
     "properties": {
@@ -755,7 +757,7 @@
       "images": [
         {
           "type": "prodimage",
-          "path": "/lc_heritage_rect_cerise.jpg",
+          "path": "/img10s.jpg",
           "aspect": "q",
           "properties": {
             "altText": "Le Creuset Stoneware Heritage Rectangular Dish, 2.5 qt., Cerise"
@@ -772,11 +774,11 @@
     "shortName": "Le Creuset Stoneware Heritage Oval Fish Baker, 1 3/4 Qt., Sea Salt",
     "primaryGroupId": "le-creuset-fish-baker",
     "price": {
-      "regularPrice": 135.0,
+      "regularPrice": 135,
       "surcharge": 0,
-      "retailPrice": 135.0,
-      "sellingPrice": 135.0,
-      "monogramOrPersonalizationPrice": 0.0
+      "retailPrice": 135,
+      "sellingPrice": 135,
+      "monogramOrPersonalizationPrice": 0
     },
     "freeShip": true,
     "properties": {
@@ -805,7 +807,7 @@
       "images": [
         {
           "type": "prodimage",
-          "path": "/lc_fish_baker_seasalt.jpg",
+          "path": "/img23m.jpg",
           "aspect": "q",
           "properties": {
             "altText": "Le Creuset Stoneware Heritage Oval Fish Baker, 1 3/4 Qt., Sea Salt"
@@ -822,11 +824,11 @@
     "shortName": "Mauviel M'Heritage 150b Copper Crêpe Pan, 11.8\", Brass Handle",
     "primaryGroupId": "mauviel-m-heritage-crepe",
     "price": {
-      "regularPrice": 380.0,
+      "regularPrice": 380,
       "surcharge": 0,
-      "retailPrice": 380.0,
-      "sellingPrice": 380.0,
-      "monogramOrPersonalizationPrice": 0.0
+      "retailPrice": 380,
+      "sellingPrice": 380,
+      "monogramOrPersonalizationPrice": 0
     },
     "freeShip": true,
     "properties": {
@@ -855,7 +857,7 @@
       "images": [
         {
           "type": "prodimage",
-          "path": "/mauviel_crepe_brass.jpg",
+          "path": "/ruffoni_historia_pineapple_55.jpg",
           "aspect": "q",
           "properties": {
             "altText": "Mauviel M'Heritage 150b Copper Crêpe Pan, 11.8\", Brass Handle"
@@ -872,11 +874,11 @@
     "shortName": "Le Creuset Enameled Cast Iron Signature Round Dutch Oven, 4.5 qt., Caribbean",
     "primaryGroupId": "le-creuset-signature-dutch-oven",
     "price": {
-      "regularPrice": 350.0,
+      "regularPrice": 350,
       "surcharge": 0,
-      "retailPrice": 350.0,
-      "sellingPrice": 350.0,
-      "monogramOrPersonalizationPrice": 0.0
+      "retailPrice": 350,
+      "sellingPrice": 350,
+      "monogramOrPersonalizationPrice": 0
     },
     "freeShip": true,
     "properties": {
@@ -905,7 +907,7 @@
       "images": [
         {
           "type": "prodimage",
-          "path": "/lc_dutch45_caribbean.jpg",
+          "path": "/lc_fondue_cerise.jpg",
           "aspect": "q",
           "properties": {
             "altText": "Le Creuset Enameled Cast Iron Signature Round Dutch Oven, 4.5 qt., Caribbean"
@@ -915,17 +917,18 @@
     },
     "availability": "ON_HAND",
     "deliveryEstimate": "TRANSIT"
-  },{
+  },
+  {
     "id": "1894235715545116870",
     "name": "Ruffoni Historia Hammered Copper Belly Stock Pot with Pineapple Knob, 5.5-Qt.",
     "shortName": "Ruffoni Historia Hammered Copper Belly Stock Pot with Pineapple Knob, 5.5-Qt.",
     "primaryGroupId": "ruffoni-historia-stockpot",
     "price": {
-      "regularPrice": 545.0,
+      "regularPrice": 545,
       "surcharge": 0,
-      "retailPrice": 545.0,
-      "sellingPrice": 545.0,
-      "monogramOrPersonalizationPrice": 0.0
+      "retailPrice": 545,
+      "sellingPrice": 545,
+      "monogramOrPersonalizationPrice": 0
     },
     "freeShip": true,
     "properties": {
@@ -954,7 +957,7 @@
       "images": [
         {
           "type": "prodimage",
-          "path": "/ruffoni_historia_pineapple_55.jpg",
+          "path": "/img23m.jpg",
           "aspect": "q",
           "properties": {
             "altText": "Ruffoni Historia Hammered Copper Belly Stock Pot with Pineapple Knob, 5.5-Qt."
@@ -971,11 +974,11 @@
     "shortName": "Staub Enameled Cast Iron Deep Oven, 3-Qt., Cherry",
     "primaryGroupId": "staub-deep-oven",
     "price": {
-      "regularPrice": 310.0,
+      "regularPrice": 310,
       "surcharge": 0,
-      "retailPrice": 310.0,
-      "sellingPrice": 310.0,
-      "monogramOrPersonalizationPrice": 0.0
+      "retailPrice": 310,
+      "sellingPrice": 310,
+      "monogramOrPersonalizationPrice": 0
     },
     "freeShip": true,
     "properties": {
@@ -1004,10 +1007,2877 @@
       "images": [
         {
           "type": "prodimage",
-          "path": "/staub_deep_oven_3qt_cherry.jpg",
+          "path": "/img83m.jpg",
           "aspect": "q",
           "properties": {
             "altText": "Staub Enameled Cast Iron Deep Oven, 3-Qt., Cherry"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800001",
+    "name": "Open Kitchen by Williams Sonoma 46-Piece Dinnerware Set",
+    "shortName": "Open Kitchen by Williams Sonoma 46-Piece Dinnerware Set",
+    "primaryGroupId": "open-kitchen-by-williams-sonoma-46-piece-dinnerware-set",
+    "price": {
+      "regularPrice": 399.95,
+      "surcharge": 0,
+      "retailPrice": 399.95,
+      "sellingPrice": 351.96,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "white-parent/white",
+      "pattern": "tabletop",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "williams-sonoma",
+      "organic": "false",
+      "productType": "dinnerware-set",
+      "canGiftWrap": "true",
+      "collection": "open-kitchen",
+      "allProductTypes": "dinnerware-set",
+      "material": "porcelain",
+      "isShoppable": "true",
+      "name": "Open Kitchen by Williams Sonoma 46-Piece Dinnerware Set",
+      "shortName": "Open Kitchen by Williams Sonoma 46-Piece Dinnerware Set"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/lc_fondue_cerise.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Open Kitchen by Williams Sonoma 46-Piece Dinnerware Set"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800002",
+    "name": "Open Kitchen by Williams Sonoma Stainless-Steel 10-Piece Cookware Set",
+    "shortName": "Open Kitchen by Williams Sonoma Stainless-Steel 10-Piece Cookware Set",
+    "primaryGroupId": "open-kitchen-by-williams-sonoma-stainless-steel-10-piece-cookware-set",
+    "price": {
+      "regularPrice": 299.95,
+      "surcharge": 0,
+      "retailPrice": 299.95,
+      "sellingPrice": 269.96,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "steel-parent/stainless",
+      "pattern": "cookware",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "williams-sonoma",
+      "organic": "false",
+      "productType": "cookware-set",
+      "canGiftWrap": "true",
+      "collection": "open-kitchen",
+      "allProductTypes": "cookware-set",
+      "material": "stainless-steel",
+      "isShoppable": "true",
+      "name": "Open Kitchen by Williams Sonoma Stainless-Steel 10-Piece Cookware Set",
+      "shortName": "Open Kitchen by Williams Sonoma Stainless-Steel 10-Piece Cookware Set"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/img23m.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Open Kitchen by Williams Sonoma Stainless-Steel 10-Piece Cookware Set"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800003",
+    "name": "Open Kitchen by Williams Sonoma Cups & Saucers, Set of 4",
+    "shortName": "Open Kitchen by Williams Sonoma Cups & Saucers, Set of 4",
+    "primaryGroupId": "open-kitchen-by-williams-sonoma-cups-saucers-set-of-4",
+    "price": {
+      "regularPrice": 59.95,
+      "surcharge": 0,
+      "retailPrice": 59.95,
+      "sellingPrice": 55.15,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "white-parent/white",
+      "pattern": "tabletop",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "williams-sonoma",
+      "organic": "false",
+      "productType": "cups-and-saucers",
+      "canGiftWrap": "true",
+      "collection": "open-kitchen",
+      "allProductTypes": "cups-and-saucers",
+      "material": "porcelain",
+      "isShoppable": "true",
+      "name": "Open Kitchen by Williams Sonoma Cups & Saucers, Set of 4",
+      "shortName": "Open Kitchen by Williams Sonoma Cups & Saucers, Set of 4"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/staub_deep_oven_3qt_cherry.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Open Kitchen by Williams Sonoma Cups & Saucers, Set of 4"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800004",
+    "name": "Open Kitchen by Williams Sonoma Strainer Set",
+    "shortName": "Open Kitchen by Williams Sonoma Strainer Set",
+    "primaryGroupId": "open-kitchen-by-williams-sonoma-strainer-set",
+    "price": {
+      "regularPrice": 32.95,
+      "surcharge": 0,
+      "retailPrice": 32.95,
+      "sellingPrice": 30.97,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "steel-parent/stainless",
+      "pattern": "homekeeping",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "williams-sonoma",
+      "organic": "false",
+      "productType": "strainers-colanders",
+      "canGiftWrap": "true",
+      "collection": "open-kitchen",
+      "allProductTypes": "strainers-colanders",
+      "material": "stainless-steel",
+      "isShoppable": "true",
+      "name": "Open Kitchen by Williams Sonoma Strainer Set",
+      "shortName": "Open Kitchen by Williams Sonoma Strainer Set"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/staub_deep_oven_3qt_cherry.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Open Kitchen by Williams Sonoma Strainer Set"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800005",
+    "name": "Le Creuset Signature Stainless-Steel 10-Piece Cookware Set",
+    "shortName": "Le Creuset Signature Stainless-Steel 10-Piece Cookware Set",
+    "primaryGroupId": "le-creuset-signature-stainless-steel-10-piece-cookware-set",
+    "price": {
+      "regularPrice": 860,
+      "surcharge": 0,
+      "retailPrice": 860,
+      "sellingPrice": 825.6,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "steel-parent/stainless",
+      "pattern": "cookware",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "le-creuset",
+      "organic": "false",
+      "productType": "cookware-set",
+      "canGiftWrap": "true",
+      "collection": "le-creuset-signature",
+      "allProductTypes": "cookware-set",
+      "material": "stainless-steel",
+      "isShoppable": "true",
+      "name": "Le Creuset Signature Stainless-Steel 10-Piece Cookware Set",
+      "shortName": "Le Creuset Signature Stainless-Steel 10-Piece Cookware Set"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/lc_demi_semisalt.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Le Creuset Signature Stainless-Steel 10-Piece Cookware Set"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800006",
+    "name": "Le Creuset Signature Stainless-Steel 12-Piece Cookware Set",
+    "shortName": "Le Creuset Signature Stainless-Steel 12-Piece Cookware Set",
+    "primaryGroupId": "le-creuset-signature-stainless-steel-12-piece-cookware-set",
+    "price": {
+      "regularPrice": 1050,
+      "surcharge": 0,
+      "retailPrice": 1050,
+      "sellingPrice": 924,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "steel-parent/stainless",
+      "pattern": "cookware",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "le-creuset",
+      "organic": "false",
+      "productType": "cookware-set",
+      "canGiftWrap": "true",
+      "collection": "le-creuset-signature",
+      "allProductTypes": "cookware-set",
+      "material": "stainless-steel",
+      "isShoppable": "true",
+      "name": "Le Creuset Signature Stainless-Steel 12-Piece Cookware Set",
+      "shortName": "Le Creuset Signature Stainless-Steel 12-Piece Cookware Set"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/img27m.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Le Creuset Signature Stainless-Steel 12-Piece Cookware Set"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800007",
+    "name": "Le Creuset Signature Enameled Cast Iron 10-Piece Cookware Set",
+    "shortName": "Le Creuset Signature Enameled Cast Iron 10-Piece Cookware Set",
+    "primaryGroupId": "le-creuset-signature-enameled-cast-iron-10-piece-cookware-set",
+    "price": {
+      "regularPrice": 1264.95,
+      "surcharge": 0,
+      "retailPrice": 1264.95,
+      "sellingPrice": 1138.46,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "cream-parent/brioche",
+      "pattern": "cookware",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "le-creuset",
+      "organic": "false",
+      "productType": "cookware-set",
+      "canGiftWrap": "true",
+      "collection": "le-creuset-signature",
+      "allProductTypes": "cookware-set",
+      "material": "cast-iron",
+      "isShoppable": "true",
+      "name": "Le Creuset Signature Enameled Cast Iron 10-Piece Cookware Set",
+      "shortName": "Le Creuset Signature Enameled Cast Iron 10-Piece Cookware Set"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/img17m.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Le Creuset Signature Enameled Cast Iron 10-Piece Cookware Set"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800008",
+    "name": "Le Creuset Essential Ceramic Nonstick 6-Piece Cookware Set",
+    "shortName": "Le Creuset Essential Ceramic Nonstick 6-Piece Cookware Set",
+    "primaryGroupId": "le-creuset-essential-ceramic-nonstick-6-piece-cookware-set",
+    "price": {
+      "regularPrice": 400,
+      "surcharge": 0,
+      "retailPrice": 400,
+      "sellingPrice": 368,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "gray-parent/graphite",
+      "pattern": "cookware",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "le-creuset",
+      "organic": "false",
+      "productType": "cookware-set",
+      "canGiftWrap": "true",
+      "collection": "le-creuset-essential",
+      "allProductTypes": "cookware-set",
+      "material": "ceramic-nonstick",
+      "isShoppable": "true",
+      "name": "Le Creuset Essential Ceramic Nonstick 6-Piece Cookware Set",
+      "shortName": "Le Creuset Essential Ceramic Nonstick 6-Piece Cookware Set"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/lc_heritage_rect_cerise.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Le Creuset Essential Ceramic Nonstick 6-Piece Cookware Set"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800009",
+    "name": "Le Creuset Essential Stainless-Steel 13-Piece Mixed Material Cookware Set",
+    "shortName": "Le Creuset Essential Stainless-Steel 13-Piece Mixed Material Cookware Set",
+    "primaryGroupId": "le-creuset-essential-stainless-steel-13-piece-mixed-material-cookware-set",
+    "price": {
+      "regularPrice": 889.95,
+      "surcharge": 0,
+      "retailPrice": 889.95,
+      "sellingPrice": 836.55,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "steel-parent/stainless",
+      "pattern": "cookware",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "le-creuset",
+      "organic": "false",
+      "productType": "cookware-set",
+      "canGiftWrap": "true",
+      "collection": "le-creuset-essential",
+      "allProductTypes": "cookware-set",
+      "material": "stainless-steel",
+      "isShoppable": "true",
+      "name": "Le Creuset Essential Stainless-Steel 13-Piece Mixed Material Cookware Set",
+      "shortName": "Le Creuset Essential Stainless-Steel 13-Piece Mixed Material Cookware Set"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/lc_fish_baker_seasalt.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Le Creuset Essential Stainless-Steel 13-Piece Mixed Material Cookware Set"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800010",
+    "name": "Le Creuset 14-Piece Measuring Set, Stainless Steel",
+    "shortName": "Le Creuset 14-Piece Measuring Set, Stainless Steel",
+    "primaryGroupId": "le-creuset-14-piece-measuring-set-stainless-steel",
+    "price": {
+      "regularPrice": 132,
+      "surcharge": 0,
+      "retailPrice": 132,
+      "sellingPrice": 126.72,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "steel-parent/stainless",
+      "pattern": "cutlery",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "le-creuset",
+      "organic": "false",
+      "productType": "measuring-tools",
+      "canGiftWrap": "true",
+      "collection": "le-creuset-tools",
+      "allProductTypes": "measuring-tools",
+      "material": "stainless-steel",
+      "isShoppable": "true",
+      "name": "Le Creuset 14-Piece Measuring Set, Stainless Steel",
+      "shortName": "Le Creuset 14-Piece Measuring Set, Stainless Steel"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/img95m.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Le Creuset 14-Piece Measuring Set, Stainless Steel"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800011",
+    "name": "Le Creuset Coupe 16-Piece Dinnerware Set",
+    "shortName": "Le Creuset Coupe 16-Piece Dinnerware Set",
+    "primaryGroupId": "le-creuset-coupe-16-piece-dinnerware-set",
+    "price": {
+      "regularPrice": 300,
+      "surcharge": 0,
+      "retailPrice": 300,
+      "sellingPrice": 264,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "white-parent/white",
+      "pattern": "tabletop",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "le-creuset",
+      "organic": "false",
+      "productType": "dinnerware-set",
+      "canGiftWrap": "true",
+      "collection": "le-creuset-coupe",
+      "allProductTypes": "dinnerware-set",
+      "material": "stoneware",
+      "isShoppable": "true",
+      "name": "Le Creuset Coupe 16-Piece Dinnerware Set",
+      "shortName": "Le Creuset Coupe 16-Piece Dinnerware Set"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/staub_deep_oven_3qt_cherry.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Le Creuset Coupe 16-Piece Dinnerware Set"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800012",
+    "name": "Pillivuyt Plisse Porcelain 16-Piece Dinnerware Set",
+    "shortName": "Pillivuyt Plisse Porcelain 16-Piece Dinnerware Set",
+    "primaryGroupId": "pillivuyt-plisse-porcelain-16-piece-dinnerware-set",
+    "price": {
+      "regularPrice": 499.2,
+      "surcharge": 0,
+      "retailPrice": 499.2,
+      "sellingPrice": 449.28,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "white-parent/white",
+      "pattern": "tabletop",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "pillivuyt",
+      "organic": "false",
+      "productType": "dinnerware-set",
+      "canGiftWrap": "true",
+      "collection": "pillivuyt-plisse",
+      "allProductTypes": "dinnerware-set",
+      "material": "porcelain",
+      "isShoppable": "true",
+      "name": "Pillivuyt Plisse Porcelain 16-Piece Dinnerware Set",
+      "shortName": "Pillivuyt Plisse Porcelain 16-Piece Dinnerware Set"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/img27m.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Pillivuyt Plisse Porcelain 16-Piece Dinnerware Set"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800013",
+    "name": "Fortessa Blyss 16-Piece Dinnerware Set",
+    "shortName": "Fortessa Blyss 16-Piece Dinnerware Set",
+    "primaryGroupId": "fortessa-blyss-16-piece-dinnerware-set",
+    "price": {
+      "regularPrice": 260,
+      "surcharge": 0,
+      "retailPrice": 260,
+      "sellingPrice": 239.2,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "white-parent/white",
+      "pattern": "tabletop",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "fortessa",
+      "organic": "false",
+      "productType": "dinnerware-set",
+      "canGiftWrap": "true",
+      "collection": "fortessa-blyss",
+      "allProductTypes": "dinnerware-set",
+      "material": "porcelain",
+      "isShoppable": "true",
+      "name": "Fortessa Blyss 16-Piece Dinnerware Set",
+      "shortName": "Fortessa Blyss 16-Piece Dinnerware Set"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/img23m.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Fortessa Blyss 16-Piece Dinnerware Set"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800014",
+    "name": "Wedgwood Renaissance Gold 5-Piece Dinnerware Set",
+    "shortName": "Wedgwood Renaissance Gold 5-Piece Dinnerware Set",
+    "primaryGroupId": "wedgwood-renaissance-gold-5-piece-dinnerware-set",
+    "price": {
+      "regularPrice": 290,
+      "surcharge": 0,
+      "retailPrice": 290,
+      "sellingPrice": 272.6,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "gold-parent/ivory",
+      "pattern": "tabletop",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "wedgwood",
+      "organic": "false",
+      "productType": "dinnerware-set",
+      "canGiftWrap": "true",
+      "collection": "wedgwood-renaissance",
+      "allProductTypes": "dinnerware-set",
+      "material": "porcelain",
+      "isShoppable": "true",
+      "name": "Wedgwood Renaissance Gold 5-Piece Dinnerware Set",
+      "shortName": "Wedgwood Renaissance Gold 5-Piece Dinnerware Set"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/img83m.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Wedgwood Renaissance Gold 5-Piece Dinnerware Set"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800015",
+    "name": "Wedgwood Renaissance Red 5-Piece Dinnerware Set",
+    "shortName": "Wedgwood Renaissance Red 5-Piece Dinnerware Set",
+    "primaryGroupId": "wedgwood-renaissance-red-5-piece-dinnerware-set",
+    "price": {
+      "regularPrice": 290,
+      "surcharge": 0,
+      "retailPrice": 290,
+      "sellingPrice": 278.4,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "red-parent/renaissance-red",
+      "pattern": "tabletop",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "wedgwood",
+      "organic": "false",
+      "productType": "dinnerware-set",
+      "canGiftWrap": "true",
+      "collection": "wedgwood-renaissance",
+      "allProductTypes": "dinnerware-set",
+      "material": "porcelain",
+      "isShoppable": "true",
+      "name": "Wedgwood Renaissance Red 5-Piece Dinnerware Set",
+      "shortName": "Wedgwood Renaissance Red 5-Piece Dinnerware Set"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/img17m.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Wedgwood Renaissance Red 5-Piece Dinnerware Set"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800016",
+    "name": "Open Kitchen Angle Red Wine Glasses, Set of 4",
+    "shortName": "Open Kitchen Angle Red Wine Glasses, Set of 4",
+    "primaryGroupId": "open-kitchen-angle-red-wine-glasses-set-of-4",
+    "price": {
+      "regularPrice": 49.95,
+      "surcharge": 0,
+      "retailPrice": 49.95,
+      "sellingPrice": 43.96,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "clear-parent/clear",
+      "pattern": "glassware",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "williams-sonoma",
+      "organic": "false",
+      "productType": "wine-glasses",
+      "canGiftWrap": "true",
+      "collection": "open-kitchen",
+      "allProductTypes": "wine-glasses",
+      "material": "crystal",
+      "isShoppable": "true",
+      "name": "Open Kitchen Angle Red Wine Glasses, Set of 4",
+      "shortName": "Open Kitchen Angle Red Wine Glasses, Set of 4"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/img27m.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Open Kitchen Angle Red Wine Glasses, Set of 4"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800017",
+    "name": "Open Kitchen Tall Tumblers, Set of 6",
+    "shortName": "Open Kitchen Tall Tumblers, Set of 6",
+    "primaryGroupId": "open-kitchen-tall-tumblers-set-of-6",
+    "price": {
+      "regularPrice": 39.95,
+      "surcharge": 0,
+      "retailPrice": 39.95,
+      "sellingPrice": 35.96,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "clear-parent/clear",
+      "pattern": "glassware",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "williams-sonoma",
+      "organic": "false",
+      "productType": "tumblers",
+      "canGiftWrap": "true",
+      "collection": "open-kitchen",
+      "allProductTypes": "tumblers",
+      "material": "glass",
+      "isShoppable": "true",
+      "name": "Open Kitchen Tall Tumblers, Set of 6",
+      "shortName": "Open Kitchen Tall Tumblers, Set of 6"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/staub_deep_oven_3qt_cherry.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Open Kitchen Tall Tumblers, Set of 6"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800018",
+    "name": "All-Clad D5 Stainless-Steel 10-Piece Cookware Set",
+    "shortName": "All-Clad D5 Stainless-Steel 10-Piece Cookware Set",
+    "primaryGroupId": "all-clad-d5-stainless-steel-10-piece-cookware-set",
+    "price": {
+      "regularPrice": 799.95,
+      "surcharge": 0,
+      "retailPrice": 799.95,
+      "sellingPrice": 735.95,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "steel-parent/brushed",
+      "pattern": "cookware",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "all-clad",
+      "organic": "false",
+      "productType": "cookware-set",
+      "canGiftWrap": "true",
+      "collection": "all-clad-d5",
+      "allProductTypes": "cookware-set",
+      "material": "stainless-steel",
+      "isShoppable": "true",
+      "name": "All-Clad D5 Stainless-Steel 10-Piece Cookware Set",
+      "shortName": "All-Clad D5 Stainless-Steel 10-Piece Cookware Set"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/img42m.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "All-Clad D5 Stainless-Steel 10-Piece Cookware Set"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800019",
+    "name": "All-Clad Copper Core 7-Piece Cookware Set",
+    "shortName": "All-Clad Copper Core 7-Piece Cookware Set",
+    "primaryGroupId": "all-clad-copper-core-7-piece-cookware-set",
+    "price": {
+      "regularPrice": 999.95,
+      "surcharge": 0,
+      "retailPrice": 999.95,
+      "sellingPrice": 939.95,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "copper-parent/copper",
+      "pattern": "cookware",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "all-clad",
+      "organic": "false",
+      "productType": "cookware-set",
+      "canGiftWrap": "true",
+      "collection": "all-clad-copper-core",
+      "allProductTypes": "cookware-set",
+      "material": "copper-core",
+      "isShoppable": "true",
+      "name": "All-Clad Copper Core 7-Piece Cookware Set",
+      "shortName": "All-Clad Copper Core 7-Piece Cookware Set"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/img4m.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "All-Clad Copper Core 7-Piece Cookware Set"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800020",
+    "name": "All-Clad NS Pro Nonstick 10-Piece Cookware Set",
+    "shortName": "All-Clad NS Pro Nonstick 10-Piece Cookware Set",
+    "primaryGroupId": "all-clad-ns-pro-nonstick-10-piece-cookware-set",
+    "price": {
+      "regularPrice": 649.95,
+      "surcharge": 0,
+      "retailPrice": 649.95,
+      "sellingPrice": 623.95,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "black-parent/graphite",
+      "pattern": "cookware",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "all-clad",
+      "organic": "false",
+      "productType": "cookware-set",
+      "canGiftWrap": "true",
+      "collection": "all-clad-nonstick",
+      "allProductTypes": "cookware-set",
+      "material": "nonstick",
+      "isShoppable": "true",
+      "name": "All-Clad NS Pro Nonstick 10-Piece Cookware Set",
+      "shortName": "All-Clad NS Pro Nonstick 10-Piece Cookware Set"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/mc_mocha_kettle.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "All-Clad NS Pro Nonstick 10-Piece Cookware Set"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800021",
+    "name": "Breville Barista Express Espresso Machine",
+    "shortName": "Breville Barista Express Espresso Machine",
+    "primaryGroupId": "breville-barista-express-espresso-machine",
+    "price": {
+      "regularPrice": 749.95,
+      "surcharge": 0,
+      "retailPrice": 749.95,
+      "sellingPrice": 659.96,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "steel-parent/stainless",
+      "pattern": "electrics",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "breville",
+      "organic": "false",
+      "productType": "espresso-machines",
+      "canGiftWrap": "true",
+      "collection": "breville-coffee",
+      "allProductTypes": "espresso-machines",
+      "material": "stainless-steel",
+      "isShoppable": "true",
+      "name": "Breville Barista Express Espresso Machine",
+      "shortName": "Breville Barista Express Espresso Machine"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/img95m.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Breville Barista Express Espresso Machine"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800022",
+    "name": "Breville Smart Oven Air Fryer Pro",
+    "shortName": "Breville Smart Oven Air Fryer Pro",
+    "primaryGroupId": "breville-smart-oven-air-fryer-pro",
+    "price": {
+      "regularPrice": 399.95,
+      "surcharge": 0,
+      "retailPrice": 399.95,
+      "sellingPrice": 359.96,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "steel-parent/stainless",
+      "pattern": "electrics",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "breville",
+      "organic": "false",
+      "productType": "countertop-ovens",
+      "canGiftWrap": "true",
+      "collection": "breville-kitchen-electrics",
+      "allProductTypes": "countertop-ovens",
+      "material": "stainless-steel",
+      "isShoppable": "true",
+      "name": "Breville Smart Oven Air Fryer Pro",
+      "shortName": "Breville Smart Oven Air Fryer Pro"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/lc_fish_baker_seasalt.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Breville Smart Oven Air Fryer Pro"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800023",
+    "name": "Breville The Smart Grinder Pro",
+    "shortName": "Breville The Smart Grinder Pro",
+    "primaryGroupId": "breville-the-smart-grinder-pro",
+    "price": {
+      "regularPrice": 199.95,
+      "surcharge": 0,
+      "retailPrice": 199.95,
+      "sellingPrice": 183.95,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "steel-parent/stainless",
+      "pattern": "electrics",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "breville",
+      "organic": "false",
+      "productType": "coffee-grinders",
+      "canGiftWrap": "true",
+      "collection": "breville-coffee",
+      "allProductTypes": "coffee-grinders",
+      "material": "stainless-steel",
+      "isShoppable": "true",
+      "name": "Breville The Smart Grinder Pro",
+      "shortName": "Breville The Smart Grinder Pro"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/img42m.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Breville The Smart Grinder Pro"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800024",
+    "name": "Vitamix A3500 Ascent Series Blender",
+    "shortName": "Vitamix A3500 Ascent Series Blender",
+    "primaryGroupId": "vitamix-a3500-ascent-series-blender",
+    "price": {
+      "regularPrice": 699.95,
+      "surcharge": 0,
+      "retailPrice": 699.95,
+      "sellingPrice": 657.95,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "gray-parent/graphite",
+      "pattern": "electrics",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "vitamix",
+      "organic": "false",
+      "productType": "blenders",
+      "canGiftWrap": "true",
+      "collection": "vitamix-ascent",
+      "allProductTypes": "blenders",
+      "material": "metal",
+      "isShoppable": "true",
+      "name": "Vitamix A3500 Ascent Series Blender",
+      "shortName": "Vitamix A3500 Ascent Series Blender"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/img153m.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Vitamix A3500 Ascent Series Blender"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800025",
+    "name": "KitchenAid Artisan Series 5-Qt Stand Mixer",
+    "shortName": "KitchenAid Artisan Series 5-Qt Stand Mixer",
+    "primaryGroupId": "kitchenaid-artisan-series-5-qt-stand-mixer",
+    "price": {
+      "regularPrice": 449.95,
+      "surcharge": 0,
+      "retailPrice": 449.95,
+      "sellingPrice": 431.95,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "red-parent/empire-red",
+      "pattern": "electrics",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "kitchenaid",
+      "organic": "false",
+      "productType": "stand-mixers",
+      "canGiftWrap": "true",
+      "collection": "kitchenaid-artisan",
+      "allProductTypes": "stand-mixers",
+      "material": "metal",
+      "isShoppable": "true",
+      "name": "KitchenAid Artisan Series 5-Qt Stand Mixer",
+      "shortName": "KitchenAid Artisan Series 5-Qt Stand Mixer"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/img23m.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "KitchenAid Artisan Series 5-Qt Stand Mixer"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800026",
+    "name": "Smeg 2-Slice Toaster",
+    "shortName": "Smeg 2-Slice Toaster",
+    "primaryGroupId": "smeg-2-slice-toaster",
+    "price": {
+      "regularPrice": 229.95,
+      "surcharge": 0,
+      "retailPrice": 229.95,
+      "sellingPrice": 202.36,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "cream-parent/cream",
+      "pattern": "electrics",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "smeg",
+      "organic": "false",
+      "productType": "toasters",
+      "canGiftWrap": "true",
+      "collection": "smeg-retro",
+      "allProductTypes": "toasters",
+      "material": "stainless-steel",
+      "isShoppable": "true",
+      "name": "Smeg 2-Slice Toaster",
+      "shortName": "Smeg 2-Slice Toaster"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/img83m.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Smeg 2-Slice Toaster"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800027",
+    "name": "Smeg Electric Kettle",
+    "shortName": "Smeg Electric Kettle",
+    "primaryGroupId": "smeg-electric-kettle",
+    "price": {
+      "regularPrice": 199.95,
+      "surcharge": 0,
+      "retailPrice": 199.95,
+      "sellingPrice": 179.96,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "cream-parent/cream",
+      "pattern": "electrics",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "smeg",
+      "organic": "false",
+      "productType": "electric-kettles",
+      "canGiftWrap": "true",
+      "collection": "smeg-retro",
+      "allProductTypes": "electric-kettles",
+      "material": "stainless-steel",
+      "isShoppable": "true",
+      "name": "Smeg Electric Kettle",
+      "shortName": "Smeg Electric Kettle"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/staub_deep_oven_3qt_cherry.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Smeg Electric Kettle"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800028",
+    "name": "Zwilling Pro 7-Piece Knife Block Set",
+    "shortName": "Zwilling Pro 7-Piece Knife Block Set",
+    "primaryGroupId": "zwilling-pro-7-piece-knife-block-set",
+    "price": {
+      "regularPrice": 499.95,
+      "surcharge": 0,
+      "retailPrice": 499.95,
+      "sellingPrice": 459.95,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "black-parent/black",
+      "pattern": "cutlery",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "zwilling",
+      "organic": "false",
+      "productType": "knife-sets",
+      "canGiftWrap": "true",
+      "collection": "zwilling-pro",
+      "allProductTypes": "knife-sets",
+      "material": "stainless-steel",
+      "isShoppable": "true",
+      "name": "Zwilling Pro 7-Piece Knife Block Set",
+      "shortName": "Zwilling Pro 7-Piece Knife Block Set"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/mc_mocha_kettle.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Zwilling Pro 7-Piece Knife Block Set"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800029",
+    "name": "Wusthof Classic 8-Piece Knife Set",
+    "shortName": "Wusthof Classic 8-Piece Knife Set",
+    "primaryGroupId": "wusthof-classic-8-piece-knife-set",
+    "price": {
+      "regularPrice": 450,
+      "surcharge": 0,
+      "retailPrice": 450,
+      "sellingPrice": 423,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "black-parent/black",
+      "pattern": "cutlery",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "wusthof",
+      "organic": "false",
+      "productType": "knife-sets",
+      "canGiftWrap": "true",
+      "collection": "wusthof-classic",
+      "allProductTypes": "knife-sets",
+      "material": "stainless-steel",
+      "isShoppable": "true",
+      "name": "Wusthof Classic 8-Piece Knife Set",
+      "shortName": "Wusthof Classic 8-Piece Knife Set"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/ruffoni_historia_pineapple_55.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Wusthof Classic 8-Piece Knife Set"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800030",
+    "name": "Global 5-Piece Starter Knife Set",
+    "shortName": "Global 5-Piece Starter Knife Set",
+    "primaryGroupId": "global-5-piece-starter-knife-set",
+    "price": {
+      "regularPrice": 349.95,
+      "surcharge": 0,
+      "retailPrice": 349.95,
+      "sellingPrice": 335.95,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "steel-parent/stainless",
+      "pattern": "cutlery",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "global",
+      "organic": "false",
+      "productType": "knife-sets",
+      "canGiftWrap": "true",
+      "collection": "global-classic",
+      "allProductTypes": "knife-sets",
+      "material": "stainless-steel",
+      "isShoppable": "true",
+      "name": "Global 5-Piece Starter Knife Set",
+      "shortName": "Global 5-Piece Starter Knife Set"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/img64m.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Global 5-Piece Starter Knife Set"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800031",
+    "name": "Ruffoni Historia Hammered Copper 5.5-Qt Dutch Oven",
+    "shortName": "Ruffoni Historia Hammered Copper 5.5-Qt Dutch Oven",
+    "primaryGroupId": "ruffoni-historia-hammered-copper-5-5-qt-dutch-oven",
+    "price": {
+      "regularPrice": 999.95,
+      "surcharge": 0,
+      "retailPrice": 999.95,
+      "sellingPrice": 879.96,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "copper-parent/hammered",
+      "pattern": "cookware",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "ruffoni",
+      "organic": "false",
+      "productType": "dutch-ovens",
+      "canGiftWrap": "true",
+      "collection": "ruffoni-historia",
+      "allProductTypes": "dutch-ovens",
+      "material": "copper",
+      "isShoppable": "true",
+      "name": "Ruffoni Historia Hammered Copper 5.5-Qt Dutch Oven",
+      "shortName": "Ruffoni Historia Hammered Copper 5.5-Qt Dutch Oven"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/img64m.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Ruffoni Historia Hammered Copper 5.5-Qt Dutch Oven"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800032",
+    "name": "Mauviel M’Heritage Copper Crêpe Pan",
+    "shortName": "Mauviel M’Heritage Copper Crêpe Pan",
+    "primaryGroupId": "mauviel-m-heritage-copper-cr-pe-pan",
+    "price": {
+      "regularPrice": 269.95,
+      "surcharge": 0,
+      "retailPrice": 269.95,
+      "sellingPrice": 242.96,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "copper-parent/brass",
+      "pattern": "cookware",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "mauviel",
+      "organic": "false",
+      "productType": "fry-pans-skillets",
+      "canGiftWrap": "true",
+      "collection": "mauviel-heritage",
+      "allProductTypes": "fry-pans-skillets",
+      "material": "copper",
+      "isShoppable": "true",
+      "name": "Mauviel M’Heritage Copper Crêpe Pan",
+      "shortName": "Mauviel M’Heritage Copper Crêpe Pan"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/ruffoni_historia_pineapple_55.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Mauviel M’Heritage Copper Crêpe Pan"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800033",
+    "name": "Staub Deep Oven 3-Qt, Cherry",
+    "shortName": "Staub Deep Oven 3-Qt, Cherry",
+    "primaryGroupId": "staub-deep-oven-3-qt-cherry",
+    "price": {
+      "regularPrice": 299.95,
+      "surcharge": 0,
+      "retailPrice": 299.95,
+      "sellingPrice": 275.95,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "red-parent/cherry",
+      "pattern": "cookware",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "staub",
+      "organic": "false",
+      "productType": "dutch-ovens",
+      "canGiftWrap": "true",
+      "collection": "staub-signature",
+      "allProductTypes": "dutch-ovens",
+      "material": "cast-iron",
+      "isShoppable": "true",
+      "name": "Staub Deep Oven 3-Qt, Cherry",
+      "shortName": "Staub Deep Oven 3-Qt, Cherry"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/mauviel_crepe_brass.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Staub Deep Oven 3-Qt, Cherry"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800034",
+    "name": "Le Creuset Round Dutch Oven 4.5-Qt, Caribbean",
+    "shortName": "Le Creuset Round Dutch Oven 4.5-Qt, Caribbean",
+    "primaryGroupId": "le-creuset-round-dutch-oven-4-5-qt-caribbean",
+    "price": {
+      "regularPrice": 390,
+      "surcharge": 0,
+      "retailPrice": 390,
+      "sellingPrice": 366.6,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "blue-parent/caribbean",
+      "pattern": "cookware",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "le-creuset",
+      "organic": "false",
+      "productType": "dutch-ovens",
+      "canGiftWrap": "true",
+      "collection": "le-creuset-signature",
+      "allProductTypes": "dutch-ovens",
+      "material": "cast-iron",
+      "isShoppable": "true",
+      "name": "Le Creuset Round Dutch Oven 4.5-Qt, Caribbean",
+      "shortName": "Le Creuset Round Dutch Oven 4.5-Qt, Caribbean"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/img23m.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Le Creuset Round Dutch Oven 4.5-Qt, Caribbean"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800035",
+    "name": "Le Creuset Heritage Rectangular Baker, Cerise",
+    "shortName": "Le Creuset Heritage Rectangular Baker, Cerise",
+    "primaryGroupId": "le-creuset-heritage-rectangular-baker-cerise",
+    "price": {
+      "regularPrice": 79.95,
+      "surcharge": 0,
+      "retailPrice": 79.95,
+      "sellingPrice": 76.75,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "red-parent/cerise",
+      "pattern": "cookware",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "le-creuset",
+      "organic": "false",
+      "productType": "baking-dishes",
+      "canGiftWrap": "true",
+      "collection": "le-creuset-heritage",
+      "allProductTypes": "baking-dishes",
+      "material": "stoneware",
+      "isShoppable": "true",
+      "name": "Le Creuset Heritage Rectangular Baker, Cerise",
+      "shortName": "Le Creuset Heritage Rectangular Baker, Cerise"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/mc_mocha_kettle.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Le Creuset Heritage Rectangular Baker, Cerise"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800036",
+    "name": "Le Creuset Fondue Set, Cerise",
+    "shortName": "Le Creuset Fondue Set, Cerise",
+    "primaryGroupId": "le-creuset-fondue-set-cerise",
+    "price": {
+      "regularPrice": 250,
+      "surcharge": 0,
+      "retailPrice": 250,
+      "sellingPrice": 220,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "red-parent/cerise",
+      "pattern": "tabletop",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "le-creuset",
+      "organic": "false",
+      "productType": "fondue-sets",
+      "canGiftWrap": "true",
+      "collection": "le-creuset-entertaining",
+      "allProductTypes": "fondue-sets",
+      "material": "cast-iron",
+      "isShoppable": "true",
+      "name": "Le Creuset Fondue Set, Cerise",
+      "shortName": "Le Creuset Fondue Set, Cerise"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/lc_fish_baker_seasalt.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Le Creuset Fondue Set, Cerise"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800037",
+    "name": "Le Creuset Fish Baker, Sea Salt",
+    "shortName": "Le Creuset Fish Baker, Sea Salt",
+    "primaryGroupId": "le-creuset-fish-baker-sea-salt",
+    "price": {
+      "regularPrice": 135,
+      "surcharge": 0,
+      "retailPrice": 135,
+      "sellingPrice": 121.5,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "white-parent/sea-salt",
+      "pattern": "cookware",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "le-creuset",
+      "organic": "false",
+      "productType": "baking-dishes",
+      "canGiftWrap": "true",
+      "collection": "le-creuset-heritage",
+      "allProductTypes": "baking-dishes",
+      "material": "stoneware",
+      "isShoppable": "true",
+      "name": "Le Creuset Fish Baker, Sea Salt",
+      "shortName": "Le Creuset Fish Baker, Sea Salt"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/img83m.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Le Creuset Fish Baker, Sea Salt"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800038",
+    "name": "Martha Stewart x GreenPan Ceramic 10-Piece Cookware Set",
+    "shortName": "Martha Stewart x GreenPan Ceramic 10-Piece Cookware Set",
+    "primaryGroupId": "martha-stewart-x-greenpan-ceramic-10-piece-cookware-set",
+    "price": {
+      "regularPrice": 299.95,
+      "surcharge": 0,
+      "retailPrice": 299.95,
+      "sellingPrice": 275.95,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "cream-parent/cream",
+      "pattern": "cookware",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "greenpan",
+      "organic": "false",
+      "productType": "cookware-set",
+      "canGiftWrap": "true",
+      "collection": "greenpan-ceramic",
+      "allProductTypes": "cookware-set",
+      "material": "ceramic-nonstick",
+      "isShoppable": "true",
+      "name": "Martha Stewart x GreenPan Ceramic 10-Piece Cookware Set",
+      "shortName": "Martha Stewart x GreenPan Ceramic 10-Piece Cookware Set"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/lc_fish_baker_seasalt.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Martha Stewart x GreenPan Ceramic 10-Piece Cookware Set"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800039",
+    "name": "Open Kitchen by Williams Sonoma Flatware, 20-Piece Set",
+    "shortName": "Open Kitchen by Williams Sonoma Flatware, 20-Piece Set",
+    "primaryGroupId": "open-kitchen-by-williams-sonoma-flatware-20-piece-set",
+    "price": {
+      "regularPrice": 149.95,
+      "surcharge": 0,
+      "retailPrice": 149.95,
+      "sellingPrice": 140.95,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "steel-parent/stainless",
+      "pattern": "tabletop",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "williams-sonoma",
+      "organic": "false",
+      "productType": "flatware-sets",
+      "canGiftWrap": "true",
+      "collection": "open-kitchen",
+      "allProductTypes": "flatware-sets",
+      "material": "18-10-stainless-steel",
+      "isShoppable": "true",
+      "name": "Open Kitchen by Williams Sonoma Flatware, 20-Piece Set",
+      "shortName": "Open Kitchen by Williams Sonoma Flatware, 20-Piece Set"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/staub_deep_oven_3qt_cherry.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Open Kitchen by Williams Sonoma Flatware, 20-Piece Set"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800040",
+    "name": "Open Kitchen by Williams Sonoma Porcelain Dinner Plates, Set of 4",
+    "shortName": "Open Kitchen by Williams Sonoma Porcelain Dinner Plates, Set of 4",
+    "primaryGroupId": "open-kitchen-by-williams-sonoma-porcelain-dinner-plates-set-of-4",
+    "price": {
+      "regularPrice": 39.8,
+      "surcharge": 0,
+      "retailPrice": 39.8,
+      "sellingPrice": 38.21,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "white-parent/white",
+      "pattern": "tabletop",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "williams-sonoma",
+      "organic": "false",
+      "productType": "dinner-plates",
+      "canGiftWrap": "true",
+      "collection": "open-kitchen",
+      "allProductTypes": "dinner-plates",
+      "material": "porcelain",
+      "isShoppable": "true",
+      "name": "Open Kitchen by Williams Sonoma Porcelain Dinner Plates, Set of 4",
+      "shortName": "Open Kitchen by Williams Sonoma Porcelain Dinner Plates, Set of 4"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/lc_fondue_cerise.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Open Kitchen by Williams Sonoma Porcelain Dinner Plates, Set of 4"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800041",
+    "name": "Open Kitchen by Williams Sonoma Porcelain Cereal Bowls, Set of 4",
+    "shortName": "Open Kitchen by Williams Sonoma Porcelain Cereal Bowls, Set of 4",
+    "primaryGroupId": "open-kitchen-by-williams-sonoma-porcelain-cereal-bowls-set-of-4",
+    "price": {
+      "regularPrice": 39.95,
+      "surcharge": 0,
+      "retailPrice": 39.95,
+      "sellingPrice": 35.16,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "white-parent/white",
+      "pattern": "tabletop",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "williams-sonoma",
+      "organic": "false",
+      "productType": "cereal-bowls",
+      "canGiftWrap": "true",
+      "collection": "open-kitchen",
+      "allProductTypes": "cereal-bowls",
+      "material": "porcelain",
+      "isShoppable": "true",
+      "name": "Open Kitchen by Williams Sonoma Porcelain Cereal Bowls, Set of 4",
+      "shortName": "Open Kitchen by Williams Sonoma Porcelain Cereal Bowls, Set of 4"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/img5m.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Open Kitchen by Williams Sonoma Porcelain Cereal Bowls, Set of 4"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800042",
+    "name": "Open Kitchen by Williams Sonoma Mugs, Set of 4",
+    "shortName": "Open Kitchen by Williams Sonoma Mugs, Set of 4",
+    "primaryGroupId": "open-kitchen-by-williams-sonoma-mugs-set-of-4",
+    "price": {
+      "regularPrice": 39.95,
+      "surcharge": 0,
+      "retailPrice": 39.95,
+      "sellingPrice": 35.96,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "white-parent/white",
+      "pattern": "tabletop",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "williams-sonoma",
+      "organic": "false",
+      "productType": "mugs",
+      "canGiftWrap": "true",
+      "collection": "open-kitchen",
+      "allProductTypes": "mugs",
+      "material": "porcelain",
+      "isShoppable": "true",
+      "name": "Open Kitchen by Williams Sonoma Mugs, Set of 4",
+      "shortName": "Open Kitchen by Williams Sonoma Mugs, Set of 4"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/ruffoni_historia_pineapple_55.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Open Kitchen by Williams Sonoma Mugs, Set of 4"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800043",
+    "name": "Open Kitchen by Williams Sonoma 3-Piece Platter Set",
+    "shortName": "Open Kitchen by Williams Sonoma 3-Piece Platter Set",
+    "primaryGroupId": "open-kitchen-by-williams-sonoma-3-piece-platter-set",
+    "price": {
+      "regularPrice": 89.95,
+      "surcharge": 0,
+      "retailPrice": 89.95,
+      "sellingPrice": 82.75,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "white-parent/white",
+      "pattern": "tabletop",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "williams-sonoma",
+      "organic": "false",
+      "productType": "serveware-platters",
+      "canGiftWrap": "true",
+      "collection": "open-kitchen",
+      "allProductTypes": "serveware-platters",
+      "material": "earthenware",
+      "isShoppable": "true",
+      "name": "Open Kitchen by Williams Sonoma 3-Piece Platter Set",
+      "shortName": "Open Kitchen by Williams Sonoma 3-Piece Platter Set"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/img83m.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Open Kitchen by Williams Sonoma 3-Piece Platter Set"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800044",
+    "name": "Williams Sonoma Ultimate Hosting Starter Set",
+    "shortName": "Williams Sonoma Ultimate Hosting Starter Set",
+    "primaryGroupId": "williams-sonoma-ultimate-hosting-starter-set",
+    "price": {
+      "regularPrice": 349.95,
+      "surcharge": 0,
+      "retailPrice": 349.95,
+      "sellingPrice": 328.95,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "white-parent/white",
+      "pattern": "tabletop",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "williams-sonoma",
+      "organic": "false",
+      "productType": "registry-bundle",
+      "canGiftWrap": "true",
+      "collection": "registry-essentials",
+      "allProductTypes": "registry-bundle",
+      "material": "mixed-material",
+      "isShoppable": "true",
+      "name": "Williams Sonoma Ultimate Hosting Starter Set",
+      "shortName": "Williams Sonoma Ultimate Hosting Starter Set"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/img17m.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Williams Sonoma Ultimate Hosting Starter Set"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800045",
+    "name": "Williams Sonoma Daily Cooking Essentials Set",
+    "shortName": "Williams Sonoma Daily Cooking Essentials Set",
+    "primaryGroupId": "williams-sonoma-daily-cooking-essentials-set",
+    "price": {
+      "regularPrice": 429.95,
+      "surcharge": 0,
+      "retailPrice": 429.95,
+      "sellingPrice": 412.75,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "steel-parent/stainless",
+      "pattern": "cookware",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "williams-sonoma",
+      "organic": "false",
+      "productType": "registry-bundle",
+      "canGiftWrap": "true",
+      "collection": "registry-essentials",
+      "allProductTypes": "registry-bundle",
+      "material": "mixed-material",
+      "isShoppable": "true",
+      "name": "Williams Sonoma Daily Cooking Essentials Set",
+      "shortName": "Williams Sonoma Daily Cooking Essentials Set"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/staub_deep_oven_3qt_cherry.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Williams Sonoma Daily Cooking Essentials Set"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800046",
+    "name": "Williams Sonoma Shared Dining Essentials Set",
+    "shortName": "Williams Sonoma Shared Dining Essentials Set",
+    "primaryGroupId": "williams-sonoma-shared-dining-essentials-set",
+    "price": {
+      "regularPrice": 299.95,
+      "surcharge": 0,
+      "retailPrice": 299.95,
+      "sellingPrice": 263.96,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "white-parent/white",
+      "pattern": "tabletop",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "williams-sonoma",
+      "organic": "false",
+      "productType": "registry-bundle",
+      "canGiftWrap": "true",
+      "collection": "registry-essentials",
+      "allProductTypes": "registry-bundle",
+      "material": "mixed-material",
+      "isShoppable": "true",
+      "name": "Williams Sonoma Shared Dining Essentials Set",
+      "shortName": "Williams Sonoma Shared Dining Essentials Set"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/img17m.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Williams Sonoma Shared Dining Essentials Set"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800047",
+    "name": "Williams Sonoma Morning Coffee Ritual Set",
+    "shortName": "Williams Sonoma Morning Coffee Ritual Set",
+    "primaryGroupId": "williams-sonoma-morning-coffee-ritual-set",
+    "price": {
+      "regularPrice": 259.95,
+      "surcharge": 0,
+      "retailPrice": 259.95,
+      "sellingPrice": 233.96,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "black-parent/matte-black",
+      "pattern": "electrics",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "williams-sonoma",
+      "organic": "false",
+      "productType": "registry-bundle",
+      "canGiftWrap": "true",
+      "collection": "registry-essentials",
+      "allProductTypes": "registry-bundle",
+      "material": "mixed-material",
+      "isShoppable": "true",
+      "name": "Williams Sonoma Morning Coffee Ritual Set",
+      "shortName": "Williams Sonoma Morning Coffee Ritual Set"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/img17m.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Williams Sonoma Morning Coffee Ritual Set"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800048",
+    "name": "Robert Welch Kingham Flatware 20-Piece Set",
+    "shortName": "Robert Welch Kingham Flatware 20-Piece Set",
+    "primaryGroupId": "robert-welch-kingham-flatware-20-piece-set",
+    "price": {
+      "regularPrice": 199.95,
+      "surcharge": 0,
+      "retailPrice": 199.95,
+      "sellingPrice": 183.95,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "steel-parent/mirror",
+      "pattern": "tabletop",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "robert-welch",
+      "organic": "false",
+      "productType": "flatware-sets",
+      "canGiftWrap": "true",
+      "collection": "kingham",
+      "allProductTypes": "flatware-sets",
+      "material": "18-10-stainless-steel",
+      "isShoppable": "true",
+      "name": "Robert Welch Kingham Flatware 20-Piece Set",
+      "shortName": "Robert Welch Kingham Flatware 20-Piece Set"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/lc_dutch45_caribbean.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Robert Welch Kingham Flatware 20-Piece Set"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800049",
+    "name": "Schott Zwiesel Pure Champagne Flutes, Set of 6",
+    "shortName": "Schott Zwiesel Pure Champagne Flutes, Set of 6",
+    "primaryGroupId": "schott-zwiesel-pure-champagne-flutes-set-of-6",
+    "price": {
+      "regularPrice": 79.95,
+      "surcharge": 0,
+      "retailPrice": 79.95,
+      "sellingPrice": 75.15,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "clear-parent/clear",
+      "pattern": "glassware",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "zwiesel-glas",
+      "organic": "false",
+      "productType": "champagne-flutes",
+      "canGiftWrap": "true",
+      "collection": "zwiesel-pure",
+      "allProductTypes": "champagne-flutes",
+      "material": "crystal",
+      "isShoppable": "true",
+      "name": "Schott Zwiesel Pure Champagne Flutes, Set of 6",
+      "shortName": "Schott Zwiesel Pure Champagne Flutes, Set of 6"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/img12c.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Schott Zwiesel Pure Champagne Flutes, Set of 6"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800050",
+    "name": "Schott Zwiesel Pure Burgundy Glasses, Set of 6",
+    "shortName": "Schott Zwiesel Pure Burgundy Glasses, Set of 6",
+    "primaryGroupId": "schott-zwiesel-pure-burgundy-glasses-set-of-6",
+    "price": {
+      "regularPrice": 89.95,
+      "surcharge": 0,
+      "retailPrice": 89.95,
+      "sellingPrice": 86.35,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "clear-parent/clear",
+      "pattern": "glassware",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "zwiesel-glas",
+      "organic": "false",
+      "productType": "wine-glasses",
+      "canGiftWrap": "true",
+      "collection": "zwiesel-pure",
+      "allProductTypes": "wine-glasses",
+      "material": "crystal",
+      "isShoppable": "true",
+      "name": "Schott Zwiesel Pure Burgundy Glasses, Set of 6",
+      "shortName": "Schott Zwiesel Pure Burgundy Glasses, Set of 6"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/img153m.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Schott Zwiesel Pure Burgundy Glasses, Set of 6"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800051",
+    "name": "Nespresso VertuoPlus Deluxe Coffee & Espresso Maker",
+    "shortName": "Nespresso VertuoPlus Deluxe Coffee & Espresso Maker",
+    "primaryGroupId": "nespresso-vertuoplus-deluxe-coffee-espresso-maker",
+    "price": {
+      "regularPrice": 199.95,
+      "surcharge": 0,
+      "retailPrice": 199.95,
+      "sellingPrice": 175.96,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "gray-parent/titan",
+      "pattern": "electrics",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "nespresso",
+      "organic": "false",
+      "productType": "espresso-machines",
+      "canGiftWrap": "true",
+      "collection": "nespresso-vertuo",
+      "allProductTypes": "espresso-machines",
+      "material": "plastic-metal",
+      "isShoppable": "true",
+      "name": "Nespresso VertuoPlus Deluxe Coffee & Espresso Maker",
+      "shortName": "Nespresso VertuoPlus Deluxe Coffee & Espresso Maker"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/img10s.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Nespresso VertuoPlus Deluxe Coffee & Espresso Maker"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800052",
+    "name": "OXO Good Grips 10-Piece POP Container Set",
+    "shortName": "OXO Good Grips 10-Piece POP Container Set",
+    "primaryGroupId": "oxo-good-grips-10-piece-pop-container-set",
+    "price": {
+      "regularPrice": 99.95,
+      "surcharge": 0,
+      "retailPrice": 99.95,
+      "sellingPrice": 89.96,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "clear-parent/white",
+      "pattern": "homekeeping",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "oxo",
+      "organic": "false",
+      "productType": "food-storage-sets",
+      "canGiftWrap": "true",
+      "collection": "oxo-pop",
+      "allProductTypes": "food-storage-sets",
+      "material": "bpa-free-plastic",
+      "isShoppable": "true",
+      "name": "OXO Good Grips 10-Piece POP Container Set",
+      "shortName": "OXO Good Grips 10-Piece POP Container Set"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/img23m.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "OXO Good Grips 10-Piece POP Container Set"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800053",
+    "name": "Hold Everything Pantry Canister Set",
+    "shortName": "Hold Everything Pantry Canister Set",
+    "primaryGroupId": "hold-everything-pantry-canister-set",
+    "price": {
+      "regularPrice": 89.95,
+      "surcharge": 0,
+      "retailPrice": 89.95,
+      "sellingPrice": 82.75,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "brown-parent/ashwood",
+      "pattern": "homekeeping",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "hold-everything",
+      "organic": "false",
+      "productType": "storage-canisters",
+      "canGiftWrap": "true",
+      "collection": "hold-everything",
+      "allProductTypes": "storage-canisters",
+      "material": "glass-wood",
+      "isShoppable": "true",
+      "name": "Hold Everything Pantry Canister Set",
+      "shortName": "Hold Everything Pantry Canister Set"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/img153m.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Hold Everything Pantry Canister Set"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800054",
+    "name": "Williams Sonoma End-Grain Cutting Board, Acacia, 15 x 20",
+    "shortName": "Williams Sonoma End-Grain Cutting Board, Acacia, 15 x 20",
+    "primaryGroupId": "williams-sonoma-end-grain-cutting-board-acacia-15-x-20",
+    "price": {
+      "regularPrice": 129.95,
+      "surcharge": 0,
+      "retailPrice": 129.95,
+      "sellingPrice": 122.15,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "brown-parent/brown",
+      "pattern": "cutlery",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "williams-sonoma",
+      "organic": "false",
+      "productType": "cutting-boards-storage",
+      "canGiftWrap": "true",
+      "collection": "prep-tools",
+      "allProductTypes": "cutting-boards-storage",
+      "material": "acacia",
+      "isShoppable": "true",
+      "name": "Williams Sonoma End-Grain Cutting Board, Acacia, 15 x 20",
+      "shortName": "Williams Sonoma End-Grain Cutting Board, Acacia, 15 x 20"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/lc_demi_semisalt.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Williams Sonoma End-Grain Cutting Board, Acacia, 15 x 20"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800055",
+    "name": "Williams Sonoma Board Oil",
+    "shortName": "Williams Sonoma Board Oil",
+    "primaryGroupId": "williams-sonoma-board-oil",
+    "price": {
+      "regularPrice": 10.95,
+      "surcharge": 0,
+      "retailPrice": 10.95,
+      "sellingPrice": 10.51,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "amber-parent/amber",
+      "pattern": "homekeeping",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "williams-sonoma",
+      "organic": "false",
+      "productType": "cutting-board-oil",
+      "canGiftWrap": "true",
+      "collection": "prep-tools",
+      "allProductTypes": "cutting-board-oil",
+      "material": "mineral-oil",
+      "isShoppable": "true",
+      "name": "Williams Sonoma Board Oil",
+      "shortName": "Williams Sonoma Board Oil"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/img4m.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Williams Sonoma Board Oil"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800056",
+    "name": "Apilco Tradition Porcelain Cup & Saucer, Set of 4",
+    "shortName": "Apilco Tradition Porcelain Cup & Saucer, Set of 4",
+    "primaryGroupId": "apilco-tradition-porcelain-cup-saucer-set-of-4",
+    "price": {
+      "regularPrice": 139.8,
+      "surcharge": 0,
+      "retailPrice": 139.8,
+      "sellingPrice": 123.02,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "white-parent/white",
+      "pattern": "[tabletop, glassware]",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "apilco",
+      "organic": "false",
+      "productType": "cups-and-saucers",
+      "canGiftWrap": "true",
+      "collection": "apilco-tradition",
+      "allProductTypes": "cups-and-saucers",
+      "material": "porcelain",
+      "isShoppable": "true",
+      "name": "Apilco Tradition Porcelain Cup & Saucer, Set of 4",
+      "shortName": "Apilco Tradition Porcelain Cup & Saucer, Set of 4"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/img17m.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Apilco Tradition Porcelain Cup & Saucer, Set of 4"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800057",
+    "name": "Staub Ceramic Serving Bowl Set, 4-Piece",
+    "shortName": "Staub Ceramic Serving Bowl Set, 4-Piece",
+    "primaryGroupId": "staub-ceramic-serving-bowl-set-4-piece",
+    "price": {
+      "regularPrice": 179.95,
+      "surcharge": 0,
+      "retailPrice": 179.95,
+      "sellingPrice": 161.95,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "white-parent/white",
+      "pattern": "tabletop",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "staub",
+      "organic": "false",
+      "productType": "tabletop-serveware-bowl",
+      "canGiftWrap": "true",
+      "collection": "staub-serveware",
+      "allProductTypes": "tabletop-serveware-bowl",
+      "material": "ceramic",
+      "isShoppable": "true",
+      "name": "Staub Ceramic Serving Bowl Set, 4-Piece",
+      "shortName": "Staub Ceramic Serving Bowl Set, 4-Piece"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/img5m.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Staub Ceramic Serving Bowl Set, 4-Piece"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800058",
+    "name": "Villeroy & Boch NewWave 16-Piece Dinnerware Set",
+    "shortName": "Villeroy & Boch NewWave 16-Piece Dinnerware Set",
+    "primaryGroupId": "villeroy-boch-newwave-16-piece-dinnerware-set",
+    "price": {
+      "regularPrice": 329.95,
+      "surcharge": 0,
+      "retailPrice": 329.95,
+      "sellingPrice": 303.55,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "white-parent/white",
+      "pattern": "tabletop",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "villeroy-boch",
+      "organic": "false",
+      "productType": "dinnerware-set",
+      "canGiftWrap": "true",
+      "collection": "newwave",
+      "allProductTypes": "dinnerware-set",
+      "material": "porcelain",
+      "isShoppable": "true",
+      "name": "Villeroy & Boch NewWave 16-Piece Dinnerware Set",
+      "shortName": "Villeroy & Boch NewWave 16-Piece Dinnerware Set"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/img12c.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Villeroy & Boch NewWave 16-Piece Dinnerware Set"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800059",
+    "name": "Juliska Berry & Thread 5-Piece Place Setting",
+    "shortName": "Juliska Berry & Thread 5-Piece Place Setting",
+    "primaryGroupId": "juliska-berry-thread-5-piece-place-setting",
+    "price": {
+      "regularPrice": 198,
+      "surcharge": 0,
+      "retailPrice": 198,
+      "sellingPrice": 186.12,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "white-parent/whitewash",
+      "pattern": "tabletop",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "juliska",
+      "organic": "false",
+      "productType": "place-settings",
+      "canGiftWrap": "true",
+      "collection": "berry-thread",
+      "allProductTypes": "place-settings",
+      "material": "stoneware",
+      "isShoppable": "true",
+      "name": "Juliska Berry & Thread 5-Piece Place Setting",
+      "shortName": "Juliska Berry & Thread 5-Piece Place Setting"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/img42m.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Juliska Berry & Thread 5-Piece Place Setting"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800060",
+    "name": "Cuisinart Food Processor 14-Cup",
+    "shortName": "Cuisinart Food Processor 14-Cup",
+    "primaryGroupId": "cuisinart-food-processor-14-cup",
+    "price": {
+      "regularPrice": 249.95,
+      "surcharge": 0,
+      "retailPrice": 249.95,
+      "sellingPrice": 239.95,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "steel-parent/stainless",
+      "pattern": "electrics",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "cuisinart",
+      "organic": "false",
+      "productType": "food-processors",
+      "canGiftWrap": "true",
+      "collection": "cuisinart-prep",
+      "allProductTypes": "food-processors",
+      "material": "stainless-steel",
+      "isShoppable": "true",
+      "name": "Cuisinart Food Processor 14-Cup",
+      "shortName": "Cuisinart Food Processor 14-Cup"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/img12c.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Cuisinart Food Processor 14-Cup"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "8800061",
+    "name": "Vitamix Immersion Blender, 5-Speed",
+    "shortName": "Vitamix Immersion Blender, 5-Speed",
+    "primaryGroupId": "vitamix-immersion-blender-5-speed",
+    "price": {
+      "regularPrice": 169.95,
+      "surcharge": 0,
+      "retailPrice": 169.95,
+      "sellingPrice": 149.56,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "steel-parent/stainless",
+      "pattern": "electrics",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "vitamix",
+      "organic": "false",
+      "productType": "immersion-blenders",
+      "canGiftWrap": "true",
+      "collection": "vitamix-tools",
+      "allProductTypes": "immersion-blenders",
+      "material": "stainless-steel",
+      "isShoppable": "true",
+      "name": "Vitamix Immersion Blender, 5-Speed",
+      "shortName": "Vitamix Immersion Blender, 5-Speed"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/mc_mocha_kettle.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Vitamix Immersion Blender, 5-Speed"
           }
         }
       ]
