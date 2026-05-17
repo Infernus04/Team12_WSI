@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct ProductDetailView: View {
+struct RegistryProductDetailView: View {
     let item: ReceiverRegistryItem
     @State private var showGroupGiftFlow = false
     @State private var showCelebrationPoolFlow = false
