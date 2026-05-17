@@ -51,6 +51,11 @@ struct RegistryView: View {
     @State private var s4On = false
     @State private var showActivitySheet = false
     @State private var showReceiverFlowDemo = false
+    /// Flag set when the user completes gifting and taps "Continue Browsing".
+    /// Checked in onDismiss of the receiver flow to present Browse Registry cleanly.
+    @State private var pendingBrowseAfterGifting = false
+    /// Controls the Browse Registry fullScreenCover (presented from RegistryView root).
+    @State private var showBrowseRegistryFromRoot = false
 
     var body: some View {
         NavigationStack(path: $tabBarVM.registryPath) {
@@ -145,10 +150,34 @@ struct RegistryView: View {
             }
         }
         // TEMP DEMO ENTRY POINT FOR RECEIVER FLOW
-        .fullScreenCover(isPresented: $showReceiverFlowDemo) {
+        .fullScreenCover(isPresented: $showReceiverFlowDemo, onDismiss: {
+            // Called after the RegistryLandingView fullScreenCover has fully animated away.
+            // If the user completed gifting and tapped "Continue Browsing", open Browse
+            // Registry cleanly from RegistryView — no stacked covers, clean back navigation.
+            if pendingBrowseAfterGifting {
+                pendingBrowseAfterGifting = false
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    showBrowseRegistryFromRoot = true
+                }
+            }
+        }) {
             NavigationView {
                 RegistryLandingView()
             }
+        }
+        // Browse Registry presented cleanly from RegistryView (root level).
+        // Back chevron dismisses this → returns to RegistryView (the owner tab).
+        .fullScreenCover(isPresented: $showBrowseRegistryFromRoot) {
+            NavigationView {
+                RegistryProductListView()
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("OpenBrowseRegistryFromRoot"))) { _ in
+            // Step 1: Flag that Browse Registry should open after the receiver cover dismisses.
+            pendingBrowseAfterGifting = true
+            // Step 2: Dismiss the receiver landing flow (RegistryLandingView fullScreenCover).
+            // This triggers the onDismiss callback above after the animation completes.
+            showReceiverFlowDemo = false
         }
         .onAppear {
             viewModel.bind(repository: registryRepo)

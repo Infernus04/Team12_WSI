@@ -2,8 +2,10 @@ import SwiftUI
 
 struct RegistryProductDetailView: View {
     let item: ReceiverRegistryItem
+    @Environment(\.dismiss) var dismiss
     @State private var showGroupGiftFlow = false
     @State private var showCelebrationPoolFlow = false
+    @State private var isBuyActive = false
     
     var body: some View {
         ScrollView {
@@ -23,8 +25,21 @@ struct RegistryProductDetailView: View {
                     // Actions
                     VStack(spacing: RegistryTheme.Spacing.large) {
                         Text("Gifting Options").font(RegistryTheme.Typography.headline)
+                        
+                        NavigationLink(destination: PaymentMethodSelectionView(amount: String(Int(item.price)), note: "Gift: \(item.name)"), isActive: $isBuyActive) {
+                            HStack {
+                                VStack(alignment: .leading) {
+                                    Text("Buy this Gift").font(RegistryTheme.Typography.headline)
+                                    Text("Purchase it directly for them").font(RegistryTheme.Typography.caption)
+                                }
+                                Spacer()
+                                Image(systemName: "gift.fill").foregroundColor(RegistryTheme.Colors.accent)
+                            }
+                        }
+                        .buttonStyle(PrimaryButtonStyle())
+                        
                         Button(action: { showGroupGiftFlow = true }) { HStack { VStack(alignment: .leading) { Text("Join Group Gift").font(RegistryTheme.Typography.headline); Text("Collaborate with others").font(RegistryTheme.Typography.caption) }; Spacer(); Image(systemName: "person.3") } }.buttonStyle(SecondaryButtonStyle())
-                        Button(action: { showCelebrationPoolFlow = true }) { HStack { VStack(alignment: .leading) { Text("Contribute via Celebration Pool").font(RegistryTheme.Typography.headline); Text("Let AI allocate to meaningful items").font(RegistryTheme.Typography.caption) }; Spacer(); Image(systemName: "heart.fill").foregroundColor(RegistryTheme.Colors.accent) } }.buttonStyle(PrimaryButtonStyle())
+                        Button(action: { showCelebrationPoolFlow = true }) { HStack { VStack(alignment: .leading) { Text("Contribute via Celebration Pool").font(RegistryTheme.Typography.headline); Text("Let AI allocate to meaningful items").font(RegistryTheme.Typography.caption) }; Spacer(); Image(systemName: "heart.fill").foregroundColor(RegistryTheme.Colors.accent) } }.buttonStyle(SecondaryButtonStyle())
                     }
                 }.padding()
             }

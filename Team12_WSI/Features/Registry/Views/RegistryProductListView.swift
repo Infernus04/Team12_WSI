@@ -36,7 +36,7 @@ struct RegistryProductListView: View {
             }
         }
         .toolbar(.hidden, for: .navigationBar) // Custom header used instead
-        .sheet(isPresented: $showAIInsights) {
+        .fullScreenCover(isPresented: $showAIInsights) {
             RegistryAIInsightsView()
         }
     }
@@ -90,6 +90,7 @@ struct RegistryProductListView: View {
         .shadow(color: WSRegistryPalette.espresso.opacity(0.02), radius: 5, x: 0, y: 2)
     }
     
+
     private var aiInsightsCard: some View {
         Button(action: { showAIInsights = true }) {
             HStack(alignment: .top, spacing: 14) {
@@ -164,6 +165,7 @@ struct RegistryProductListView: View {
                         RegistryProductCardView(item: item)
                     }
                     .buttonStyle(.plain)
+                    .disabled(item.isGifted)
                 }
             }
             .padding(.horizontal, 20)
@@ -234,7 +236,10 @@ struct RegistryProductListView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 16) {
                     ForEach(RegistryMockData.items.filter { $0.state == .groupGiftActive }) { item in
-                        GroupGiftCardView(item: item)
+                        NavigationLink(destination: GroupGiftDetailView()) {
+                            GroupGiftCardView(item: item)
+                        }
+                        .buttonStyle(.plain)
                     }
                 }
                 .padding(.horizontal, 20)
@@ -255,8 +260,9 @@ struct RegistryProductCardView: View {
                 CustomAsyncImage(url: URL(string: AppConstants.API.imageBasePath + item.imagePath))
                     .frame(width: 80, height: 80)
                     .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    .opacity(item.isGifted ? 0.6 : 1.0)
                 
-                if item.isPriority {
+                if item.isPriority && !item.isGifted {
                     Text("Essential")
                         .font(.system(size: 9, weight: .bold))
                         .foregroundStyle(WSRegistryPalette.espresso)
@@ -274,30 +280,31 @@ struct RegistryProductCardView: View {
                 if let collection = item.collection {
                     Text("Part of: \(collection.name)")
                         .font(.system(size: 10, weight: .semibold))
-                        .foregroundStyle(WSRegistryPalette.cocoa)
+                        .foregroundStyle(item.isGifted ? WSRegistryPalette.warmGray : WSRegistryPalette.cocoa)
                         .lineLimit(1)
                 }
                 
                 Text(item.name)
                     .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(WSRegistryPalette.espresso)
+                    .foregroundStyle(item.isGifted ? WSRegistryPalette.warmGray : WSRegistryPalette.espresso)
                     .lineLimit(2)
                 
                 Text("₹\(Int(item.price))")
                     .font(.system(size: 13, weight: .regular))
-                    .foregroundStyle(WSRegistryPalette.espresso)
+                    .foregroundStyle(item.isGifted ? WSRegistryPalette.warmGray : WSRegistryPalette.espresso)
+                    .strikethrough(item.isGifted, color: WSRegistryPalette.warmGray)
                 
                 Spacer(minLength: 2)
                 
                 // Status mapping
-                if item.state == .celebrationPoolAssisted {
+                if item.isGifted {
                     HStack(spacing: 4) {
-                        Image(systemName: "sparkles")
+                        Image(systemName: "checkmark.circle.fill")
                             .font(.system(size: 11))
-                        Text("Celebration Pool helped complete this")
+                        Text("Already Gifted")
                             .font(.system(size: 10, weight: .medium))
                     }
-                    .foregroundStyle(WSRegistryPalette.gold)
+                    .foregroundStyle(WSRegistryPalette.warmGray)
                 } else if item.state == .groupGiftActive, let groupGift = item.groupGift {
                     VStack(alignment: .leading, spacing: 2) {
                         ProgressView(value: groupGift.currentContribution, total: groupGift.totalAmountNeeded)
@@ -310,12 +317,20 @@ struct RegistryProductCardView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.vertical, 2)
+            
+            if item.isGifted {
+                Image(systemName: "checkmark.square.fill")
+                    .font(.system(size: 24))
+                    .foregroundStyle(WSRegistryPalette.gold.opacity(0.6))
+                    .padding(.trailing, 8)
+            }
         }
         .padding(10)
-        .background(WSRegistryPalette.ivory)
+        .background(item.isGifted ? WSRegistryPalette.porcelain : WSRegistryPalette.ivory)
         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(WSRegistryPalette.hairline.opacity(0.6), lineWidth: 1))
+        .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(item.isGifted ? WSRegistryPalette.hairline.opacity(0.3) : WSRegistryPalette.hairline.opacity(0.6), lineWidth: 1))
         .shadow(color: WSRegistryPalette.espresso.opacity(0.02), radius: 6, x: 0, y: 2)
+        .opacity(item.isGifted ? 0.8 : 1.0)
     }
 }
 
@@ -345,7 +360,7 @@ struct GroupGiftCardView: View {
                         Text("₹\(Int(groupGift.currentContribution)) / ₹\(Int(groupGift.totalAmountNeeded)) funded")
                             .font(.system(size: 12, weight: .medium))
                             .foregroundStyle(WSRegistryPalette.warmGray)
-                        Text("3 friends contributing")
+                        Text("4 friends contributing")
                             .font(.system(size: 11, weight: .regular))
                             .foregroundStyle(WSRegistryPalette.cocoa)
                     }
@@ -353,14 +368,15 @@ struct GroupGiftCardView: View {
                 }
             }
             
-            Button(action: {}) {
+            // Styled as a label since the whole card navigates
+            HStack {
                 Text("Join Group Gift")
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundStyle(WSRegistryPalette.cream)
-                    .frame(maxWidth: .infinity, minHeight: 40)
-                    .background(WSRegistryPalette.espresso)
-                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
             }
+            .frame(maxWidth: .infinity, minHeight: 40)
+            .background(WSRegistryPalette.espresso)
+            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
             .padding(.top, 4)
         }
         .padding(16)

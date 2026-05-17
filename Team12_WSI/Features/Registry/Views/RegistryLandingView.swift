@@ -4,6 +4,7 @@ struct RegistryLandingView: View {
     @State private var daysRemaining: Int = 45
     @State private var showRegistryList = false
     @State private var showCelebrationPool = false
+
     @State private var heroAppeared = false
     @State private var contentAppeared = false
     
@@ -47,9 +48,6 @@ struct RegistryLandingView: View {
         .ignoresSafeArea(edges: .top)
         .fullScreenCover(isPresented: $showRegistryList) {
             NavigationView { RegistryProductListView() }
-        }
-        .sheet(isPresented: $showCelebrationPool) {
-            CelebrationPoolFlowView()
         }
         .onAppear {
             withAnimation(.easeOut(duration: 1.0).delay(0.2)) {
@@ -196,9 +194,7 @@ struct RegistryLandingView: View {
             .buttonStyle(.plain)
             
             // Secondary CTA
-            Button {
-                showCelebrationPool = true
-            } label: {
+            NavigationLink(destination: CelebrationPoolFlowView(), isActive: $showCelebrationPool) {
                 HStack(spacing: 8) {
                     Image(systemName: "heart.fill")
                         .font(.system(size: 14))

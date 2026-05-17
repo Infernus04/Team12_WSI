@@ -42,6 +42,9 @@ struct CelebrationPoolFlowView: View {
                     }
                 }
             }
+            .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("PopToRegistryRoot"))) { _ in
+                dismiss()
+            }
         }
     
     // MARK: - Sections
@@ -62,61 +65,103 @@ struct CelebrationPoolFlowView: View {
     }
     
     private var poolSummaryCard: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("₹36,900")
-                        .font(.system(size: 36, weight: .regular, design: .serif))
-                        .foregroundStyle(WSRegistryPalette.ivory)
-                    
-                    Text("from 24 friends & family")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundStyle(WSRegistryPalette.cream.opacity(0.8))
-                }
+        VStack(spacing: 12) {
+            // 1. Elegant Top Ribbon & Title
+            HStack(spacing: 8) {
+                Image(systemName: "gift.fill")
+                    .font(.system(size: 13))
+                    .foregroundStyle(WSRegistryPalette.gold)
+                
+                Text("THE CELEBRATION GIFT FUND")
+                    .font(.system(size: 10, weight: .bold))
+                    .tracking(2.0)
+                    .foregroundStyle(WSRegistryPalette.gold)
+                
                 Spacer()
+                
                 Image(systemName: "sparkles")
-                    .font(.system(size: 24))
+                    .font(.system(size: 13))
                     .foregroundStyle(WSRegistryPalette.gold)
             }
             
-            VStack(alignment: .leading, spacing: 8) {
-                ProgressView(value: 36900, total: 50000)
-                    .progressViewStyle(LinearProgressViewStyle(tint: WSRegistryPalette.gold))
-                    .scaleEffect(x: 1, y: 1.5, anchor: .center)
+            // 2. Compact Content Row (Visual Stack on Left, Info on Right)
+            HStack(spacing: 16) {
+                // overlapping gift thumbnails
+                HStack(spacing: -10) {
+                    giftThumbnail(imagePath: "/img10s.jpg") // Pasta Bowls
+                    giftThumbnail(imagePath: "/img4m.jpg")  // Wine Glasses
+                    giftThumbnail(imagePath: "/img23m.jpg") // Dinner Plates
+                    
+                    Text("+3")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundStyle(WSRegistryPalette.cream)
+                        .frame(width: 36, height: 36)
+                        .background(WSRegistryPalette.espresso)
+                        .clipShape(Circle())
+                        .overlay(Circle().stroke(WSRegistryPalette.ivory, lineWidth: 1.5))
+                        .shadow(color: Color.black.opacity(0.06), radius: 3, x: 0, y: 1)
+                }
                 
-                Text("6 meaningful gifts completed so far 🎉")
-                    .font(.system(size: 13, weight: .regular))
-                    .foregroundStyle(WSRegistryPalette.ivory.opacity(0.9))
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("6 Gifts Fully Unlocked")
+                        .font(.system(size: 15, weight: .semibold, design: .serif))
+                        .foregroundStyle(WSRegistryPalette.espresso)
+                    
+                    Text("₹36,900 from 24 friends & family")
+                        .font(.system(size: 12, weight: .regular))
+                        .foregroundStyle(WSRegistryPalette.warmGray)
+                }
+                
+                Spacer()
             }
+            .padding(.vertical, 4)
+            
+            // 3. Ultra-subtle Progress Indicator (Thin golden bar at the bottom)
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    Capsule()
+                        .fill(WSRegistryPalette.hairline.opacity(0.6))
+                        .frame(height: 4)
+                    
+                    Capsule()
+                        .fill(WSRegistryPalette.gold)
+                        .frame(width: geo.size.width * 0.738, height: 4) // 36900 / 50000 = 73.8%
+                }
+            }
+            .frame(height: 4)
         }
-        .padding(24)
-        .background(
-            LinearGradient(
-                colors: [WSRegistryPalette.espresso, Color(red: 0.25, green: 0.17, blue: 0.12)],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
+        .padding(16)
+        .background(WSRegistryPalette.ivory)
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .stroke(WSRegistryPalette.gold.opacity(0.35), lineWidth: 1)
         )
-        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-        .shadow(color: WSRegistryPalette.espresso.opacity(0.2), radius: 15, x: 0, y: 8)
+        .shadow(color: WSRegistryPalette.espresso.opacity(0.03), radius: 10, x: 0, y: 4)
         .padding(.horizontal, 20)
+    }
+    
+    private func giftThumbnail(imagePath: String) -> some View {
+        CustomAsyncImage(url: URL(string: AppConstants.API.imageBasePath + imagePath))
+            .frame(width: 36, height: 36)
+            .clipShape(Circle())
+            .overlay(Circle().stroke(WSRegistryPalette.ivory, lineWidth: 1.5))
+            .shadow(color: Color.black.opacity(0.06), radius: 3, x: 0, y: 1)
     }
     
     private var contributionCTA: some View {
         NavigationLink(destination: CelebrationPoolContributionView()) {
             HStack(spacing: 8) {
-                Text("❤️ Contribute to Their Pool")
+                Image(systemName: "gift.fill")
+                    .font(.system(size: 14, weight: .bold))
+                Text("Contribute to Celebration Fund")
                     .font(.system(size: 16, weight: .semibold))
             }
-            .foregroundStyle(WSRegistryPalette.espresso)
+            .foregroundStyle(WSRegistryPalette.cream)
             .frame(maxWidth: .infinity, minHeight: 56)
-            .background(WSRegistryPalette.ivory)
+            .background(WSRegistryPalette.espresso)
             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .stroke(WSRegistryPalette.gold.opacity(0.4), lineWidth: 1)
-            )
-            .shadow(color: WSRegistryPalette.gold.opacity(0.1), radius: 10, x: 0, y: 5)
+            .shadow(color: WSRegistryPalette.espresso.opacity(0.15), radius: 10, x: 0, y: 5)
         }
         .buttonStyle(.plain)
         .padding(.horizontal, 20)
@@ -131,58 +176,81 @@ struct CelebrationPoolFlowView: View {
             
             VStack(spacing: 12) {
                 // Completed Items
-                completedMilestoneRow(name: "Pasta Bowl Collection")
-                completedMilestoneRow(name: "Wine Glass Set")
+                completedMilestoneRow(name: "Pasta Bowl Collection", imagePath: "/img10s.jpg")
+                completedMilestoneRow(name: "Wine Glass Set", imagePath: "/img4m.jpg")
                 
                 // Current Active Item
-                currentMilestoneRow(name: "Espresso Machine", current: 14000, total: 45000)
+                currentMilestoneRow(name: "Espresso Machine", imagePath: "/img122m.jpg", current: 14000, total: 45000)
             }
             .padding(.horizontal, 20)
         }
     }
     
-    private func completedMilestoneRow(name: String) -> some View {
-        HStack {
-            Image(systemName: "checkmark.circle.fill")
-                .foregroundStyle(WSRegistryPalette.sage)
-                .font(.system(size: 20))
+    private func completedMilestoneRow(name: String, imagePath: String) -> some View {
+        HStack(spacing: 12) {
+            CustomAsyncImage(url: URL(string: AppConstants.API.imageBasePath + imagePath))
+                .frame(width: 48, height: 48)
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous).stroke(WSRegistryPalette.hairline, lineWidth: 1))
             
-            Text(name)
-                .font(.system(size: 15, weight: .medium))
-                .foregroundStyle(WSRegistryPalette.espresso)
+            VStack(alignment: .leading, spacing: 4) {
+                Text(name)
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(WSRegistryPalette.espresso)
+                
+                HStack(spacing: 4) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 11))
+                        .foregroundStyle(WSRegistryPalette.sage)
+                    Text("Fully Completed & Gifted")
+                        .font(.system(size: 11, weight: .regular))
+                        .foregroundStyle(WSRegistryPalette.sage)
+                }
+            }
             
             Spacer()
             
             Text("Completed")
-                .font(.system(size: 13, weight: .medium))
+                .font(.system(size: 13, weight: .semibold))
                 .foregroundStyle(WSRegistryPalette.sage)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 4)
+                .background(WSRegistryPalette.sage.opacity(0.1))
+                .clipShape(Capsule())
         }
-        .padding(16)
+        .padding(12)
         .background(WSRegistryPalette.ivory)
         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(WSRegistryPalette.hairline.opacity(0.5), lineWidth: 1))
+        .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(WSRegistryPalette.hairline.opacity(0.6), lineWidth: 1))
     }
     
-    private func currentMilestoneRow(name: String, current: Double, total: Double) -> some View {
-        VStack(spacing: 8) {
-            HStack {
-                Text(name)
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundStyle(WSRegistryPalette.espresso)
-                Spacer()
-                Text("₹\(Int(current)) / ₹\(Int(total)) progressing")
-                    .font(.system(size: 13, weight: .medium))
-                    .foregroundStyle(WSRegistryPalette.warmGray)
-            }
+    private func currentMilestoneRow(name: String, imagePath: String, current: Double, total: Double) -> some View {
+        HStack(spacing: 12) {
+            CustomAsyncImage(url: URL(string: AppConstants.API.imageBasePath + imagePath))
+                .frame(width: 48, height: 48)
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous).stroke(WSRegistryPalette.hairline, lineWidth: 1))
             
-            ProgressView(value: current, total: total)
-                .progressViewStyle(LinearProgressViewStyle(tint: WSRegistryPalette.gold))
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Text(name)
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(WSRegistryPalette.espresso)
+                    Spacer()
+                    Text("₹\(Int(current)) / ₹\(Int(total)) progressing")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(WSRegistryPalette.warmGray)
+                }
+                
+                ProgressView(value: current, total: total)
+                    .progressViewStyle(LinearProgressViewStyle(tint: WSRegistryPalette.gold))
+            }
         }
-        .padding(16)
+        .padding(12)
         .background(WSRegistryPalette.ivory)
         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(WSRegistryPalette.gold.opacity(0.5), lineWidth: 1))
-        .shadow(color: WSRegistryPalette.gold.opacity(0.1), radius: 8, x: 0, y: 4)
+        .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(WSRegistryPalette.gold.opacity(0.4), lineWidth: 1))
+        .shadow(color: WSRegistryPalette.gold.opacity(0.06), radius: 8, x: 0, y: 4)
     }
     
     private var whosGiftedSection: some View {
@@ -234,6 +302,7 @@ struct CelebrationPoolFlowView: View {
 
 // MARK: - Dedicated Contribution Full Screen
 struct CelebrationPoolContributionView: View {
+    @Environment(\.dismiss) var dismiss
     @State private var customAmount: String = ""
     @State private var personalMessage: String = ""
     
@@ -354,6 +423,7 @@ struct PaymentMethodSelectionView: View {
     let amount: String
     let note: String
     
+    @Environment(\.dismiss) var dismiss
     @State private var selectedMethod: String = "UPI"
     @State private var isSimulatingPayment = false
     @State private var showSuccess = false
@@ -471,7 +541,6 @@ struct CelebrationPoolSuccessView: View {
     let amount: String
     let note: String
     @Environment(\.dismiss) var dismiss
-    
     @State private var isVisible = false
     
     var body: some View {
@@ -571,9 +640,9 @@ struct CelebrationPoolSuccessView: View {
                     // 5. Actions
                     VStack(spacing: 16) {
                         Button(action: {
-                            // Normally we would pop to root here using a NavigationPath.
-                            // For demo purposes, we will trigger the dismiss to go back.
-                            dismiss()
+                            // Dismiss the entire receiver flow and present Browse Registry
+                            // cleanly from RegistryView root — no stacked covers.
+                            NotificationCenter.default.post(name: NSNotification.Name("OpenBrowseRegistryFromRoot"), object: nil)
                         }) {
                             Text("Continue Browsing Registry")
                                 .font(.system(size: 16, weight: .semibold))
