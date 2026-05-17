@@ -18,6 +18,8 @@ struct ProductDetailView: View {
     @State private var addedToCart = false
     @State private var showCopiedToast = false
     @State private var sectionAppeared = [false, false, false, false, false]
+    // Recommendation card navigation
+    @State private var selectedRecommendation: ProductItem?
 
     // Lazy-compute recommendations
     private var engine: ProductRecommendationEngine {
@@ -59,6 +61,17 @@ struct ProductDetailView: View {
         .navigationBarHidden(true)
         .sheet(isPresented: $showAIModal) {
             aiExplanationModal
+        }
+        // Tapping any recommendation card opens that product's detail
+        .fullScreenCover(item: $selectedRecommendation) { rec in
+            ProductDetailView(
+                product: rec,
+                allProducts: allProducts,
+                onAddToCart: onAddToCart,
+                onAddToRegistry: onAddToRegistry,
+                cartQuantity: 0,
+                registryQuantity: 0
+            )
         }
         .overlay(alignment: .bottom) {
             if showCopiedToast {
@@ -311,7 +324,10 @@ struct ProductDetailView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 16) {
                     ForEach(products) { rec in
-                        RecommendationProductCard(product: rec)
+                        Button(action: { selectedRecommendation = rec }) {
+                            RecommendationProductCard(product: rec)
+                        }
+                        .buttonStyle(.plain)
                     }
                 }
                 .padding(.horizontal, 24)
@@ -519,6 +535,17 @@ struct RecommendationProductCard: View {
                     Text("$\(price, specifier: "%.2f")")
                         .font(.system(size: 12, weight: .semibold))
                         .foregroundColor(.wsCrimson)
+                }
+
+                // Subtle tap hint
+                HStack(spacing: 4) {
+                    Text("VIEW PRODUCT")
+                        .font(.wsLabel(size: 9))
+                        .tracking(1)
+                        .foregroundColor(.wsMutedBrass)
+                    Image(systemName: "arrow.right")
+                        .font(.system(size: 8))
+                        .foregroundColor(.wsMutedBrass)
                 }
             }
         }
