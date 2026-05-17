@@ -4,6 +4,7 @@
 
 import SwiftUI
 
+
 extension Color {
     // Luxury Palette
     static let wsWarmIvory    = Color(hex: "#FAF9F6")
