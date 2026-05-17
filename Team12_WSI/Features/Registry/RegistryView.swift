@@ -18,6 +18,7 @@ enum RegistryRoute: Hashable {
     case recommendations(RegistryQuestionnairePayload)
     case chronicle
     case activity
+    case registryInsights
 }
 
 private enum RegistryOrigin: String, Hashable {
@@ -146,6 +147,10 @@ struct RegistryView: View {
                     HomeChronicleView()
                 case .activity:
                     RegistryActivityView()
+                case .registryInsights:
+                    if let currentRegistry = registryRepo.currentRegistry {
+                        OwnerRegistryInsightsView(registry: currentRegistry)
+                    }
                 }
             }
         }
@@ -1506,6 +1511,10 @@ private struct RegistryDetailsView: View {
                     }
                     homeStoryCard
                     statsCard
+                    aiInsightsCard
+                    if !registryItems.isEmpty {
+                        budgetTrackerCard
+                    }
                     addItemsButton
                     recommendationActionsCard
                     if sections.isEmpty {
@@ -1630,6 +1639,264 @@ private struct RegistryDetailsView: View {
         }
         .buttonStyle(.plain)
         .accessibilityLabel("Add items to your registry")
+    }
+
+    private var aiInsightsCard: some View {
+        let items = registryRepo.currentRegistry?.items ?? []
+        let hasItems = !items.isEmpty
+
+        // Compute a quick score preview
+        let collectionCount = Set(items.compactMap(\.collectionName)).count
+        let totalItems = items.reduce(0) { $0 + $1.quantity }
+        let prices = items.map(\.price)
+        let hasLow = prices.contains(where: { $0 < 3000 })
+        let hasMid = prices.contains(where: { $0 >= 3000 && $0 <= 15000 })
+        let hasHigh = prices.contains(where: { $0 > 15000 })
+        let rangeCount = [hasLow, hasMid, hasHigh].filter { $0 }.count
+
+        let quickScore: Double = hasItems
+            ? min(1.0, (Double(rangeCount) / 3.0 * 0.3)
+                + (min(1.0, Double(totalItems) / 15.0) * 0.3)
+                + (min(1.0, Double(collectionCount) / 3.0) * 0.4))
+            : 0.0
+        let scoreInt = Int((quickScore * 100).rounded())
+
+        return Button {
+            tabBarVM.registryPath.append(RegistryRoute.registryInsights)
+        } label: {
+            HStack(spacing: 16) {
+                // Mini score ring
+                ZStack {
+                    Circle()
+                        .stroke(WSRegistryPalette.hairline.opacity(0.3), lineWidth: 5)
+                        .frame(width: 52, height: 52)
+
+                    Circle()
+                        .trim(from: 0, to: CGFloat(quickScore))
+                        .stroke(
+                            AngularGradient(
+                                colors: [WSRegistryPalette.gold, WSRegistryPalette.gold.opacity(0.4)],
+                                center: .center
+                            ),
+                            style: StrokeStyle(lineWidth: 5, lineCap: .round)
+                        )
+                        .frame(width: 52, height: 52)
+                        .rotationEffect(.degrees(-90))
+
+                    Text("\(scoreInt)")
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundStyle(WSRegistryPalette.espresso)
+                }
+
+                VStack(alignment: .leading, spacing: 5) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "sparkles")
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundStyle(WSRegistryPalette.gold)
+                        Text("AI REGISTRY INSIGHTS")
+                            .font(.system(size: 10, weight: .bold))
+                            .tracking(1.2)
+                            .foregroundStyle(WSRegistryPalette.gold)
+                    }
+
+                    Text(hasItems
+                        ? "See your budget balance, aesthetic harmony, and completeness score."
+                        : "Add items to unlock personalized registry analysis.")
+                        .font(.system(size: 13, weight: .regular))
+                        .foregroundStyle(WSRegistryPalette.cocoa.opacity(0.85))
+                        .lineSpacing(2)
+                        .lineLimit(2)
+                }
+
+                Spacer(minLength: 8)
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundStyle(WSRegistryPalette.warmGray.opacity(0.65))
+            }
+            .padding(16)
+            .background(
+                LinearGradient(
+                    colors: [WSRegistryPalette.ivory, Color(red: 0.98, green: 0.96, blue: 0.92)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ),
+                in: RoundedRectangle(cornerRadius: 16, style: .continuous)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .stroke(WSRegistryPalette.gold.opacity(0.25), lineWidth: 1)
+            )
+            .shadow(color: WSRegistryPalette.gold.opacity(0.06), radius: 12, x: 0, y: 6)
+        }
+        .buttonStyle(.plain)
+        .disabled(!hasItems)
+        .opacity(hasItems ? 1.0 : 0.6)
+    }
+
+    // MARK: - Budget Tracker by Pattern
+
+    private var budgetTrackerCard: some View {
+        let registry = registryRepo.currentRegistry
+        let items = registry?.items ?? []
+        let grouped = Dictionary(grouping: items) { item -> String in
+            let resolved = RegistryRepository.resolvePattern(name: item.name, originalPattern: item.pattern)
+            return resolved.replacingOccurrences(of: "-", with: " ").capitalized
+        }
+
+        let totalSpend = items.reduce(0.0) { $0 + $1.price * Double($1.quantity) }
+
+        let sortedPatterns = grouped.keys.sorted {
+            let a = grouped[$0]!.reduce(0.0) { $0 + $1.price * Double($1.quantity) }
+            let b = grouped[$1]!.reduce(0.0) { $0 + $1.price * Double($1.quantity) }
+            return a > b
+        }
+
+        let patternColors: [Color] = [
+            WSRegistryPalette.sage,
+            WSRegistryPalette.gold,
+            WSRegistryPalette.cocoa,
+            Color(hex: "#B85C38"),
+            Color(hex: "#5B7065"),
+            Color(hex: "#9A8355"),
+            Color(hex: "#786049"),
+            Color(hex: "#3E2723")
+        ]
+
+        return VStack(alignment: .leading, spacing: 16) {
+            // Header
+            HStack(spacing: 8) {
+                Image(systemName: "chart.pie.fill")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundStyle(WSRegistryPalette.gold)
+                Text("BUDGET TRACKER")
+                    .font(.system(size: 11, weight: .bold))
+                    .tracking(1.5)
+                    .foregroundStyle(WSRegistryPalette.gold)
+                Spacer()
+                Text("$\(Int(totalSpend))")
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundStyle(WSRegistryPalette.espresso)
+            }
+
+            Text("Spend breakdown by product category pattern")
+                .font(.system(size: 13, weight: .regular))
+                .foregroundStyle(WSRegistryPalette.warmGray)
+
+            // Stacked bar
+            if totalSpend > 0 {
+                GeometryReader { geo in
+                    HStack(spacing: 2) {
+                        ForEach(Array(sortedPatterns.enumerated()), id: \.element) { index, pattern in
+                            let patternItems = grouped[pattern]!
+                            let patternSpend = patternItems.reduce(0.0) { $0 + $1.price * Double($1.quantity) }
+                            let fraction = patternSpend / totalSpend
+                            let color = patternColors[index % patternColors.count]
+
+                            RoundedRectangle(cornerRadius: 4, style: .continuous)
+                                .fill(color)
+                                .frame(width: max(6, geo.size.width * CGFloat(fraction)))
+                        }
+                    }
+                }
+                .frame(height: 14)
+                .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
+            }
+
+            // Pattern rows
+            VStack(spacing: 0) {
+                ForEach(Array(sortedPatterns.enumerated()), id: \.element) { index, pattern in
+                    let patternItems = grouped[pattern]!
+                    let totalQty = patternItems.reduce(0) { $0 + $1.quantity }
+                    let patternSpend = patternItems.reduce(0.0) { $0 + $1.price * Double($1.quantity) }
+                    let percentage = totalSpend > 0 ? (patternSpend / totalSpend * 100) : 0
+                    let color = patternColors[index % patternColors.count]
+                    let icon = iconForPattern(pattern)
+
+                    VStack(spacing: 0) {
+                        HStack(spacing: 12) {
+                            ZStack {
+                                Circle()
+                                    .fill(color.opacity(0.15))
+                                    .frame(width: 36, height: 36)
+
+                                Image(systemName: icon)
+                                    .font(.system(size: 14, weight: .semibold))
+                                    .foregroundStyle(color)
+                            }
+
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(pattern)
+                                    .font(.system(size: 14, weight: .semibold))
+                                    .foregroundStyle(WSRegistryPalette.espresso)
+
+                                Text("\(patternItems.count) product\(patternItems.count == 1 ? "" : "s") · \(totalQty) unit\(totalQty == 1 ? "" : "s")")
+                                    .font(.system(size: 11, weight: .regular))
+                                    .foregroundStyle(WSRegistryPalette.warmGray)
+                            }
+
+                            Spacer()
+
+                            VStack(alignment: .trailing, spacing: 2) {
+                                Text("$\(Int(patternSpend))")
+                                    .font(.system(size: 14, weight: .bold))
+                                    .foregroundStyle(WSRegistryPalette.espresso)
+
+                                Text("\(Int(percentage.rounded()))%")
+                                    .font(.system(size: 11, weight: .semibold))
+                                    .foregroundStyle(color)
+                            }
+                        }
+                        .padding(.vertical, 12)
+
+                        if index < sortedPatterns.count - 1 {
+                            Rectangle()
+                                .fill(WSRegistryPalette.hairline.opacity(0.4))
+                                .frame(height: 1)
+                                .padding(.leading, 48)
+                        }
+                    }
+                }
+            }
+
+            // Summary row
+            HStack(spacing: 12) {
+                Image(systemName: "info.circle")
+                    .font(.system(size: 12))
+                    .foregroundStyle(WSRegistryPalette.warmGray)
+
+                Text("\(sortedPatterns.count) category\(sortedPatterns.count == 1 ? "" : "ies") · \(items.count) product\(items.count == 1 ? "" : "s") · Avg $\(items.isEmpty ? 0 : Int(totalSpend / Double(items.count)))/item")
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(WSRegistryPalette.warmGray)
+            }
+            .padding(.top, 4)
+        }
+        .padding(18)
+        .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(WSRegistryPalette.hairline.opacity(0.45), lineWidth: 1)
+        )
+        .shadow(color: WSRegistryPalette.espresso.opacity(0.04), radius: 12, x: 0, y: 6)
+    }
+
+    private func iconForPattern(_ pattern: String) -> String {
+        let p = pattern.lowercased()
+        if p.contains("cook") || p.contains("kitchen") { return "frying.pan" }
+        if p.contains("bake") || p.contains("baking") { return "birthday.cake" }
+        if p.contains("dinner") || p.contains("dining") || p.contains("dinnerware") { return "fork.knife" }
+        if p.contains("serve") || p.contains("serveware") || p.contains("host") { return "wineglass" }
+        if p.contains("homekeep") || p.contains("clean") { return "house" }
+        if p.contains("cutlery") || p.contains("knife") || p.contains("knives") { return "scissors" }
+        if p.contains("bar") || p.contains("drink") || p.contains("cocktail") { return "wineglass.fill" }
+        if p.contains("outdoor") || p.contains("garden") { return "leaf" }
+        if p.contains("bed") || p.contains("linen") || p.contains("textile") { return "bed.double" }
+        if p.contains("bath") { return "shower" }
+        if p.contains("decor") || p.contains("decorat") { return "paintpalette" }
+        if p.contains("coffee") || p.contains("tea") || p.contains("morning") { return "cup.and.saucer" }
+        if p.contains("electr") || p.contains("applian") { return "bolt.fill" }
+        if p.contains("food") || p.contains("gourmet") { return "carrot" }
+        return "square.grid.2x2"
     }
 
     private var registrySwitcher: some View {

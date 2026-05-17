@@ -12,6 +12,8 @@ struct ProductCardView: View {
     let onRemove: () -> Void
     let onAddToRegistry: () -> Void
     let onRemoveFromRegistry: () -> Void
+    /// Optional 3D model URL. When set, the AR icon becomes tappable.
+    var arModelURL: URL? = nil
 
     // Demo: mark first items as bestsellers based on stable hash
     private var isBestSeller: Bool {
@@ -19,6 +21,7 @@ struct ProductCardView: View {
     }
 
     @State private var heartPressed = false
+    @State private var showAR = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -35,6 +38,25 @@ struct ProductCardView: View {
                 if isBestSeller {
                     WSBadge(text: "Best Seller")
                         .padding(8)
+                }
+
+                // AR camera icon — bottom left
+                VStack {
+                    Spacer()
+                    HStack {
+                        Button {
+                            if arModelURL != nil { showAR = true }
+                        } label: {
+                            Image(systemName: "camera.viewfinder")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(arModelURL != nil ? .wsPrimary : .wsSecondary.opacity(0.7))
+                                .frame(width: 32, height: 32)
+                                .background(Color.white.opacity(0.92))
+                                .clipShape(Circle())
+                        }
+                        .padding(8)
+                        Spacer()
+                    }
                 }
 
                 // Wishlist / Registry heart — top right
@@ -64,6 +86,11 @@ struct ProductCardView: View {
                         }
                         .padding(8)
                     }
+                }
+            }
+            .fullScreenCover(isPresented: $showAR) {
+                if let url = arModelURL {
+                    ARQuickLookScreen(fileURL: url, onExit: { showAR = false })
                 }
             }
 
