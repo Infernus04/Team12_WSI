@@ -19,7 +19,8 @@ struct HomeView: View {
     @State private var conciergeScale: CGFloat = 1.0
     @State private var s1On = false; @State private var s2On = false
     @State private var s4On = false; @State private var s5On = false
-    @State private var s6On = false; @State private var s8On = false
+    @State private var s6On = false; @State private var s7On = false
+    @State private var s8On = false
     @State private var showSaveForLater = false          // Buy Later list
     @State private var showProfile = false               // Profile sheet
     // Hero CTA navigation
@@ -42,6 +43,7 @@ struct HomeView: View {
                                 designedTogetherSection.opacity(s4On ? 1 : 0).offset(y: s4On ? 0 : 20).onAppear { withAnimation(.easeOut(duration: 0.5).delay(0.15)) { s4On = true } }
                                 moodboardSection.opacity(s5On ? 1 : 0).offset(y: s5On ? 0 : 20).onAppear { withAnimation(.easeOut(duration: 0.5).delay(0.2)) { s5On = true } }
                                 editorialSection.opacity(s6On ? 1 : 0).offset(y: s6On ? 0 : 20).onAppear { withAnimation(.easeOut(duration: 0.5).delay(0.25)) { s6On = true } }
+                                porterSwivelChairSection.opacity(s7On ? 1 : 0).offset(y: s7On ? 0 : 20).onAppear { withAnimation(.easeOut(duration: 0.5).delay(0.28)) { s7On = true } }
                                 seasonalSection.opacity(s8On ? 1 : 0).offset(y: s8On ? 0 : 20).onAppear { withAnimation(.easeOut(duration: 0.5).delay(0.3)) { s8On = true } }
                                 Spacer().frame(height: 100)
                             }
@@ -619,6 +621,31 @@ struct HomeView: View {
             )
         }
         .cornerRadius(4)
+    }
+
+    // MARK: Section 7 — Porter Swivel Chair (Featured New Arrival + AR)
+    private var porterSwivelChairSection: some View {
+        PorterSwivelChairSection(
+            onAddToCart: {
+                // Static product — create a placeholder ProductItem for the cart
+                let porterChair = ProductItem(
+                    id: "porter-swivel-chair-static",
+                    name: "Porter Swivel Chair",
+                    price: 995.0,
+                    path: nil
+                )
+                viewModel.addToCart(porterChair)
+            },
+            onAddToRegistry: {
+                let porterChair = ProductItem(
+                    id: "porter-swivel-chair-static",
+                    name: "Porter Swivel Chair",
+                    price: 995.0,
+                    path: nil
+                )
+                viewModel.addToRegistry(porterChair)
+            }
+        )
     }
 
     // MARK: Section 8 — Seasonal
