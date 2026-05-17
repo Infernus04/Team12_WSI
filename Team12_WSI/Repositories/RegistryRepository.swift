@@ -52,14 +52,16 @@ final class RegistryRepository: ObservableObject {
     func createRegistry(firstName: String,
                         lastName: String,
                         event: RegistryEvent,
-                        date: Date) {
+                        date: Date,
+                        budget: Double? = nil) {
         let created = Registry(
             id: UUID(),
             firstName: firstName,
             lastName: lastName,
             event: event,
             date: date,
-            items: []
+            items: [],
+            budget: budget
         )
         registries.append(created)
         activeRegistryID = created.id
@@ -97,6 +99,7 @@ final class RegistryRepository: ObservableObject {
     ) {
         mutateActiveRegistry { registry in
             let price = product.price ?? 0.0
+            let resolved = RegistryRepository.resolvePattern(name: product.name, originalPattern: product.pattern)
 
             if let index = registry.items.firstIndex(where: { $0.id == product.id }) {
                 registry.items[index].quantity += 1
@@ -105,6 +108,9 @@ final class RegistryRepository: ObservableObject {
                 }
                 if registry.items[index].sourceTag == nil {
                     registry.items[index].sourceTag = sourceTag
+                }
+                if registry.items[index].pattern == nil || registry.items[index].pattern == "Uncategorized" {
+                    registry.items[index].pattern = resolved
                 }
             } else {
                 registry.items.append(
@@ -115,7 +121,8 @@ final class RegistryRepository: ObservableObject {
                         imageUrl: product.path ?? "",
                         quantity: 1,
                         collectionName: collectionName,
-                        sourceTag: sourceTag
+                        sourceTag: sourceTag,
+                        pattern: resolved
                     )
                 )
             }
@@ -133,6 +140,7 @@ final class RegistryRepository: ObservableObject {
         mutateActiveRegistry { registry in
             for product in products {
                 let price = product.price ?? 0.0
+                let resolved = RegistryRepository.resolvePattern(name: product.name, originalPattern: product.pattern)
                 if let index = registry.items.firstIndex(where: { $0.id == product.id }) {
                     registry.items[index].quantity += 1
                     if registry.items[index].collectionName == nil {
@@ -140,6 +148,9 @@ final class RegistryRepository: ObservableObject {
                     }
                     if registry.items[index].sourceTag == nil {
                         registry.items[index].sourceTag = sourceTag
+                    }
+                    if registry.items[index].pattern == nil || registry.items[index].pattern == "Uncategorized" {
+                        registry.items[index].pattern = resolved
                     }
                 } else {
                     registry.items.append(
@@ -150,7 +161,8 @@ final class RegistryRepository: ObservableObject {
                             imageUrl: product.path ?? "",
                             quantity: 1,
                             collectionName: collectionName,
-                            sourceTag: sourceTag
+                            sourceTag: sourceTag,
+                            pattern: resolved
                         )
                     )
                 }
@@ -227,5 +239,36 @@ final class RegistryRepository: ObservableObject {
         Task {
             await persistenceStore.saveRegistries(registries, activeRegistryID: activeRegistryID)
         }
+    }
+
+    static func resolvePattern(name: String, originalPattern: String?) -> String {
+        if let originalPattern = originalPattern, !originalPattern.isEmpty {
+            return originalPattern
+        }
+        let lower = name.lowercased()
+        
+        if lower.contains("oil") || lower.contains("clean") || lower.contains("wash") || lower.contains("soap") || lower.contains("lidded ceramic bowl") || lower.contains("organizer") || lower.contains("pantry") || lower.contains("basket") {
+            return "homekeeping"
+        }
+        if lower.contains("cutting board") || lower.contains("knife") || lower.contains("knives") || lower.contains("block") || lower.contains("cleaver") || lower.contains("shears") {
+            return "cutlery"
+        }
+        if lower.contains("oven") || lower.contains("dutch") || lower.contains("pan") || lower.contains("skillet") || lower.contains("pot") || lower.contains("cookware") || lower.contains("saucepan") || lower.contains("griddle") {
+            return "cookware"
+        }
+        if lower.contains("plate") || lower.contains("dinner plate") || lower.contains("salad plate") || lower.contains("bowl") || lower.contains("dinnerware") || lower.contains("saucer") || lower.contains("mug") || lower.contains("cup") {
+            return "dinnerware"
+        }
+        if lower.contains("platter") || lower.contains("carafe") || lower.contains("glass") || lower.contains("tumbler") || lower.contains("serve") || lower.contains("decanter") || lower.contains("pitcher") || lower.contains("wine") || lower.contains("bar") {
+            return "serveware"
+        }
+        if lower.contains("blender") || lower.contains("vitamix") || lower.contains("espresso") || lower.contains("coffee") || lower.contains("toaster") || lower.contains("mixer") || lower.contains("waffle") || lower.contains("kettle") || lower.contains("juicer") || lower.contains("processor") {
+            return "appliances"
+        }
+        if lower.contains("sheet") || lower.contains("bed") || lower.contains("pillow") || lower.contains("linen") || lower.contains("towel") || lower.contains("apron") || lower.contains("runner") || lower.contains("napkin") || lower.contains("cloth") {
+            return "textiles"
+        }
+        
+        return "tabletop"
     }
 }

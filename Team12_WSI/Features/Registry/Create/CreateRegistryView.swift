@@ -893,6 +893,17 @@ private extension CreateRegistryView {
         }
     }
 
+    func budgetAmountFromPreference(_ pref: GiftDNAChoice?) -> Double? {
+        guard let title = pref?.title else { return nil }
+        switch title {
+        case "Mostly under $50": return 500       // ~10 items × $50
+        case "$50 to $150":     return 1500      // ~10 items × $150
+        case "$150 to $300":    return 3000      // ~10 items × $300
+        case "Investment pieces": return 5000    // premium target
+        default:                return nil
+        }
+    }
+
     func runGeneration() {
         guard !hasStartedGeneration else { return }
         hasStartedGeneration = true
@@ -904,7 +915,8 @@ private extension CreateRegistryView {
             // Create registry first
             let names = parsedRegistryNames
             let registryID = UUID()
-            registryRepo.createRegistry(firstName: names.first, lastName: names.last, event: selectedEvent, date: eventDate)
+            let budgetAmount = budgetAmountFromPreference(budgetPreference)
+            registryRepo.createRegistry(firstName: names.first, lastName: names.last, event: selectedEvent, date: eventDate, budget: budgetAmount)
 
             // Animate generation progress
             for (index, item) in GiftDNAData.generationSteps.enumerated() {

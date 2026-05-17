@@ -174,9 +174,9 @@ enum RegistryAIInsightsEngine {
             topStrengths: topStrengths,
             topSuggestions: topSuggestions,
             collectionCoveragePercent: collectionCoverage * 100,
-            priceRangeText: "₹\(Int(minPrice)) – ₹\(Int(maxPrice))",
-            averagePriceText: "₹\(Int(avgPrice))",
-            totalValueText: "₹\(Int(totalValue))"
+            priceRangeText: "$\(Int(minPrice)) – $\(Int(maxPrice))",
+            averagePriceText: "$\(Int(avgPrice))",
+            totalValueText: "$\(Int(totalValue))"
         )
     }
 
@@ -190,24 +190,24 @@ enum RegistryAIInsightsEngine {
         let range = maxPrice - minPrice
 
         // Score based on good price distribution
-        let hasLowItems = prices.contains(where: { $0 < 2000 })
-        let hasMidItems = prices.contains(where: { $0 >= 2000 && $0 <= 15000 })
-        let hasHighItems = prices.contains(where: { $0 > 15000 })
+        let hasLowItems = prices.contains(where: { $0 < 50 })
+        let hasMidItems = prices.contains(where: { $0 >= 50 && $0 <= 200 })
+        let hasHighItems = prices.contains(where: { $0 > 200 })
         let rangeCount = [hasLowItems, hasMidItems, hasHighItems].filter { $0 }.count
 
         var score = Double(rangeCount) / 3.0
 
         // Bonus for not being all expensive
-        if avg < 25000 { score = min(1.0, score + 0.1) }
+        if avg < 300 { score = min(1.0, score + 0.1) }
 
         // Penalty if everything is the same price tier
-        if range < 1000 { score = max(0.2, score - 0.2) }
+        if range < 20 { score = max(0.2, score - 0.2) }
 
         let tier = tierForScore(score)
 
         var suggestions: [String] = []
-        if !hasLowItems { suggestions.append("Add a few affordable items (under ₹2,000) so every guest can contribute.") }
-        if !hasMidItems { suggestions.append("Include mid-range items (₹2,000–₹15,000) for balanced gifting options.") }
+        if !hasLowItems { suggestions.append("Add a few affordable items (under $50) so every guest can contribute.") }
+        if !hasMidItems { suggestions.append("Include mid-range items ($50–$200) for balanced gifting options.") }
         if !hasHighItems { suggestions.append("Consider adding a few premium pieces to complete your home vision.") }
 
         let headline: String
@@ -223,7 +223,7 @@ enum RegistryAIInsightsEngine {
             score: score,
             tier: tier,
             headline: headline,
-            detail: "Your registry spans ₹\(Int(minPrice)) to ₹\(Int(maxPrice)) with an average of ₹\(Int(avg)). \(rangeCount) of 3 price tiers are represented.",
+            detail: "Your registry spans $\(Int(minPrice)) to $\(Int(maxPrice)) with an average of $\(Int(avg)). \(rangeCount) of 3 price tiers are represented.",
             suggestions: suggestions
         )
     }
@@ -316,14 +316,14 @@ enum RegistryAIInsightsEngine {
 
     private static func analyzeGiftability(items: [RegistryItem]) -> RegistryInsight {
         let prices = items.map(\.price)
-        let under3k = prices.filter { $0 < 3000 }.count
-        let mid = prices.filter { $0 >= 3000 && $0 <= 20000 }.count
-        let premium = prices.filter { $0 > 20000 }.count
+        let under75 = prices.filter { $0 < 75 }.count
+        let mid = prices.filter { $0 >= 75 && $0 <= 300 }.count
+        let premium = prices.filter { $0 > 300 }.count
 
-        let giftFriendlyRatio = Double(under3k + mid) / Double(items.count)
+        let giftFriendlyRatio = Double(under75 + mid) / Double(items.count)
 
         var score = giftFriendlyRatio * 0.6
-        if under3k > 0 { score += 0.15 }
+        if under75 > 0 { score += 0.15 }
         if mid > 0 { score += 0.15 }
         if premium > 0 && premium <= items.count / 2 { score += 0.1 }
         score = min(1.0, score)
@@ -331,7 +331,7 @@ enum RegistryAIInsightsEngine {
         let tier = tierForScore(score)
 
         var suggestions: [String] = []
-        if under3k == 0 { suggestions.append("Add affordable items under ₹3,000 so casual acquaintances can participate.") }
+        if under75 == 0 { suggestions.append("Add affordable items under $75 so casual acquaintances can participate.") }
         if premium > items.count / 2 { suggestions.append("Too many premium items may deter gift-givers. Add more accessible options.") }
 
         let headline: String
@@ -347,7 +347,7 @@ enum RegistryAIInsightsEngine {
             score: score,
             tier: tier,
             headline: headline,
-            detail: "\(under3k) affordable items, \(mid) mid-range, \(premium) premium. A guest-friendly registry has options for every budget level.",
+            detail: "\(under75) affordable items, \(mid) mid-range, \(premium) premium. A guest-friendly registry has options for every budget level.",
             suggestions: suggestions
         )
     }
@@ -397,16 +397,16 @@ enum RegistryAIInsightsEngine {
         let total = Double(items.count)
         guard total > 0 else { return [] }
 
-        let affordable = items.filter { $0.price < 3000 }.count
-        let mid = items.filter { $0.price >= 3000 && $0.price < 10000 }.count
-        let premium = items.filter { $0.price >= 10000 && $0.price < 30000 }.count
-        let luxury = items.filter { $0.price >= 30000 }.count
+        let affordable = items.filter { $0.price < 50 }.count
+        let mid = items.filter { $0.price >= 50 && $0.price < 200 }.count
+        let premium = items.filter { $0.price >= 200 && $0.price < 500 }.count
+        let luxury = items.filter { $0.price >= 500 }.count
 
         return [
-            BudgetBucket(label: "Affordable", range: "Under ₹3K", count: affordable, percentage: Double(affordable) / total, color: Color(hex: "#6F8768")),
-            BudgetBucket(label: "Mid-Range", range: "₹3K – ₹10K", count: mid, percentage: Double(mid) / total, color: Color(hex: "#9A8355")),
-            BudgetBucket(label: "Premium", range: "₹10K – ₹30K", count: premium, percentage: Double(premium) / total, color: Color(hex: "#786049")),
-            BudgetBucket(label: "Luxury", range: "₹30K+", count: luxury, percentage: Double(luxury) / total, color: Color(hex: "#3E2723"))
+            BudgetBucket(label: "Affordable", range: "Under $50", count: affordable, percentage: Double(affordable) / total, color: Color(hex: "#6F8768")),
+            BudgetBucket(label: "Mid-Range", range: "$50 – $200", count: mid, percentage: Double(mid) / total, color: Color(hex: "#9A8355")),
+            BudgetBucket(label: "Premium", range: "$200 – $500", count: premium, percentage: Double(premium) / total, color: Color(hex: "#786049")),
+            BudgetBucket(label: "Luxury", range: "$500+", count: luxury, percentage: Double(luxury) / total, color: Color(hex: "#3E2723"))
         ].filter { $0.count > 0 }
     }
 
@@ -448,7 +448,7 @@ enum RegistryAIInsightsEngine {
             collectionCoveragePercent: 0,
             priceRangeText: "—",
             averagePriceText: "—",
-            totalValueText: "₹0"
+            totalValueText: "$0"
         )
     }
 }
