@@ -252,17 +252,9 @@ struct RegistryProductCardView: View {
         HStack(spacing: 12) {
             // Image
             ZStack(alignment: .topLeading) {
-                Rectangle()
-                    .fill(WSRegistryPalette.ivory)
+                CustomAsyncImage(url: URL(string: AppConstants.API.imageBasePath + item.imagePath))
                     .frame(width: 80, height: 80)
                     .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-                
-                Image(systemName: item.imageName)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 32, height: 32)
-                    .foregroundStyle(WSRegistryPalette.warmGray.opacity(0.5))
-                    .frame(width: 80, height: 80)
                 
                 if item.isPriority {
                     Text("Essential")
@@ -334,16 +326,9 @@ struct GroupGiftCardView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             ZStack {
-                Rectangle()
-                    .fill(WSRegistryPalette.porcelain)
+                CustomAsyncImage(url: URL(string: AppConstants.API.imageBasePath + item.imagePath))
                     .frame(height: 120)
                     .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                
-                Image(systemName: item.imageName)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 50, height: 50)
-                    .foregroundStyle(WSRegistryPalette.warmGray.opacity(0.6))
             }
             
             VStack(alignment: .leading, spacing: 4) {

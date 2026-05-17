@@ -8,7 +8,8 @@ struct RegistryProductDetailView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
-                Rectangle().fill(Color(white: 0.95)).aspectRatio(1.0, contentMode: .fit).overlay(Image(systemName: item.imageName).resizable().scaledToFit().padding(80).foregroundColor(.gray))
+                CustomAsyncImage(url: URL(string: AppConstants.API.imageBasePath + item.imagePath))
+                    .aspectRatio(1.0, contentMode: .fit)
                 VStack(alignment: .leading, spacing: RegistryTheme.Spacing.large) {
                     HStack {
                         if item.isPriority { Text("PRIORITY").font(RegistryTheme.Typography.caption).padding(6).background(RegistryTheme.Colors.primaryText).foregroundColor(.white).cornerRadius(4) }

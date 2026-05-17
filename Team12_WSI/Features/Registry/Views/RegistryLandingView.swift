@@ -26,6 +26,21 @@ struct RegistryLandingView: View {
                 // MARK: - STICKY CTAs
                 stickyBottomCTAs
             }
+            .overlay(alignment: .topLeading) {
+                // Floating back button
+                Button(action: { dismiss() }) {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .frame(width: 36, height: 36)
+                        .background(.ultraThinMaterial)
+                        .background(Color.black.opacity(0.15))
+                        .clipShape(Circle())
+                        .shadow(color: .black.opacity(0.15), radius: 8, x: 0, y: 4)
+                }
+                .padding(.top, 56)
+                .padding(.leading, 20)
+            }
         }
         .background(WSRegistryPalette.porcelain.ignoresSafeArea())
         .toolbar(.hidden, for: .navigationBar)

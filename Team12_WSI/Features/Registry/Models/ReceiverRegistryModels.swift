@@ -37,7 +37,7 @@ struct EmotionalAttribution: Hashable {
 struct ReceiverRegistryItem: Identifiable, Hashable {
     let id = UUID()
     let name: String
-    let imageName: String
+    let imagePath: String
     let price: Double
     let state: RegistryItemState
     let category: RegistryItemCategory
@@ -54,10 +54,10 @@ struct RegistryMockData {
     static let pastaBowlCollection = RegistryCollection(name: "Pasta Bowl Collection", completionPercentage: 18)
     
     static let items: [ReceiverRegistryItem] = [
-        ReceiverRegistryItem(name: "Citron Dinner Plates, Set of 4", imageName: "photo", price: 12000, state: .celebrationPoolAssisted, category: .collections, collection: citronCollection, isPriority: true, description: "Hand-painted citron design."),
-        ReceiverRegistryItem(name: "Smeg Espresso Machine", imageName: "cup.and.saucer.fill", price: 45000, state: .groupGiftActive, category: .groupGifts, groupGift: GroupGift(totalAmountNeeded: 45000, currentContribution: 14000), isPriority: true, description: "Retro style espresso machine."),
-        ReceiverRegistryItem(name: "Le Creuset Dutch Oven", imageName: "frying.pan.fill", price: 32000, state: .emotionallyAttributed, category: .essentials, emotionalAttribution: EmotionalAttribution(contributorNames: ["Aarav", "Riya"], totalContributors: 5, message: "Enjoy cozy dinners!"), description: "Enameled cast iron dutch oven."),
-        ReceiverRegistryItem(name: "Pasta Bowls, Set of 4", imageName: "takeoutbox.fill", price: 6500, state: .available, category: .essentials, collection: pastaBowlCollection, description: "Wide and shallow bowls.")
+        ReceiverRegistryItem(name: "Citron Dinner Plates, Set of 4", imagePath: "/img35m.jpg", price: 12000, state: .celebrationPoolAssisted, category: .collections, collection: citronCollection, isPriority: true, description: "Hand-painted citron design."),
+        ReceiverRegistryItem(name: "Smeg Espresso Machine", imagePath: "/img71m.jpg", price: 45000, state: .groupGiftActive, category: .groupGifts, groupGift: GroupGift(totalAmountNeeded: 45000, currentContribution: 14000), isPriority: true, description: "Retro style espresso machine."),
+        ReceiverRegistryItem(name: "Le Creuset Dutch Oven", imagePath: "/lc_fondue_cerise.jpg", price: 32000, state: .emotionallyAttributed, category: .essentials, emotionalAttribution: EmotionalAttribution(contributorNames: ["Aarav", "Riya"], totalContributors: 5, message: "Enjoy cozy dinners!"), description: "Enameled cast iron dutch oven."),
+        ReceiverRegistryItem(name: "Pasta Bowls, Set of 4", imagePath: "/img10s.jpg", price: 6500, state: .available, category: .essentials, collection: pastaBowlCollection, description: "Wide and shallow bowls.")
     ]
     
     static let coupleName = "Ananya & Rohan"
