@@ -237,11 +237,12 @@ struct LifestyleSceneDetailView: View {
 
 // MARK: - Scene Product Card
 
-private struct SceneProductCard: View {
+struct SceneProductCard: View {
     let product: ProductItem
     let onSelect: () -> Void
     let onAddToCart: () -> Void
     let onAddToRegistry: () -> Void
+    var badgeLabel: String? = "IN SCENE"   // Pass nil to hide the badge
 
     @State private var isAdded = false
 
@@ -255,15 +256,16 @@ private struct SceneProductCard: View {
                         .frame(height: 180)
                         .clipped()
 
-                    // "IN SCENE" badge
-                    Text("IN SCENE")
-                        .font(.wsLabel(size: 7))
-                        .tracking(1)
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 3)
-                        .background(Color.wsCharcoal.opacity(0.75))
-                        .padding(6)
+                    if let badge = badgeLabel {
+                        Text(badge)
+                            .font(.wsLabel(size: 7))
+                            .tracking(1)
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 3)
+                            .background(Color.wsCharcoal.opacity(0.75))
+                            .padding(6)
+                    }
                 }
             }
             .buttonStyle(.plain)

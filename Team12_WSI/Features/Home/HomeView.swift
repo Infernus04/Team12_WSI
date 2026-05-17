@@ -23,6 +23,7 @@ struct HomeView: View {
     @State private var s4On = false; @State private var s5On = false
     @State private var s6On = false; @State private var s8On = false
     @State private var showSaveForLater = false          // Buy Later list
+    @State private var showProfile = false               // Profile sheet
     // Hero CTA navigation
     @State private var showHeroCollection = false
 
@@ -63,7 +64,12 @@ struct HomeView: View {
             )
         }
         .sheet(isPresented: $showSearch) {
-            HomeSearchView(allProducts: viewModel.products, onSelectProduct: { selectedProduct = $0 })
+            HomeSearchView(
+                allProducts: viewModel.products,
+                onSelectProduct: { selectedProduct = $0 },
+                onAddToCart: { viewModel.addToCart($0) },
+                onAddToRegistry: { viewModel.addToRegistry($0) }
+            )
         }
         .sheet(isPresented: $showConcierge) {
             AIConciergeView(allProducts: viewModel.products, registryRepository: registryRepository, onSelectProduct: { selectedProduct = $0 })
@@ -73,7 +79,12 @@ struct HomeView: View {
             NavigationStack { MoodboardView(allProducts: viewModel.products) }
         }
         .sheet(isPresented: $showHeroCollection) {
-            HomeSearchView(allProducts: viewModel.products, onSelectProduct: { selectedProduct = $0 })
+            HomeSearchView(
+                allProducts: viewModel.products,
+                onSelectProduct: { selectedProduct = $0 },
+                onAddToCart: { viewModel.addToCart($0) },
+                onAddToRegistry: { viewModel.addToRegistry($0) }
+            )
         }
         .fullScreenCover(item: $selectedBundle) { bundle in
             BundleDetailView(
@@ -92,6 +103,9 @@ struct HomeView: View {
                 onAddToCart: { viewModel.addToCart($0) },
                 onAddToRegistry: { viewModel.addToRegistry($0) }
             )
+        }
+        .sheet(isPresented: $showProfile) {
+            ProfileView()
         }
         .sheet(isPresented: $showSaveForLater) {
             SaveForLaterView()
@@ -150,7 +164,7 @@ struct HomeView: View {
                     }
                 }
                 Button(action: { showSearch = true }) { Image(systemName: "magnifyingglass").foregroundColor(.wsCharcoal).font(.system(size: 16)) }
-                Button(action: {}) { Image(systemName: "person.circle").foregroundColor(.wsCharcoal).font(.system(size: 16)) }
+                Button(action: { showProfile = true }) { Image(systemName: "person.circle").foregroundColor(.wsCharcoal).font(.system(size: 16)) }
             }
         }
         .padding(.horizontal, 20).padding(.vertical, 14)
