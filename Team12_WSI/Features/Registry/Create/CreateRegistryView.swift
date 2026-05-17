@@ -591,7 +591,7 @@ private extension CreateRegistryView {
 
 
     var isOptionalStep: Bool {
-        step == .hobbies
+        step != .basics && step != .generating
     }
 
     var canShowSkipAll: Bool {
@@ -839,9 +839,25 @@ private extension CreateRegistryView {
 
     func skipCurrentStep() {
         switch step {
+        case .moodboard:
+            if moodboardVibe.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                moodboardVibe = "Warm timeless style with a functional kitchen and shared dining."
+            }
+        case .homeType:
+            if homeType == nil {
+                homeType = GiftDNAData.homeTypes.first
+            }
         case .hobbies:
             hobbiesSkipped = true
             hobbies = []
+        case .productCategories:
+            if productCategories.isEmpty {
+                productCategories = Set(GiftDNAData.productCategories.prefix(3).map(\.id))
+            }
+        case .budget:
+            if budgetPreference == nil {
+                budgetPreference = GiftDNAData.budgetPreferences[safe: 1] ?? GiftDNAData.budgetPreferences.first
+            }
         default:
             break
         }
@@ -1052,7 +1068,7 @@ private enum GiftDNAStep: Int, CaseIterable {
     }
 
     var isOptional: Bool {
-        self == .hobbies
+        self != .basics && self != .generating
     }
 
     var displayIndex: Int { rawValue + 1 }

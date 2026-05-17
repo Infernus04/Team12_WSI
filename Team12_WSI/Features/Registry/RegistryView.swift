@@ -266,7 +266,8 @@ private extension RegistryView {
         let isActive = registryRepo.activeRegistryID == registry.id
 
         return Button {
-            tabBarVM.registryPath.append(RegistryRoute.existingRegistryDetails(registry.id))
+            registryRepo.selectRegistry(id: registry.id)
+            tabBarVM.registryPath.append(RegistryRoute.details)
         } label: {
             ZStack(alignment: .bottomLeading) {
                 Image("giftdna_living_room")
