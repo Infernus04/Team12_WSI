@@ -13,38 +13,38 @@ struct AestheticConfidenceMeter: View {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Aura Harmony")
-                        .font(AuraDesign.Fonts.serif(size: 18, weight: .semibold))
-                        .foregroundColor(AuraDesign.Colors.charcoal)
+                        .font(.wsSerif(size: 18, weight: .semibold))
+                        .foregroundColor(.wsCharcoal)
                     
                     Text("Aesthetic Style · \(analysis.overallAesthetic)")
-                        .font(AuraDesign.Fonts.sansSerif(size: 12, weight: .medium))
-                        .foregroundColor(AuraDesign.Colors.charcoal.opacity(0.65))
+                        .font(.wsBody(size: 12, weight: .medium))
+                        .foregroundColor(.wsCharcoal.opacity(0.65))
                 }
                 
                 Spacer()
                 
                 Text("\(Int(analysis.confidenceScore))%")
-                    .font(AuraDesign.Fonts.sansSerif(size: 18, weight: .bold))
-                    .foregroundColor(AuraDesign.Colors.charcoal)
+                    .font(.wsBody(size: 18, weight: .bold))
+                    .foregroundColor(.wsCharcoal)
             }
             
             Text(analysis.completenessStatus.title)
-                .font(AuraDesign.Fonts.sansSerif(size: 13, weight: .semibold))
+                .font(.wsBody(size: 13, weight: .semibold))
                 .foregroundColor(statusColor)
             
             Text(statusDescription)
-                .font(AuraDesign.Fonts.sansSerif(size: 13))
-                .foregroundColor(AuraDesign.Colors.charcoal.opacity(0.8))
+                .font(.wsBody(size: 13))
+                .foregroundColor(.wsCharcoal.opacity(0.8))
             
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
                     Rectangle()
-                        .fill(AuraDesign.Colors.cream)
+                        .fill(Color.wsWarmIvory)
                         .frame(height: 6)
                         .cornerRadius(3)
                     
                     Rectangle()
-                        .fill(AuraDesign.Colors.mutedGold)
+                        .fill(Color.wsMutedBrass)
                         .frame(width: max(0, geometry.size.width * CGFloat(analysis.confidenceScore) / 100.0), height: 6)
                         .cornerRadius(3)
                         .animation(.easeInOut(duration: 1.0), value: analysis.confidenceScore)
@@ -53,19 +53,16 @@ struct AestheticConfidenceMeter: View {
             .frame(height: 6)
         }
         .padding(20)
-        .background(AuraDesign.Colors.porcelain, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .stroke(AuraDesign.Colors.hairline.opacity(0.50), lineWidth: 1)
-        )
-        .shadow(color: AuraDesign.Colors.charcoal.opacity(0.05), radius: 16, x: 0, y: 8)
+        .background(Color.wsSurface)
+        .cornerRadius(2)
+        .wsLuxuryShadow()
     }
     
     private var statusColor: Color {
         switch analysis.completenessStatus {
-        case .clashing: return AuraDesign.Colors.errorRed
-        case .complete: return AuraDesign.Colors.successGreen
-        default: return AuraDesign.Colors.charcoal.opacity(0.6)
+        case .clashing: return Color.wsCrimson
+        case .complete: return Color.wsCharcoal
+        default: return Color.wsCharcoal.opacity(0.6)
         }
     }
     

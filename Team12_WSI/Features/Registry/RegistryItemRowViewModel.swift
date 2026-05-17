@@ -68,7 +68,10 @@ final class RegistryItemRowViewModel: ObservableObject {
             price: item.price,
             path: item.imageUrl ?? "",
             productType: nil,
-            brand: nil
+            brand: nil,
+            canGiftWrap: false,
+            availability: nil,
+            deliveryEstimate: nil
         )
         let quantityInRegistry = registryRepo.quantity(for: item)
         

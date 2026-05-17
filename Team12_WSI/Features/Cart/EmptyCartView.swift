@@ -13,16 +13,16 @@ struct EmptyCartView: View {
         VStack(spacing: 24) {
             Image(systemName: "bag")
                 .font(.system(size: 48, weight: .light))
-                .foregroundColor(AuraDesign.Colors.charcoal.opacity(0.6))
+                .foregroundColor(.wsCharcoal.opacity(0.6))
             
             Text(AppStrings.Cart.emptyMessage)
-                .font(AuraDesign.Fonts.serif(size: 24, weight: .semibold))
-                .foregroundColor(AuraDesign.Colors.charcoal)
+                .font(.wsDisplay(size: 24))
+                .foregroundColor(.wsCharcoal)
                 .multilineTextAlignment(.center)
             
             Text("Discover beautiful pieces to complete your space.")
-                .font(AuraDesign.Fonts.sansSerif(size: 16, weight: .regular))
-                .foregroundColor(AuraDesign.Colors.charcoal.opacity(0.7))
+                .font(.wsBody(size: 16))
+                .foregroundColor(.wsCharcoal.opacity(0.7))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 32)
             
@@ -30,22 +30,9 @@ struct EmptyCartView: View {
                 onContinueShopping?()
             }) {
                 Text(AppStrings.Cart.emptyButton)
-                    .font(AuraDesign.Fonts.sansSerif(size: 15, weight: .semibold))
-                    .foregroundColor(AuraDesign.Colors.cream)
-                    .padding(.vertical, 14)
-                    .padding(.horizontal, 40)
-                    .background {
-                        LinearGradient(
-                            colors: [
-                                AuraDesign.Colors.charcoal,
-                                AuraDesign.Colors.cocoa
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    }
-                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
             }
+            .buttonStyle(WSPrimaryButtonStyle())
+            .padding(.horizontal, 40)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.clear)

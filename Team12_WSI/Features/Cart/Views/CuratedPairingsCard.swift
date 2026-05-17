@@ -10,9 +10,14 @@ struct CuratedPairingsCard: View {
         VStack(alignment: .leading, spacing: 14) {
             // Header
             HStack {
-                Text("Curated Pairings")
-                    .font(AuraDesign.Fonts.serif(size: 18, weight: .bold))
-                    .foregroundColor(AuraDesign.Colors.charcoal)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Curated Pairings")
+                        .font(.wsSerif(size: 18, weight: .bold))
+                        .foregroundColor(.wsCharcoal)
+                    Text("Based on shopper habits & aesthetic logic")
+                        .font(.wsBody(size: 11))
+                        .foregroundColor(.wsSecondary)
+                }
                 
                 Spacer()
                 
@@ -21,7 +26,7 @@ struct CuratedPairingsCard: View {
                     HStack(spacing: 5) {
                         ForEach(0..<pairings.count, id: \.self) { index in
                             Circle()
-                                .fill(index == currentPage ? AuraDesign.Colors.charcoal : AuraDesign.Colors.charcoal.opacity(0.2))
+                                .fill(index == currentPage ? Color.wsCharcoal : Color.wsCharcoal.opacity(0.2))
                                 .frame(width: 6, height: 6)
                                 .animation(.spring(), value: currentPage)
                         }
@@ -36,8 +41,8 @@ struct CuratedPairingsCard: View {
                 ForEach(Array(pairings.enumerated()), id: \.element.id) { index, pairing in
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Perfect companions for your \(pairing.sourceItemName)")
-                            .font(AuraDesign.Fonts.sansSerif(size: 12, weight: .medium))
-                            .foregroundColor(AuraDesign.Colors.charcoal.opacity(0.6))
+                            .font(.wsBody(size: 12, weight: .medium))
+                            .foregroundColor(.wsCharcoal.opacity(0.6))
                             .padding(.horizontal, 16)
                         
                         // Recommendations list for this specific cart item
@@ -56,12 +61,9 @@ struct CuratedPairingsCard: View {
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
             .frame(height: 200)
         }
-        .background(AuraDesign.Colors.porcelain, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .stroke(AuraDesign.Colors.hairline.opacity(0.50), lineWidth: 1)
-        )
-        .shadow(color: AuraDesign.Colors.charcoal.opacity(0.05), radius: 16, x: 0, y: 8)
+        .background(Color.wsSurface)
+        .cornerRadius(2)
+        .wsLuxuryShadow()
     }
     
     @ViewBuilder
@@ -74,26 +76,26 @@ struct CuratedPairingsCard: View {
                         .aspectRatio(contentMode: .fill)
                         .frame(width: 90, height: 90)
                         .clipped()
-                        .cornerRadius(8)
-                        .background(AuraDesign.Colors.ivory)
+                        .cornerRadius(2)
+                        .background(Color.wsWarmIvory)
                 } else {
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(AuraDesign.Colors.ivory)
+                    RoundedRectangle(cornerRadius: 2)
+                        .fill(Color.wsWarmIvory)
                         .frame(width: 90, height: 90)
                 }
             }
             
             // Product Short Name
             Text(product.shortName ?? product.name)
-                .font(AuraDesign.Fonts.sansSerif(size: 11, weight: .semibold))
-                .foregroundColor(AuraDesign.Colors.charcoal)
+                .font(.wsBody(size: 11, weight: .semibold))
+                .foregroundColor(.wsCharcoal)
                 .lineLimit(1)
             
             // Price & Add Button
             HStack {
                 Text((product.price ?? 0.0).currencyText)
-                    .font(AuraDesign.Fonts.sansSerif(size: 11))
-                    .foregroundColor(AuraDesign.Colors.charcoal.opacity(0.7))
+                    .font(.wsBody(size: 11))
+                    .foregroundColor(.wsCharcoal.opacity(0.7))
                 
                 Spacer()
                 
@@ -102,7 +104,7 @@ struct CuratedPairingsCard: View {
                 }) {
                     Image(systemName: "plus.circle.fill")
                         .font(.system(size: 18))
-                        .foregroundColor(AuraDesign.Colors.charcoal)
+                        .foregroundColor(.wsCharcoal)
                 }
             }
         }
