@@ -11,7 +11,7 @@ struct ContentView: View {
         TabView(selection: $tabBarVM.selectedTab) {
             HomeView()
                 .tabItem {
-                    Label("Aura", systemImage: "sparkles")
+                    Label("Home", systemImage: "house")
                 }
                 .tag(WSTab.home)
 
