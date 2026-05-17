@@ -25,6 +25,7 @@ struct CreateRegistryView: View {
     @State private var budgetPreference: GiftDNAChoice?
     @State private var generationProgress: Double = 0
     @State private var completedGenerationSteps: Set<String> = []
+    @State private var hasStartedGeneration = false
 
     // Skip tracking for optional questions
     @State private var hobbiesSkipped = false
@@ -160,7 +161,7 @@ private extension CreateRegistryView {
                     .lineSpacing(2)
                     .fixedSize(horizontal: false, vertical: true)
 
-                Text("We'll personalize your registry experience.")
+                Text("We’ll personalize your registry recommendations.")
                     .font(.system(size: 18, weight: .regular))
                     .foregroundStyle(WSRegistryPalette.cocoa.opacity(0.78))
                     .lineSpacing(4)
@@ -171,7 +172,7 @@ private extension CreateRegistryView {
         }
         .frame(maxWidth: .infinity)
         .frame(height: 236)
-        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 2, style: .continuous))
     }
 
     var eventTypeCard: some View {
@@ -203,10 +204,10 @@ private extension CreateRegistryView {
                         .frame(maxWidth: .infinity, minHeight: 62)
                         .background(
                             selectedEvent == event ? WSRegistryPalette.espresso : WSRegistryPalette.porcelain,
-                            in: RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            in: RoundedRectangle(cornerRadius: 2, style: .continuous)
                         )
                         .overlay(
-                            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            RoundedRectangle(cornerRadius: 2, style: .continuous)
                                 .stroke(selectedEvent == event ? WSRegistryPalette.espresso.opacity(0.12) : WSRegistryPalette.hairline.opacity(0.62), lineWidth: 1)
                         )
                     }
@@ -236,9 +237,9 @@ private extension CreateRegistryView {
             .tint(WSRegistryPalette.gold)
             .padding(.horizontal, 16)
             .frame(maxWidth: .infinity, minHeight: 58, alignment: .leading)
-            .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 13, style: .continuous))
+            .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 2, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: 13, style: .continuous)
+                RoundedRectangle(cornerRadius: 2, style: .continuous)
                     .stroke(WSRegistryPalette.hairline.opacity(0.62), lineWidth: 1)
             )
         }
@@ -261,9 +262,9 @@ private extension CreateRegistryView {
             }
             .padding(.horizontal, 16)
             .frame(maxWidth: .infinity, minHeight: 58, alignment: .leading)
-            .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 13, style: .continuous))
+            .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 2, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: 13, style: .continuous)
+                RoundedRectangle(cornerRadius: 2, style: .continuous)
                     .stroke(WSRegistryPalette.hairline.opacity(0.62), lineWidth: 1)
             )
         }
@@ -320,9 +321,9 @@ private extension CreateRegistryView {
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
                     .padding(14)
             }
-            .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 13, style: .continuous))
+            .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 2, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: 13, style: .continuous)
+                RoundedRectangle(cornerRadius: 2, style: .continuous)
                     .stroke(WSRegistryPalette.hairline.opacity(0.62), lineWidth: 1)
             )
             .onChange(of: guestNote) { _, newValue in
@@ -342,7 +343,7 @@ private extension CreateRegistryView {
             }
             .padding(14)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(WSRegistryPalette.ivory, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .background(WSRegistryPalette.ivory, in: RoundedRectangle(cornerRadius: 2, style: .continuous))
         }
         .onboardingCardPadding()
     }
@@ -392,9 +393,9 @@ private extension CreateRegistryView {
             .scaledToFill()
             .frame(maxWidth: .infinity)
             .frame(height: height)
-            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: 2, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                RoundedRectangle(cornerRadius: 2, style: .continuous)
                     .stroke(WSRegistryPalette.cream.opacity(0.65), lineWidth: 1)
             )
             .shadow(color: WSRegistryPalette.espresso.opacity(0.08), radius: 18, x: 0, y: 10)
@@ -485,9 +486,9 @@ private extension CreateRegistryView {
                         }
                         .padding(16)
                     }
-                    .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: 2, style: .continuous))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        RoundedRectangle(cornerRadius: 2, style: .continuous)
                             .stroke(isSelected ? WSRegistryPalette.gold : WSRegistryPalette.hairline.opacity(0.45), lineWidth: isSelected ? 2 : 1)
                     )
                     .shadow(color: WSRegistryPalette.espresso.opacity(isSelected ? 0.13 : 0.045), radius: isSelected ? 14 : 8, x: 0, y: 6)
@@ -518,7 +519,7 @@ private extension CreateRegistryView {
                     selectionIndicator(isSelected: isSelected)
                         .padding(8)
                 }
-                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: 2, style: .continuous))
             } else {
                 ZStack(alignment: .topTrailing) {
                     Circle()
@@ -562,9 +563,9 @@ private extension CreateRegistryView {
         .padding(.bottom, imageCards ? 10 : 12)
         .frame(height: imageCards ? 154 : 106, alignment: .top)
         .frame(maxWidth: .infinity)
-        .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 2, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
+            RoundedRectangle(cornerRadius: 2, style: .continuous)
                 .stroke(isSelected ? WSRegistryPalette.gold : WSRegistryPalette.hairline.opacity(0.44), lineWidth: isSelected ? 2 : 1)
         )
         .shadow(color: WSRegistryPalette.espresso.opacity(isSelected ? 0.11 : 0.035), radius: isSelected ? 12 : 6, x: 0, y: 5)
@@ -613,9 +614,9 @@ private extension CreateRegistryView {
                 .lineLimit(3...5)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 12)
-                .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 2, style: .continuous))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    RoundedRectangle(cornerRadius: 2, style: .continuous)
                         .stroke(WSRegistryPalette.hairline.opacity(0.65), lineWidth: 1)
                 )
 
@@ -636,9 +637,9 @@ private extension CreateRegistryView {
                 .foregroundStyle(WSRegistryPalette.espresso)
                 .padding(.horizontal, 14)
                 .frame(maxWidth: .infinity, minHeight: 50, alignment: .leading)
-                .background(WSRegistryPalette.ivory, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .background(WSRegistryPalette.ivory, in: RoundedRectangle(cornerRadius: 2, style: .continuous))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    RoundedRectangle(cornerRadius: 2, style: .continuous)
                         .stroke(WSRegistryPalette.hairline.opacity(0.65), lineWidth: 1)
                 )
             }
@@ -668,7 +669,7 @@ private extension CreateRegistryView {
                 .foregroundStyle(WSRegistryPalette.cream)
                 .padding(.horizontal, 20)
                 .frame(height: 58)
-                .background(WSRegistryPalette.espresso, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .background(WSRegistryPalette.espresso, in: RoundedRectangle(cornerRadius: 2, style: .continuous))
             }
             .buttonStyle(.plain)
             .disabled(!canContinue)
@@ -741,14 +742,14 @@ private extension CreateRegistryView {
                         .symbolEffect(.pulse, options: .repeating.speed(0.45), value: completedGenerationSteps.count)
 
                     VStack(spacing: 18) {
-                        Text("Creating your\nhome profile...")
+                        Text("Creating your\nregistry profile...")
                             .font(.system(size: 32, weight: .regular, design: .serif))
                             .foregroundStyle(WSRegistryPalette.espresso)
                             .multilineTextAlignment(.center)
                             .lineLimit(2)
                             .fixedSize(horizontal: false, vertical: true)
 
-                        Text("Our AI is understanding your lifestyle and building your personalized home readiness.")
+                        Text("Our AI is learning your gifting style to build a personalized registry plan.")
                             .font(.system(size: 16, weight: .regular))
                             .foregroundStyle(WSRegistryPalette.warmGray)
                             .multilineTextAlignment(.center)
@@ -850,7 +851,7 @@ private extension CreateRegistryView {
     func skipAllQuestions() {
         // Backfill required answers with stable defaults.
         if moodboardVibe.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            moodboardVibe = "Warm timeless home with functional kitchen and shared dining."
+            moodboardVibe = "Warm timeless style with a functional kitchen and shared dining."
         }
         if homeType == nil {
             homeType = GiftDNAData.homeTypes.first
@@ -877,6 +878,9 @@ private extension CreateRegistryView {
     }
 
     func runGeneration() {
+        guard !hasStartedGeneration else { return }
+        hasStartedGeneration = true
+
         generationProgress = 0
         completedGenerationSteps = []
 
@@ -923,9 +927,9 @@ private extension View {
         self
             .padding(22)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 2, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                RoundedRectangle(cornerRadius: 2, style: .continuous)
                     .stroke(WSRegistryPalette.cream.opacity(0.78), lineWidth: 1)
             )
             .shadow(color: WSRegistryPalette.espresso.opacity(0.035), radius: 14, x: 0, y: 8)
@@ -1027,11 +1031,11 @@ private enum GiftDNAStep: Int, CaseIterable {
         switch self {
         case .basics: return "Just the basics to get started"
         case .moodboard: return "Show us your moodboard and vibe"
-        case .homeType: return "What kind of home are you building?"
-        case .hobbies: return "What hobbies shape your space?"
+        case .homeType: return "What type of living setup should we optimize for?"
+        case .hobbies: return "Which lifestyle habits should influence gift picks?"
         case .productCategories: return "Which products should we prioritize?"
         case .budget: return "What price range feels right?"
-        case .generating: return "Creating your home profile..."
+        case .generating: return "Creating your registry profile..."
         }
     }
 
@@ -1039,11 +1043,11 @@ private enum GiftDNAStep: Int, CaseIterable {
         switch self {
         case .basics: return "Tell us what you are celebrating and who the registry is for."
         case .moodboard: return "Upload inspiration photos and describe the look you want to build."
-        case .homeType: return "This helps us tune the recommendations to your living setup."
-        case .hobbies: return "Optional. Tell us how you cook, host, and spend your time at home."
+        case .homeType: return "This helps us tailor recommendations for your space and routine."
+        case .hobbies: return "Optional. Tell us how you cook, host, and live day to day."
         case .productCategories: return "Pick the rooms and product families that should come first in your registry."
         case .budget: return "This helps match recommendations to products your guests will feel good gifting."
-        case .generating: return "AURA is learning how you live, gather, host, and grow together."
+        case .generating: return "AURA is building a recommendation profile for your registry."
         }
     }
 
@@ -1116,10 +1120,10 @@ private enum GiftDNAData {
 
     static let generationSteps = [
         "Understanding your lifestyle",
-        "Mapping your home priorities",
+        "Mapping your registry priorities",
         "Reading your product preferences",
-        "Building your home readiness profile",
-        "Curating your future home"
+        "Building your registry profile",
+        "Curating your registry recommendations"
     ]
 }
 

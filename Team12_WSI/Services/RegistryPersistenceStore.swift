@@ -5,6 +5,8 @@ import Foundation
 struct PersistenceEnvelope: Codable {
     var schemaVersion: Int
     var registry: Registry?
+    var registries: [Registry]?
+    var activeRegistryID: UUID?
     var questionnaire: RegistryQuestionnairePayload?
     var lastRecommendations: [RankedRecommendation]?
     var lastRecommendationSections: [RegistryRecommendationSection]?
@@ -15,6 +17,8 @@ struct PersistenceEnvelope: Codable {
         PersistenceEnvelope(
             schemaVersion: AURAConfiguration.currentSchemaVersion,
             registry: nil,
+            registries: nil,
+            activeRegistryID: nil,
             questionnaire: nil,
             lastRecommendations: nil,
             lastRecommendationSections: nil,
@@ -98,12 +102,27 @@ actor RegistryPersistenceStore {
     func saveRegistry(_ registry: Registry?) {
         ensureLoaded()
         envelope.registry = registry
+        if let registry {
+            envelope.registries = [registry]
+            envelope.activeRegistryID = registry.id
+        } else {
+            envelope.registries = []
+            envelope.activeRegistryID = nil
+        }
         persist()
     }
 
     func loadRegistry() -> Registry? {
         ensureLoaded()
         return envelope.registry
+    }
+
+    func saveRegistries(_ registries: [Registry], activeRegistryID: UUID?) {
+        ensureLoaded()
+        envelope.registries = registries
+        envelope.activeRegistryID = activeRegistryID
+        envelope.registry = registries.first(where: { $0.id == activeRegistryID }) ?? registries.last
+        persist()
     }
 
     // MARK: - Questionnaire

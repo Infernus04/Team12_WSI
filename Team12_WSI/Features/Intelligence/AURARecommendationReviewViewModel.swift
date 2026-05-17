@@ -2,6 +2,15 @@ import Foundation
 import SwiftUI
 import Combine
 
+struct HomeInspiredBundle: Identifiable, Hashable {
+    let id: String
+    let title: String
+    let compatibilityScore: Int
+    let description: String
+    let aiReason: String
+    let productIDs: [String]
+}
+
 // MARK: - AURA Recommendation Review ViewModel
 
 @MainActor
@@ -16,7 +25,7 @@ final class AURARecommendationReviewViewModel: ObservableObject {
     @Published var recommendations: [RankedRecommendation] = []
     @Published var addedProductIDs: Set<String> = []
     @Published var essentials: [CatalogProduct] = []
-    @Published var collectionBundles: [RegistryCollectionBundle] = []
+    @Published var homeBundles: [HomeInspiredBundle] = []
     @Published var addedCollectionIDs: Set<String> = []
 
     // MARK: - Dependencies
@@ -60,7 +69,7 @@ final class AURARecommendationReviewViewModel: ObservableObject {
         self.recommendations = response.recommendations
         self.sections = response.categorySections
         self.essentials = curateEssentials(from: catalog)
-        self.collectionBundles = makeCollectionBundles(from: response)
+        self.homeBundles = makeHomeBundles(from: catalog, recommendations: response.recommendations)
         self.isLoading = false
     }
 
@@ -92,26 +101,59 @@ final class AURARecommendationReviewViewModel: ObservableObject {
     }
 
     func addPersonalizedSet() {
-        let candidates = recommendations.prefix(20).map { productItem(from: $0.product) }
+        let candidates = recommendations
+            .prefix(20)
+            .filter { !addedProductIDs.contains($0.id) }
+            .map { productItem(from: $0.product) }
+        guard !candidates.isEmpty else { return }
         registryRepo?.addProducts(candidates, collectionName: "AI Personalized Set", sourceTag: "ai-personalized-set")
         addedProductIDs.formUnion(candidates.map(\.id))
     }
 
     func addTopEssentials() {
-        let candidates = essentials.prefix(100).map { productItem(from: $0) }
+        let candidates = essentials
+            .prefix(100)
+            .filter { !addedProductIDs.contains($0.id) }
+            .map { productItem(from: $0) }
+        guard !candidates.isEmpty else { return }
         registryRepo?.addProducts(candidates, collectionName: "Top Registry Essentials", sourceTag: "top-essentials")
         addedProductIDs.formUnion(candidates.map(\.id))
     }
 
-    func addCollection(_ bundle: RegistryCollectionBundle) {
-        let candidates = bundle.productIDs.compactMap { catalogByID[$0] }.map { productItem(from: $0) }
+    func addCollection(_ bundle: HomeInspiredBundle) {
+        let candidates = bundle.productIDs
+            .filter { !addedProductIDs.contains($0) }
+            .compactMap { catalogByID[$0] }
+            .map { productItem(from: $0) }
+        guard !candidates.isEmpty else {
+            addedCollectionIDs.insert(bundle.id)
+            return
+        }
         registryRepo?.addProducts(candidates, collectionName: bundle.title, sourceTag: "collection-\(bundle.id)")
         addedProductIDs.formUnion(candidates.map(\.id))
         addedCollectionIDs.insert(bundle.id)
     }
 
-    func isCollectionAdded(_ bundle: RegistryCollectionBundle) -> Bool {
+    func isCollectionAdded(_ bundle: HomeInspiredBundle) -> Bool {
         addedCollectionIDs.contains(bundle.id)
+    }
+
+    func canAddPersonalizedSet() -> Bool {
+        recommendations.prefix(20).contains { !addedProductIDs.contains($0.id) }
+    }
+
+    func canAddTopEssentials() -> Bool {
+        essentials.prefix(100).contains { !addedProductIDs.contains($0.id) }
+    }
+
+    func removeFromRegistry(_ recommendation: RankedRecommendation) {
+        guard addedProductIDs.contains(recommendation.id) else { return }
+        registryRepo?.removeItem(recommendation.id)
+        addedProductIDs.remove(recommendation.id)
+    }
+
+    func products(for bundle: HomeInspiredBundle) -> [CatalogProduct] {
+        bundle.productIDs.compactMap { catalogByID[$0] }
     }
 
     private func productItem(from catalog: CatalogProduct) -> ProductItem {
@@ -119,7 +161,9 @@ final class AURARecommendationReviewViewModel: ObservableObject {
             id: catalog.id,
             name: catalog.name,
             price: catalog.effectivePrice,
-            path: catalog.imagePath
+            path: catalog.imagePath,
+            productType: catalog.productType,
+            brand: catalog.brand.rawValue
         )
     }
 
@@ -142,14 +186,31 @@ final class AURARecommendationReviewViewModel: ObservableObject {
         }
     }
 
-    private func makeCollectionBundles(from response: RegistryRecommendationResponse) -> [RegistryCollectionBundle] {
-        response.categorySections.map { section in
-            RegistryCollectionBundle(
-                id: section.id,
-                title: section.category,
-                subtitle: section.title,
-                productIDs: Array(section.productIDs.prefix(8))
+    private func makeHomeBundles(
+        from catalog: [CatalogProduct],
+        recommendations: [RankedRecommendation]
+    ) -> [HomeInspiredBundle] {
+        let topRecommendationIDs: Set<String> = Set(recommendations.prefix(24).map { $0.id })
+        let bundles: [HomeInspiredBundle] = HomeEditorialData.bundles.enumerated().compactMap { index, bundle in
+            let productIDs: [String] = bundle.productOffsets.compactMap { (offset: Int) -> String? in
+                guard catalog.indices.contains(offset) else { return nil }
+                return catalog[offset].id
+            }
+            guard !productIDs.isEmpty else { return nil }
+
+            let overlap = productIDs.filter { topRecommendationIDs.contains($0) }.count
+            let adjustedScore = min(99, bundle.compatibilityScore + overlap * 2)
+
+            return HomeInspiredBundle(
+                id: "home-bundle-\(index)",
+                title: bundle.title,
+                compatibilityScore: adjustedScore,
+                description: bundle.description,
+                aiReason: bundle.aiReason,
+                productIDs: productIDs
             )
         }
+
+        return bundles.sorted { $0.compatibilityScore > $1.compatibilityScore }
     }
 }

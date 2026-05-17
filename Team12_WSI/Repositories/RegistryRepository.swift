@@ -11,7 +11,10 @@ import Foundation
 @MainActor
 final class RegistryRepository: ObservableObject {
     
+    @Published var registries: [Registry] = []
+    @Published var activeRegistryID: UUID?
     @Published var currentRegistry: Registry?
+    @Published var activities: [RegistryActivity] = MockRegistryActivities.generate()
 
     private let persistenceStore = RegistryPersistenceStore.shared
     private var hasBoundPersistence = false
@@ -25,8 +28,18 @@ final class RegistryRepository: ObservableObject {
         
         Task {
             let envelope = await persistenceStore.load()
+            if let persistedRegistries = envelope.registries, !persistedRegistries.isEmpty {
+                registries = persistedRegistries
+                activeRegistryID = envelope.activeRegistryID ?? persistedRegistries.last?.id
+                syncCurrentRegistry()
+                return
+            }
+
+            // Backward compatibility for older persistence schema.
             if let persisted = envelope.registry {
-                self.currentRegistry = persisted
+                registries = [persisted]
+                activeRegistryID = persisted.id
+                syncCurrentRegistry()
             }
         }
     }
@@ -40,8 +53,7 @@ final class RegistryRepository: ObservableObject {
                         lastName: String,
                         event: RegistryEvent,
                         date: Date) {
-        
-        currentRegistry = Registry(
+        let created = Registry(
             id: UUID(),
             firstName: firstName,
             lastName: lastName,
@@ -49,14 +61,27 @@ final class RegistryRepository: ObservableObject {
             date: date,
             items: []
         )
-        persistCurrentRegistry()
+        registries.append(created)
+        activeRegistryID = created.id
+        syncCurrentRegistry()
+        persistRegistryState()
     }
     
     // MARK: - Delete Registry
     
     func deleteRegistry() {
-        currentRegistry = nil
-        persistCurrentRegistry()
+        guard let activeRegistryID else { return }
+        registries.removeAll { $0.id == activeRegistryID }
+        self.activeRegistryID = registries.last?.id
+        syncCurrentRegistry()
+        persistRegistryState()
+    }
+
+    func selectRegistry(id: UUID) {
+        guard registries.contains(where: { $0.id == id }) else { return }
+        activeRegistryID = id
+        syncCurrentRegistry()
+        persistRegistryState()
     }
     
     // MARK: - Add Product
@@ -70,47 +95,9 @@ final class RegistryRepository: ObservableObject {
         collectionName: String?,
         sourceTag: String?
     ) {
-        guard var registry = currentRegistry else { return }
-        
-        let price = product.price ?? 0.0
-        
-        if let index = registry.items.firstIndex(where: { $0.id == product.id }) {
-            registry.items[index].quantity += 1
-            if registry.items[index].collectionName == nil {
-                registry.items[index].collectionName = collectionName
-            }
-            if registry.items[index].sourceTag == nil {
-                registry.items[index].sourceTag = sourceTag
-            }
-        } else {
-            registry.items.append(
-                RegistryItem(
-                    id: product.id,
-                    name: product.name,
-                    price: price,
-                    imageUrl: product.path ?? "",
-                    quantity: 1,
-                    collectionName: collectionName,
-                    sourceTag: sourceTag
-                )
-            )
-
-        }
-        
-        currentRegistry = registry
-        persistCurrentRegistry()
-    }
-
-    func addProducts(
-        _ products: [ProductItem],
-        collectionName: String? = nil,
-        sourceTag: String? = nil
-    ) {
-        guard !products.isEmpty else { return }
-        guard var registry = currentRegistry else { return }
-
-        for product in products {
+        mutateActiveRegistry { registry in
             let price = product.price ?? 0.0
+
             if let index = registry.items.firstIndex(where: { $0.id == product.id }) {
                 registry.items[index].quantity += 1
                 if registry.items[index].collectionName == nil {
@@ -133,45 +120,78 @@ final class RegistryRepository: ObservableObject {
                 )
             }
         }
-        currentRegistry = registry
-        persistCurrentRegistry()
+        let detail = collectionName != nil ? "Added to \(collectionName!) collection" : "Added to registry"
+        activities.insert(RegistryActivity(type: .added, productName: product.name, collectionName: collectionName, detail: detail), at: 0)
+    }
+
+    func addProducts(
+        _ products: [ProductItem],
+        collectionName: String? = nil,
+        sourceTag: String? = nil
+    ) {
+        guard !products.isEmpty else { return }
+        mutateActiveRegistry { registry in
+            for product in products {
+                let price = product.price ?? 0.0
+                if let index = registry.items.firstIndex(where: { $0.id == product.id }) {
+                    registry.items[index].quantity += 1
+                    if registry.items[index].collectionName == nil {
+                        registry.items[index].collectionName = collectionName
+                    }
+                    if registry.items[index].sourceTag == nil {
+                        registry.items[index].sourceTag = sourceTag
+                    }
+                } else {
+                    registry.items.append(
+                        RegistryItem(
+                            id: product.id,
+                            name: product.name,
+                            price: price,
+                            imageUrl: product.path ?? "",
+                            quantity: 1,
+                            collectionName: collectionName,
+                            sourceTag: sourceTag
+                        )
+                    )
+                }
+            }
+        }
+        let bundleName = collectionName ?? "Bundle"
+        activities.insert(RegistryActivity(type: .bundleAdded, productName: bundleName, collectionName: collectionName, detail: "\(products.count) items added from \(bundleName)"), at: 0)
     }
     
     // MARK: - Remove Item
     
     func removeItem(_ productId: String) {
-        guard var registry = currentRegistry else { return }
-        
-        registry.items.removeAll { $0.id == productId }
-        currentRegistry = registry
-        persistCurrentRegistry()
+        let itemName = registries
+            .flatMap(\.items)
+            .first(where: { $0.id == productId })?.name ?? "Item"
+        mutateActiveRegistry { registry in
+            registry.items.removeAll { $0.id == productId }
+        }
+        activities.insert(RegistryActivity(type: .removed, productName: itemName, detail: "Removed from registry"), at: 0)
     }
     
     // MARK: - Update Quantity
     
     func increaseQty(_ productId: String) {
-        guard var registry = currentRegistry else { return }
-        
-        if let index = registry.items.firstIndex(where: { $0.id == productId }) {
-            registry.items[index].quantity += 1
-            currentRegistry = registry
-            persistCurrentRegistry()
+        mutateActiveRegistry { registry in
+            if let index = registry.items.firstIndex(where: { $0.id == productId }) {
+                registry.items[index].quantity += 1
+            }
         }
     }
     
     func decreaseQty(_ productId: String) {
-        guard var registry = currentRegistry else { return }
-        
-        guard let index = registry.items.firstIndex(where: { $0.id == productId }) else { return }
-        
-        if registry.items[index].quantity > 1 {
-            registry.items[index].quantity -= 1
-        } else {
-            registry.items.remove(at: index)
+        mutateActiveRegistry { registry in
+            guard let index = registry.items.firstIndex(where: { $0.id == productId }) else { return }
+
+            if registry.items[index].quantity > 1 {
+                registry.items[index].quantity -= 1
+            } else {
+                registry.items.remove(at: index)
+            }
         }
-        
-        currentRegistry = registry
-        persistCurrentRegistry()
     }
     
     func quantity(for registryItem: RegistryItem) -> Int {
@@ -179,18 +199,33 @@ final class RegistryRepository: ObservableObject {
     }
 
     func moveToCollection(productId: String, collectionName: String) {
-        guard var registry = currentRegistry else { return }
-        guard let index = registry.items.firstIndex(where: { $0.id == productId }) else { return }
-        registry.items[index].collectionName = collectionName
-        currentRegistry = registry
-        persistCurrentRegistry()
+        let itemName = registries
+            .flatMap(\.items)
+            .first(where: { $0.id == productId })?.name ?? "Item"
+        mutateActiveRegistry { registry in
+            guard let index = registry.items.firstIndex(where: { $0.id == productId }) else { return }
+            registry.items[index].collectionName = collectionName
+        }
+        activities.insert(RegistryActivity(type: .movedCollection, productName: itemName, collectionName: collectionName, detail: "Moved to \(collectionName) collection"), at: 0)
     }
     
     // MARK: - Persistence (private)
-    
-    private func persistCurrentRegistry() {
+
+    private func syncCurrentRegistry() {
+        currentRegistry = registries.first(where: { $0.id == activeRegistryID }) ?? registries.last
+    }
+
+    private func mutateActiveRegistry(_ mutation: (inout Registry) -> Void) {
+        guard let activeRegistryID else { return }
+        guard let index = registries.firstIndex(where: { $0.id == activeRegistryID }) else { return }
+        mutation(&registries[index])
+        syncCurrentRegistry()
+        persistRegistryState()
+    }
+
+    private func persistRegistryState() {
         Task {
-            await persistenceStore.saveRegistry(currentRegistry)
+            await persistenceStore.saveRegistries(registries, activeRegistryID: activeRegistryID)
         }
     }
 }

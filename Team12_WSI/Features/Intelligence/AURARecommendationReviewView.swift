@@ -4,6 +4,7 @@ import SwiftUI
 
 struct AURARecommendationReviewView: View {
     @StateObject private var viewModel: AURARecommendationReviewViewModel
+    @EnvironmentObject var cartRepo: CartRepository
     @EnvironmentObject var registryRepo: RegistryRepository
     @EnvironmentObject var tabBarVM: WSTabBarViewModel
 
@@ -59,7 +60,11 @@ private extension AURARecommendationReviewView {
                     categorySection(section)
                 }
 
-                if !viewModel.collectionBundles.isEmpty {
+                if !viewModel.recommendations.isEmpty {
+                    aiPicksSection
+                }
+
+                if !viewModel.homeBundles.isEmpty {
                     collectionsSection
                 }
 
@@ -91,7 +96,7 @@ private extension AURARecommendationReviewView {
                 .foregroundStyle(WSRegistryPalette.espresso)
                 .lineSpacing(2)
 
-            Text("AI-powered recommendations based on your home profile. Review and add the pieces that speak to you.")
+            Text("AI-powered recommendations based on your registry profile. Review and add the pieces that fit your event.")
                 .font(.system(size: 16, weight: .regular))
                 .foregroundStyle(WSRegistryPalette.warmGray)
                 .lineSpacing(4)
@@ -117,9 +122,9 @@ private extension AURARecommendationReviewView {
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(WSRegistryPalette.sage.opacity(0.10), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .background(WSRegistryPalette.sage.opacity(0.10), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
                 .stroke(WSRegistryPalette.sage.opacity(0.25), lineWidth: 1)
         )
     }
@@ -165,22 +170,26 @@ private extension AURARecommendationReviewView {
                 } label: {
                     quickAddLabel(
                         icon: "shippingbox",
-                        title: "Add Top 100 Essentials",
+                        title: viewModel.canAddTopEssentials() ? "Add Top 100 Essentials" : "Top Essentials Added",
                         subtitle: "Best-selling registry fundamentals"
                     )
                 }
                 .buttonStyle(.plain)
+                .disabled(!viewModel.canAddTopEssentials())
+                .opacity(viewModel.canAddTopEssentials() ? 1 : 0.55)
 
                 Button {
                     viewModel.addPersonalizedSet()
                 } label: {
                     quickAddLabel(
                         icon: "sparkles",
-                        title: "Add AI Personalized Set",
+                        title: viewModel.canAddPersonalizedSet() ? "Add AI Personalized Set" : "AI Set Added",
                         subtitle: "Your full curated recommendation set"
                     )
                 }
                 .buttonStyle(.plain)
+                .disabled(!viewModel.canAddPersonalizedSet())
+                .opacity(viewModel.canAddPersonalizedSet() ? 1 : 0.55)
             }
         }
     }
@@ -208,137 +217,289 @@ private extension AURARecommendationReviewView {
         )
     }
 
-    var collectionsSection: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            Text("Collections")
-                .font(.system(size: 24, weight: .regular, design: .serif))
-                .foregroundStyle(WSRegistryPalette.espresso)
+    // MARK: AI Individual Picks
 
-            ForEach(viewModel.collectionBundles) { bundle in
-                let isAdded = viewModel.isCollectionAdded(bundle)
-                HStack(spacing: 12) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(bundle.title)
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundStyle(WSRegistryPalette.espresso)
-                        Text(bundle.subtitle)
-                            .font(.system(size: 12, weight: .regular))
-                            .foregroundStyle(WSRegistryPalette.warmGray)
-                        Text("\(bundle.productIDs.count) items")
-                            .font(.system(size: 12, weight: .semibold))
-                            .foregroundStyle(WSRegistryPalette.cocoa.opacity(0.85))
-                    }
-                    Spacer()
-                    Button {
-                        viewModel.addCollection(bundle)
-                    } label: {
-                        Text(isAdded ? "Added" : "Add Set")
-                            .font(.system(size: 13, weight: .semibold))
-                            .foregroundStyle(isAdded ? WSRegistryPalette.sage : WSRegistryPalette.cream)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 8)
-                            .background(
-                                isAdded ? WSRegistryPalette.sage.opacity(0.16) : WSRegistryPalette.espresso,
-                                in: Capsule()
-                            )
-                    }
-                    .buttonStyle(.plain)
-                    .disabled(isAdded)
+    var aiPicksSection: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            VStack(alignment: .leading, spacing: 5) {
+                HStack(spacing: 8) {
+                    Image(systemName: "sparkles")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundStyle(WSRegistryPalette.gold)
+                    Text("AI PICKS FOR YOU")
+                        .font(.system(size: 12, weight: .bold))
+                        .tracking(1.8)
+                        .foregroundStyle(WSRegistryPalette.gold)
                 }
-                .padding(12)
-                .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .stroke(WSRegistryPalette.hairline.opacity(0.45), lineWidth: 1)
-                )
+
+                Text("Individual Recommendations")
+                    .font(.system(size: 24, weight: .regular, design: .serif))
+                    .foregroundStyle(WSRegistryPalette.espresso)
+            }
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 12) {
+                    ForEach(viewModel.recommendations.prefix(8)) { rec in
+                        aiPickCard(rec)
+                    }
+                }
+                .padding(.horizontal, 2)
+                .padding(.vertical, 4)
             }
         }
+    }
+
+    func aiPickCard(_ rec: RankedRecommendation) -> some View {
+        let product = ProductItem(
+            id: rec.product.id,
+            name: rec.product.name,
+            price: rec.product.effectivePrice,
+            path: rec.product.imagePath,
+            productType: rec.product.productType,
+            brand: brandDisplayName(rec.product.brand)
+        )
+        let registryQty = registryRepo.currentRegistry?.items.first(where: { $0.id == product.id })?.quantity ?? 0
+
+        return VStack(alignment: .leading, spacing: 6) {
+            ZStack(alignment: .topLeading) {
+                CustomAsyncImage(url: product.imageURL)
+                    .frame(width: 170, height: 170)
+                    .clipped()
+                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+
+                Text(rec.confidenceLabel.uppercased())
+                    .font(.system(size: 9, weight: .bold))
+                    .tracking(0.5)
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(confidenceForeground(rec.confidenceLabel), in: Capsule())
+                    .padding(8)
+            }
+
+            Text(product.name)
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundStyle(WSRegistryPalette.espresso)
+                .lineLimit(2)
+                .frame(width: 170, alignment: .leading)
+
+            if let price = product.price {
+                Text("$\(price, specifier: "%.2f")")
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundStyle(Color(hex: "#C8102E"))
+            }
+
+            Text(rec.explanation)
+                .font(.system(size: 11, weight: .regular))
+                .foregroundStyle(WSRegistryPalette.warmGray)
+                .lineLimit(2)
+                .frame(width: 170, alignment: .leading)
+
+            Button {
+                if registryQty > 0 {
+                    viewModel.removeFromRegistry(rec)
+                } else {
+                    viewModel.addToRegistry(rec)
+                }
+            } label: {
+                Text(registryQty > 0 ? "ADDED ✓" : "ADD TO REGISTRY")
+                    .font(.system(size: 10, weight: .bold))
+                    .tracking(0.8)
+                    .foregroundStyle(registryQty > 0 ? WSRegistryPalette.sage : WSRegistryPalette.espresso)
+                    .frame(width: 170, height: 34)
+                    .background(
+                        registryQty > 0
+                            ? WSRegistryPalette.sage.opacity(0.14)
+                            : Color.clear,
+                        in: RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                            .stroke(
+                                registryQty > 0 ? WSRegistryPalette.sage.opacity(0.4) : WSRegistryPalette.espresso.opacity(0.5),
+                                lineWidth: 1
+                            )
+                    )
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
+    // MARK: Aesthetic Bundles (Home-Style)
+
+    var collectionsSection: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            VStack(alignment: .leading, spacing: 5) {
+                HStack(spacing: 8) {
+                    Image(systemName: "square.grid.2x2")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundStyle(WSRegistryPalette.gold)
+                    Text("DESIGNED TOGETHER")
+                        .font(.system(size: 12, weight: .bold))
+                        .tracking(1.8)
+                        .foregroundStyle(WSRegistryPalette.gold)
+                }
+
+                Text("AI Aesthetic Bundles")
+                    .font(.system(size: 24, weight: .regular, design: .serif))
+                    .foregroundStyle(WSRegistryPalette.espresso)
+            }
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 16) {
+                    ForEach(viewModel.homeBundles) { bundle in
+                        bundleCard(bundle)
+                    }
+                }
+                .padding(.horizontal, 2)
+                .padding(.vertical, 4)
+            }
+        }
+    }
+
+    @ViewBuilder
+    func bundleCard(_ bundle: HomeInspiredBundle) -> some View {
+        let isAdded = viewModel.isCollectionAdded(bundle)
+        let bundleProducts = viewModel.products(for: bundle)
+
+        VStack(alignment: .leading, spacing: 0) {
+            // 2×2 product image grid
+            ZStack(alignment: .topTrailing) {
+                LazyVGrid(
+                    columns: [GridItem(.flexible(), spacing: 2), GridItem(.flexible(), spacing: 2)],
+                    spacing: 2
+                ) {
+                    ForEach(Array(bundleProducts.prefix(4).enumerated()), id: \.offset) { _, product in
+                        if let path = product.imagePath {
+                            CustomAsyncImage(url: URL(string: AppConstants.API.imageBasePath + path))
+                                .frame(height: 120)
+                                .clipped()
+                        } else {
+                            Rectangle()
+                                .fill(WSRegistryPalette.ivory)
+                                .frame(height: 120)
+                        }
+                    }
+                }
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+
+                // Match badge
+                Text("\(bundle.compatibilityScore)% MATCH")
+                    .font(.system(size: 9, weight: .bold))
+                    .tracking(0.5)
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 5)
+                    .background(
+                        LinearGradient(
+                            colors: [WSRegistryPalette.gold, WSRegistryPalette.gold.opacity(0.85)],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        ),
+                        in: Capsule()
+                    )
+                    .padding(10)
+            }
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text(bundle.title)
+                    .font(.system(size: 17, weight: .semibold, design: .serif))
+                    .foregroundStyle(WSRegistryPalette.espresso)
+                    .lineLimit(2)
+
+                Text(bundle.description)
+                    .font(.system(size: 12, weight: .regular))
+                    .foregroundStyle(WSRegistryPalette.warmGray)
+                    .lineLimit(2)
+
+                // WHY THIS WORKS
+                DisclosureGroup {
+                    Text(bundle.aiReason)
+                        .font(.system(size: 12, weight: .regular))
+                        .foregroundStyle(WSRegistryPalette.cocoa.opacity(0.85))
+                        .lineSpacing(3)
+                        .padding(.top, 4)
+                } label: {
+                    HStack(spacing: 5) {
+                        Image(systemName: "sparkles")
+                            .font(.system(size: 10))
+                        Text("WHY THIS WORKS")
+                            .font(.system(size: 10, weight: .bold))
+                            .tracking(1.0)
+                    }
+                    .foregroundStyle(WSRegistryPalette.gold)
+                }
+                .tint(WSRegistryPalette.gold)
+
+                Button {
+                    viewModel.addCollection(bundle)
+                } label: {
+                    Text(isAdded ? "Bundle Added ✓" : "ADD BUNDLE")
+                        .font(.system(size: 11, weight: .bold))
+                        .tracking(1.0)
+                        .foregroundStyle(isAdded ? WSRegistryPalette.sage : WSRegistryPalette.cream)
+                        .frame(maxWidth: .infinity, minHeight: 42)
+                        .background(
+                            isAdded
+                                ? WSRegistryPalette.sage.opacity(0.16)
+                                : WSRegistryPalette.espresso,
+                            in: RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        )
+                }
+                .buttonStyle(.plain)
+                .disabled(isAdded)
+            }
+            .padding(14)
+        }
+        .frame(width: 262)
+        .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .stroke(WSRegistryPalette.hairline.opacity(0.45), lineWidth: 1)
+        )
+        .shadow(color: WSRegistryPalette.espresso.opacity(0.06), radius: 14, x: 0, y: 6)
     }
 
     // MARK: Product Card
 
     func recommendationCard(_ rec: RankedRecommendation) -> some View {
-        let isAdded = viewModel.isAdded(rec)
-
-        return VStack(alignment: .leading, spacing: 10) {
-            // Image
-            ZStack(alignment: .topTrailing) {
-                CustomAsyncImage(url: productImageURL(rec.product))
-                    .frame(width: 172, height: 172)
-                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-
-                // Confidence badge
-                Text(rec.confidenceLabel)
-                    .font(.system(size: 11, weight: .bold))
-                    .foregroundStyle(confidenceForeground(rec.confidenceLabel))
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 5)
-                    .background(confidenceBackground(rec.confidenceLabel), in: Capsule())
-                    .padding(8)
-            }
-
-            // Brand
-            Text(brandDisplayName(rec.product.brand))
-                .font(.system(size: 12, weight: .bold))
-                .foregroundStyle(WSRegistryPalette.espresso)
-                .lineLimit(1)
-
-            // Name
-            Text(rec.product.name)
-                .font(.system(size: 14, weight: .regular))
-                .foregroundStyle(WSRegistryPalette.cocoa.opacity(0.88))
-                .lineLimit(2)
-                .frame(height: 36, alignment: .top)
-
-            // Price
-            Text(formatPrice(rec.product.effectivePrice))
-                .font(.system(size: 16, weight: .bold))
-                .foregroundStyle(WSRegistryPalette.espresso)
-
-            // Rationale
-            Text(rec.explanation)
-                .font(.system(size: 12, weight: .regular))
-                .italic()
-                .foregroundStyle(WSRegistryPalette.warmGray)
-                .lineLimit(2)
-                .frame(height: 30, alignment: .top)
-
-            // Add button
-            Button {
-                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                    viewModel.addToRegistry(rec)
-                }
-            } label: {
-                HStack(spacing: 8) {
-                    Image(systemName: isAdded ? "checkmark" : "plus")
-                        .font(.system(size: 13, weight: .bold))
-                    Text(isAdded ? "Added" : "Add to Registry")
-                        .font(.system(size: 14, weight: .semibold))
-                }
-                .foregroundStyle(isAdded ? WSRegistryPalette.sage : WSRegistryPalette.cream)
-                .frame(maxWidth: .infinity, minHeight: 42)
-                .background(
-                    isAdded
-                        ? WSRegistryPalette.sage.opacity(0.15)
-                        : WSRegistryPalette.espresso,
-                    in: RoundedRectangle(cornerRadius: 12, style: .continuous)
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        .stroke(isAdded ? WSRegistryPalette.sage.opacity(0.35) : Color.clear, lineWidth: 1)
-                )
-            }
-            .buttonStyle(.plain)
-            .disabled(isAdded)
-        }
-        .frame(width: 172)
-        .padding(12)
-        .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .stroke(WSRegistryPalette.hairline.opacity(0.48), lineWidth: 1)
+        let product = ProductItem(
+            id: rec.product.id,
+            name: rec.product.name,
+            price: rec.product.effectivePrice,
+            path: rec.product.imagePath,
+            productType: rec.product.productType,
+            brand: brandDisplayName(rec.product.brand)
         )
-        .shadow(color: WSRegistryPalette.espresso.opacity(0.06), radius: 14, x: 0, y: 8)
+        let cartQty = cartRepo.items.first(where: { $0.id == product.id })?.quantity ?? 0
+        let registryQty = registryRepo.currentRegistry?.items.first(where: { $0.id == product.id })?.quantity ?? 0
+
+        return VStack(alignment: .leading, spacing: 6) {
+            ProductCardView(
+                product: product,
+                quantity: cartQty,
+                registryQuantity: registryQty,
+                onAdd: { cartRepo.add(product: product) },
+                onRemove: { cartRepo.remove(productId: product.id) },
+                onAddToRegistry: { viewModel.addToRegistry(rec) },
+                onRemoveFromRegistry: { viewModel.removeFromRegistry(rec) }
+            )
+            .frame(width: 170)
+
+            HStack(spacing: 4) {
+                Text(rec.confidenceLabel.uppercased())
+                    .font(.system(size: 9, weight: .bold))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 3)
+                    .background(confidenceForeground(rec.confidenceLabel), in: Capsule())
+                Text(rec.explanation)
+                    .font(.system(size: 10, weight: .regular))
+                    .foregroundStyle(WSRegistryPalette.warmGray)
+                    .lineLimit(2)
+            }
+            .frame(width: 170, alignment: .leading)
+        }
     }
 
     // MARK: View Registry Button
@@ -366,7 +527,7 @@ private extension AURARecommendationReviewView {
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 ),
-                in: RoundedRectangle(cornerRadius: 18, style: .continuous)
+                in: RoundedRectangle(cornerRadius: 14, style: .continuous)
             )
             .shadow(color: WSRegistryPalette.espresso.opacity(0.18), radius: 16, x: 0, y: 8)
         }
@@ -389,7 +550,7 @@ private extension AURARecommendationReviewView {
                     .foregroundStyle(WSRegistryPalette.espresso)
                     .multilineTextAlignment(.center)
 
-                Text("AURA is analyzing your preferences to find the perfect pieces for your home.")
+                Text("AURA is analyzing your preferences to find the right gifts for your registry.")
                     .font(.system(size: 15, weight: .regular))
                     .foregroundStyle(WSRegistryPalette.warmGray)
                     .multilineTextAlignment(.center)
@@ -409,17 +570,17 @@ private extension AURARecommendationReviewView {
 
     var shimmerCard: some View {
         HStack(spacing: 14) {
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
+            RoundedRectangle(cornerRadius: 2, style: .continuous)
                 .fill(WSRegistryPalette.hairline.opacity(0.35))
                 .frame(width: 72, height: 72)
 
             VStack(alignment: .leading, spacing: 8) {
-                RoundedRectangle(cornerRadius: 4, style: .continuous)
+                RoundedRectangle(cornerRadius: 2, style: .continuous)
                     .fill(WSRegistryPalette.hairline.opacity(0.35))
                     .frame(height: 14)
                     .frame(maxWidth: 160)
 
-                RoundedRectangle(cornerRadius: 4, style: .continuous)
+                RoundedRectangle(cornerRadius: 2, style: .continuous)
                     .fill(WSRegistryPalette.hairline.opacity(0.25))
                     .frame(height: 12)
                     .frame(maxWidth: 120)
@@ -427,7 +588,7 @@ private extension AURARecommendationReviewView {
             Spacer()
         }
         .padding(16)
-        .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 2, style: .continuous))
     }
 
     // MARK: Error State
@@ -451,7 +612,7 @@ private extension AURARecommendationReviewView {
                     .foregroundStyle(WSRegistryPalette.cream)
                     .padding(.horizontal, 32)
                     .frame(height: 48)
-                    .background(WSRegistryPalette.espresso, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    .background(WSRegistryPalette.espresso, in: RoundedRectangle(cornerRadius: 2, style: .continuous))
             }
             .buttonStyle(.plain)
         }
@@ -459,11 +620,6 @@ private extension AURARecommendationReviewView {
     }
 
     // MARK: Helpers
-
-    func productImageURL(_ product: CatalogProduct) -> URL? {
-        guard let path = product.imagePath else { return nil }
-        return URL(string: AppConstants.API.imageBasePath + path)
-    }
 
     func brandDisplayName(_ brand: WSIBrand) -> String {
         switch brand {
@@ -477,23 +633,11 @@ private extension AURARecommendationReviewView {
         }
     }
 
-    func formatPrice(_ price: Double) -> String {
-        price.formatted(.currency(code: "USD"))
-    }
-
     func confidenceForeground(_ label: String) -> Color {
         switch label {
         case "High": return WSRegistryPalette.sage
         case "Medium": return WSRegistryPalette.gold
         default: return WSRegistryPalette.warmGray
-        }
-    }
-
-    func confidenceBackground(_ label: String) -> Color {
-        switch label {
-        case "High": return WSRegistryPalette.sage.opacity(0.18)
-        case "Medium": return WSRegistryPalette.gold.opacity(0.18)
-        default: return WSRegistryPalette.porcelain.opacity(0.92)
         }
     }
 }
