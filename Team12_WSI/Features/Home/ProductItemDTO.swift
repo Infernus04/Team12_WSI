@@ -31,3 +31,14 @@ struct MediaDTO: Codable {
 struct ImageDTO: Codable {
     let path: String?
 }
+
+extension Dictionary where Key == String, Value == String {
+    var brand: String? { self["brand"] }
+    var pattern: String? { self["pattern"] }
+    var productType: String? { self["productType"] }
+    var material: String? { self["material"] }
+    var color: String? { self["color"] }
+    var canGiftWrap: String? { self["canGiftWrap"] }
+    var isFood: String? { self["isFood"] }
+    var isFurniture: String? { self["isFurniture"] }
+}
