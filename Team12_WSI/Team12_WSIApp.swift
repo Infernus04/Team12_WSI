@@ -19,6 +19,9 @@ struct Team12_WSIApp: App {
                 .environmentObject(cartRepository)
                 .environmentObject(registryRepository)
                 .environmentObject(tabBarViewModel)
+                .onAppear {
+                    registryRepository.loadPersistedState()
+                }
         }
     }
 }

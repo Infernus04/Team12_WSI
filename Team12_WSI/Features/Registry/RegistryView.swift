@@ -15,6 +15,8 @@ enum RegistryRoute: Hashable {
     case pastRegistries
     case existingRegistryDetails
     case categoryProducts(String)
+    case recommendations(RegistryQuestionnairePayload)
+    case chronicle
 }
 
 enum WSRegistryPalette {
@@ -94,6 +96,10 @@ struct RegistryView: View {
                     ExistingRegistryDetailsView(registry: ExistingRegistry.gayatri)
                 case .categoryProducts(let title):
                     RegistryCategoryProductsView(sectionTitle: title)
+                case .recommendations(let payload):
+                    AURARecommendationReviewView(payload: payload, registryRepo: registryRepo)
+                case .chronicle:
+                    HomeChronicleView()
                 }
             }
         }
@@ -219,10 +225,11 @@ private extension RegistryView {
             }
 
             VStack(spacing: 0) {
-                ForEach(Array(RegistrySummaryItem.samples.enumerated()), id: \.element.id) { index, item in
+                let summaryItems = RegistrySummaryItem.from(registryItems: viewModel.items)
+                ForEach(Array(summaryItems.enumerated()), id: \.element.id) { index, item in
                     registrySummaryRow(item)
 
-                    if index < RegistrySummaryItem.samples.count - 1 {
+                    if index < summaryItems.count - 1 {
                         Divider()
                             .overlay(WSRegistryPalette.hairline.opacity(0.48))
                             .padding(.leading, 64)
@@ -319,6 +326,15 @@ private extension RegistryView {
 
     var secondaryActions: some View {
         VStack(spacing: 12) {
+            if viewModel.hasRegistry {
+                actionRow(
+                    icon: "clock.arrow.circlepath",
+                    title: "Home Chronicle",
+                    subtitle: "Timeline, replacements, and home gaps"
+                ) {
+                    tabBarVM.registryPath.append(RegistryRoute.chronicle)
+                }
+            }
             actionRow(
                 icon: "magnifyingglass",
                 title: "Find a Registry",
@@ -1083,6 +1099,15 @@ private struct RegistryDetailsView: View {
         registryRepo.currentRegistry?.items ?? []
     }
 
+    private var registryDescriptor: String {
+        guard let registry = registryRepo.currentRegistry else {
+            return "A curated home built around your lifestyle and everyday rituals."
+        }
+        let eventLabel = registry.event.rawValue
+        let dateLabel = registry.date.formatted(date: .abbreviated, time: .omitted)
+        return "\(registry.firstName) & \(registry.lastName) • \(eventLabel) • \(dateLabel)"
+    }
+
     private var sections: [RegistryDetailSection] {
         RegistryDetailContent.sections(from: registryItems)
     }
@@ -1113,8 +1138,12 @@ private struct RegistryDetailsView: View {
                     homeStoryCard
                     statsCard
                     addItemsButton
-                    ForEach(sections) { section in
-                        registrySection(section)
+                    if sections.isEmpty {
+                        emptyRegistryState
+                    } else {
+                        ForEach(sections) { section in
+                            registrySection(section)
+                        }
                     }
                 }
                 .padding(.horizontal, 18)
@@ -1154,7 +1183,7 @@ private struct RegistryDetailsView: View {
                     .lineLimit(2)
                     .minimumScaleFactor(0.82)
 
-                Text("A warm, social home centered around shared meals, intimate hosting, and slow mornings together.")
+                Text(registryDescriptor)
                     .font(.system(size: 16, weight: .regular))
                     .foregroundStyle(WSRegistryPalette.cocoa.opacity(0.86))
                     .lineSpacing(5)
@@ -1209,6 +1238,25 @@ private struct RegistryDetailsView: View {
         }
         .buttonStyle(.plain)
         .accessibilityLabel("Add items to your registry")
+    }
+
+    private var emptyRegistryState: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Your registry is ready to curate.")
+                .font(.system(size: 20, weight: .semibold, design: .serif))
+                .foregroundStyle(WSRegistryPalette.espresso)
+            Text("Add essentials, AI personalized picks, or full collections to start building your home.")
+                .font(.system(size: 14, weight: .regular))
+                .foregroundStyle(WSRegistryPalette.warmGray)
+                .lineSpacing(3)
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(WSRegistryPalette.ivory, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(WSRegistryPalette.hairline.opacity(0.48), lineWidth: 1)
+        )
     }
 
     private var divider: some View {
@@ -1316,6 +1364,7 @@ private struct RegistryCategoryProductsView: View {
 
     private var products: [RegistryDisplayProduct] {
         RegistryDetailContent.sections(from: registryItems)
+            .filter { $0.title == sectionTitle }
             .flatMap(\.products)
             .filter { !removedProductIDs.contains($0.id) }
     }
@@ -1338,11 +1387,14 @@ private struct RegistryCategoryProductsView: View {
                 .padding(.bottom, 40)
             }
         }
-        .navigationTitle("Registry Items")
+        .navigationTitle(sectionTitle)
         .navigationBarTitleDisplayMode(.inline)
         .sheet(item: $selectedProduct) { product in
             RegistryProductActionSheet(
                 product: product,
+                onMoveToCollection: { collection in
+                    registryRepo.moveToCollection(productId: product.id, collectionName: collection)
+                },
                 onRemove: { removeProduct(product) }
             )
             .presentationDetents([.height(620), .large])
@@ -1473,6 +1525,7 @@ private struct RegistryCategoryProductsView: View {
 
 private struct RegistryProductActionSheet: View {
     let product: RegistryDisplayProduct
+    let onMoveToCollection: (String) -> Void
     let onRemove: () -> Void
     @Environment(\.dismiss) private var dismiss
     @State private var noteText = ""
@@ -1532,9 +1585,22 @@ private struct RegistryProductActionSheet: View {
             Text("Add a private note for this registry item.")
         }
         .confirmationDialog("Move to Collection", isPresented: $isShowingCollectionPicker, titleVisibility: .visible) {
-            Button("Daily Cooking") { collection = "Daily Cooking" }
-            Button("Hosting") { collection = "Hosting" }
-            Button("Shared Dining") { collection = "Shared Dining" }
+            Button("Daily Cooking") {
+                collection = "Daily Cooking"
+                onMoveToCollection(collection)
+            }
+            Button("Hosting") {
+                collection = "Hosting"
+                onMoveToCollection(collection)
+            }
+            Button("Shared Dining") {
+                collection = "Shared Dining"
+                onMoveToCollection(collection)
+            }
+            Button("Morning Rituals") {
+                collection = "Morning Rituals"
+                onMoveToCollection(collection)
+            }
             Button("Cancel", role: .cancel) { }
         }
         .confirmationDialog("Edit Priority", isPresented: $isShowingPriorityPicker, titleVisibility: .visible) {
@@ -1551,6 +1617,11 @@ private struct RegistryProductActionSheet: View {
             Button("Cancel", role: .cancel) { }
         } message: {
             Text("This item will be removed from your registry list.")
+        }
+        .onAppear {
+            if let collectionName = product.collectionName, !collectionName.isEmpty {
+                collection = collectionName
+            }
         }
     }
 
@@ -1674,8 +1745,8 @@ private struct RegistryProductActionSheet: View {
 
 private enum RegistryDetailContent {
     static func sections(from registryItems: [RegistryItem]) -> [RegistryDetailSection] {
-        guard !registryItems.isEmpty else { return RegistryDetailSection.samples }
-        return userSections(from: registryItems) + RegistryDetailSection.samples.dropFirst()
+        guard !registryItems.isEmpty else { return [] }
+        return userSections(from: registryItems)
     }
 
     static func totalItems(from registryItems: [RegistryItem]) -> Int {
@@ -1684,7 +1755,7 @@ private enum RegistryDetailContent {
 
     static func collectionCount(from registryItems: [RegistryItem]) -> Int {
         guard !registryItems.isEmpty else { return 0 }
-        return userSections(from: registryItems).filter { !$0.products.isEmpty }.count
+        return Set(registryItems.map { $0.collectionName ?? "My Registry" }).count
     }
 
     static func purchasedItems(from registryItems: [RegistryItem]) -> Int {
@@ -1703,14 +1774,21 @@ private enum RegistryDetailContent {
     }
 
     private static func userSections(from registryItems: [RegistryItem]) -> [RegistryDetailSection] {
-        [
-            RegistryDetailSection(
-                title: "Daily Cooking",
-                itemCount: registryItems.reduce(0) { $0 + $1.quantity },
-                tint: WSRegistryPalette.sage,
-                products: registryItems.map { RegistryDisplayProduct(item: $0) }
-            )
-        ]
+        let grouped = Dictionary(grouping: registryItems) { $0.collectionName ?? "My Registry" }
+        let tintPalette: [Color] = [WSRegistryPalette.sage, WSRegistryPalette.gold, WSRegistryPalette.cocoa]
+        return grouped
+            .keys
+            .sorted()
+            .enumerated()
+            .map { index, collection in
+                let items = grouped[collection] ?? []
+                return RegistryDetailSection(
+                    title: collection,
+                    itemCount: items.reduce(0) { $0 + $1.quantity },
+                    tint: tintPalette[index % tintPalette.count],
+                    products: items.map { RegistryDisplayProduct(item: $0) }
+                )
+            }
     }
 }
 
@@ -1722,12 +1800,10 @@ private struct RegistryDetailSection: Identifiable {
     let products: [RegistryDisplayProduct]
 
     var progress: CGFloat {
-        switch title {
-        case "Daily Cooking": return 0.38
-        case "Hosting": return 0.30
-        case "Shared Dining": return 0.22
-        default: return 0.34
-        }
+        guard !products.isEmpty else { return 0.1 }
+        let purchasedCount = products.filter(\.isPurchased).count
+        if purchasedCount == 0 { return 0.2 }
+        return min(1.0, max(0.2, CGFloat(purchasedCount) / CGFloat(products.count)))
     }
 
     static let samples: [RegistryDetailSection] = [
@@ -1773,6 +1849,7 @@ private struct RegistryDisplayProduct: Identifiable {
     let imageURL: URL?
     let isPurchased: Bool
     let purchaserName: String?
+    let collectionName: String?
 
     var statusDetailText: String {
         if let purchaserName {
@@ -1800,7 +1877,8 @@ private struct RegistryDisplayProduct: Identifiable {
         priceText: String,
         imagePath: String,
         isPurchased: Bool = false,
-        purchaserName: String? = nil
+        purchaserName: String? = nil,
+        collectionName: String? = nil
     ) {
         self.id = id ?? "\(brand)-\(name)"
         self.brand = brand
@@ -1810,18 +1888,19 @@ private struct RegistryDisplayProduct: Identifiable {
         self.imageURL = URL(string: AppConstants.API.imageBasePath + imagePath)
         self.isPurchased = isPurchased
         self.purchaserName = purchaserName
+        self.collectionName = collectionName
     }
 
     init(item: RegistryItem) {
-        let parts = item.name.split(separator: " ", maxSplits: 1).map(String.init)
         self.id = item.id
-        self.brand = parts.first ?? "Williams Sonoma"
-        self.name = parts.count > 1 ? parts[1] : item.name
+        self.brand = "WSI Curated"
+        self.name = item.name
         self.detail = nil
         self.priceText = item.price.formatted(.currency(code: "USD"))
         self.imageURL = URL(string: AppConstants.API.imageBasePath + item.imageUrl)
         self.isPurchased = false
         self.purchaserName = nil
+        self.collectionName = item.collectionName
     }
 }
 
@@ -1832,6 +1911,48 @@ private struct RegistrySummaryItem: Identifiable {
     let subtitle: String
     let status: String
     let tint: Color
+
+    static func from(registryItems: [RegistryItem]) -> [RegistrySummaryItem] {
+        guard !registryItems.isEmpty else {
+            return [
+                RegistrySummaryItem(
+                    title: "Getting Started",
+                    systemImage: "sparkles",
+                    subtitle: "Your registry is ready. Add products from AI picks, essentials, or collections.",
+                    status: "Ready",
+                    tint: WSRegistryPalette.gold
+                )
+            ]
+        }
+
+        let grouped = Dictionary(grouping: registryItems) { $0.collectionName ?? "My Registry" }
+        let sorted = grouped.keys.sorted()
+        let palette: [Color] = [WSRegistryPalette.sage, WSRegistryPalette.gold, WSRegistryPalette.cocoa]
+
+        return sorted.enumerated().map { index, name in
+            let items = grouped[name] ?? []
+            let count = items.reduce(0) { $0 + $1.quantity }
+            let status = count >= 6 ? "Strong" : (count >= 3 ? "Growing" : "Starting")
+            return RegistrySummaryItem(
+                title: name,
+                systemImage: icon(for: name),
+                subtitle: "\(count) item\(count == 1 ? "" : "s") saved in this collection.",
+                status: status,
+                tint: palette[index % palette.count]
+            )
+        }
+        .prefix(4)
+        .map { $0 }
+    }
+
+    private static func icon(for collection: String) -> String {
+        let normalized = collection.lowercased()
+        if normalized.contains("cook") || normalized.contains("kitchen") { return "frying.pan" }
+        if normalized.contains("host") { return "wineglass" }
+        if normalized.contains("dining") || normalized.contains("table") { return "fork.knife" }
+        if normalized.contains("morning") || normalized.contains("coffee") { return "cup.and.saucer" }
+        return "square.grid.2x2"
+    }
 
     static let samples: [RegistrySummaryItem] = [
         RegistrySummaryItem(
