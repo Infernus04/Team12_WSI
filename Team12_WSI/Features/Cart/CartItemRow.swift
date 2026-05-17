@@ -1,10 +1,3 @@
-//
-//  CartItemRow.swift
-//  WSHackathonApp
-//
-//  Created by Nilesh Mahajan on 06/04/26.
-//
-
 import SwiftUI
 
 struct CartItemRow: View {
@@ -12,57 +5,79 @@ struct CartItemRow: View {
     let item: CartItem
     let onAdd: () -> Void
     let onRemove: () -> Void
+    let onRemoveAll: () -> Void
     
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
+        HStack(alignment: .top, spacing: 16) {
             let url = item.imageURL
             // MARK: - Image
             CustomAsyncImage(url: url)
-                .frame(width: 80, height: 80)
-                .cornerRadius(8)
+                .frame(width: 90, height: 90)
+                .cornerRadius(4)
                 .clipped()
             
             // MARK: - Info
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: 8) {
                 
                 Text(item.title)
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
+                    .font(AuraDesign.Fonts.sansSerif(size: 14, weight: .medium))
+                    .foregroundColor(AuraDesign.Colors.charcoal)
                     .lineLimit(2)
                 
                 Text("$\(item.price, specifier: "%.2f")")
-                    .font(.subheadline)
-                    .foregroundColor(.black)
+                    .font(AuraDesign.Fonts.serif(size: 14, weight: .semibold))
+                    .foregroundColor(AuraDesign.Colors.charcoal.opacity(0.8))
                 
                 Spacer()
                 
-                // MARK: - Quantity Controls
-                HStack(spacing: 12) {
+                HStack(spacing: 16) {
                     Button(action: onRemove) {
-                        Image(systemName: "minus.circle.fill")
+                        Image(systemName: "minus")
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundColor(AuraDesign.Colors.charcoal)
+                            .frame(width: 24, height: 24)
+                            .background(AuraDesign.Colors.cream)
+                            .clipShape(Circle())
                     }
                     
                     Text("\(item.quantity)")
-                        .fontWeight(.medium)
+                        .font(AuraDesign.Fonts.sansSerif(size: 14, weight: .semibold))
+                        .foregroundColor(AuraDesign.Colors.charcoal)
                     
                     Button(action: onAdd) {
-                        Image(systemName: "plus.circle.fill")
+                        Image(systemName: "plus")
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundColor(AuraDesign.Colors.charcoal)
+                            .frame(width: 24, height: 24)
+                            .background(AuraDesign.Colors.cream)
+                            .clipShape(Circle())
+                    }
+                    
+                    Button(action: onRemoveAll) {
+                        Image(systemName: "trash")
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundColor(AuraDesign.Colors.errorRed)
+                            .frame(width: 24, height: 24)
+                            .background(AuraDesign.Colors.cream)
+                            .clipShape(Circle())
                     }
                 }
-                .font(.title3)
-                .foregroundColor(.black)
             }
             
             Spacer()
             
             // MARK: - Total Price per item
             Text("$\(item.price * Double(item.quantity), specifier: "%.2f")")
-                .font(.subheadline)
-                .fontWeight(.semibold)
+                .font(AuraDesign.Fonts.serif(size: 16, weight: .bold))
+                .foregroundColor(AuraDesign.Colors.charcoal)
         }
         .padding()
         .background(Color.white)
-        .cornerRadius(12)
-        .shadow(color: Color(.systemGray4), radius: 2, x: 0, y: 1)
+        // Refined shadow and border
+        .cornerRadius(0)
+        .overlay(
+            Rectangle()
+                .stroke(AuraDesign.Colors.cream, lineWidth: 1)
+        )
     }
 }

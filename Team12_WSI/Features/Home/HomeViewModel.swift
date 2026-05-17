@@ -26,11 +26,11 @@ class HomeViewModel: ObservableObject {
     
     // Cart
     func addToCart(_ product: ProductItem) {
-        cartRepository?.add(product: product)
+        cartRepository?.add(product: product, quantityDelta: 1)
     }
     
     func removeFromCart(_ product: ProductItem) {
-        cartRepository?.remove(productId: product.id)
+        cartRepository?.removeOne(productId: product.id)
     }
     
     // Registry

@@ -1,18 +1,20 @@
 import Foundation
 
-struct ProductItem: Identifiable {
+struct ProductItem: Identifiable, Hashable {
     let id: String
     let name: String
+    let shortName: String?
     var title: String { name } // Alias for compatibility
     let price: Double?
 
     let path: String?
     
     var imageURL: URL? {
-        if let imageUrl = path {
-            return URL(string: AppConstants.API.imageBasePath + imageUrl)
+        guard let path = path else { return nil }
+        if path.hasPrefix("http") {
+            return URL(string: path)
         }
-        return nil
+        return URL(string: AppConstants.API.imageBasePath + path)
     }
 }
 
@@ -20,6 +22,7 @@ extension ProductItem {
     init(from dto: ProductItemDTO) {
         self.id = dto.id
         self.name = dto.name
+        self.shortName = dto.shortName
         self.price = dto.price?.regularPrice ?? 0.0
         self.path = dto.media?.images?.first?.path
     }

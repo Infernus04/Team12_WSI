@@ -10,7 +10,10 @@ struct CartItem: Identifiable, Codable {
     var quantity: Int
     
     var imageURL: URL? {
-        URL(string: AppConstants.API.imageBasePath + path)
+        if path.hasPrefix("http") {
+            return URL(string: path)
+        }
+        return URL(string: AppConstants.API.imageBasePath + path)
     }
 }
 

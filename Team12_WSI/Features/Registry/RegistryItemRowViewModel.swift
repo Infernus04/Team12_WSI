@@ -64,12 +64,13 @@ final class RegistryItemRowViewModel: ObservableObject {
         let product = ProductItem(
             id: item.id,
             name: item.title,
+            shortName: nil,
             price: item.price,
-            path: item.imageUrl ?? ""
+            path: item.imageUrl
         )
         let quantityInRegistry = registryRepo.quantity(for: item)
         
-        cartRepo.add(product: product, quantity: quantityInRegistry)
+        cartRepo.add(product: product, quantityDelta: quantityInRegistry)
         
         tabBarVM.selectTab(.cart)
     }
