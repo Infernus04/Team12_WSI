@@ -1,39 +1,46 @@
-//
-//  ContentView.swift
-//  Team12_WSI
-//
-//  Created by SDC-USER on 16/05/26.
-//
+// ContentView.swift
+// Team12_WSI
 
 import SwiftUI
 
 struct ContentView: View {
     @EnvironmentObject var tabBarVM: WSTabBarViewModel
-    
+    @EnvironmentObject var cartRepository: CartRepository
+
     var body: some View {
         TabView(selection: $tabBarVM.selectedTab) {
             HomeView()
                 .tabItem {
-                    Label("Shop", systemImage: "house")
+                    Label("Aura", systemImage: "sparkles")
                 }
                 .tag(WSTab.home)
-            
+
             RegistryView()
                 .tabItem {
-                    Label("Registry", systemImage: "heart")
+                    Label("Registry", systemImage: "heart.text.square")
                 }
                 .tag(WSTab.registry)
-            
+
             CartView()
                 .tabItem {
-                    Label("Cart", systemImage: "cart")
+                    Label("Bag", systemImage: "bag")
                 }
+                .badge(cartRepository.items.reduce(0) { $0 + $1.quantity })
                 .tag(WSTab.cart)
         }
         .tint(WSRegistryPalette.gold)
+        .onAppear {
+            let appearance = UITabBarAppearance()
+            appearance.configureWithOpaqueBackground()
+            appearance.backgroundColor = UIColor(WSRegistryPalette.ivory)
+            appearance.shadowColor = UIColor(WSRegistryPalette.hairline)
+            UITabBar.appearance().standardAppearance = appearance
+            UITabBar.appearance().scrollEdgeAppearance = appearance
+        }
     }
 }
 
 #Preview {
     ContentView()
 }
+
