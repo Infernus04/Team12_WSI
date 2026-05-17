@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import PhotosUI
 
 struct CreateRegistryView: View {
     @EnvironmentObject var tabBarVM: WSTabBarViewModel
@@ -16,19 +17,18 @@ struct CreateRegistryView: View {
     @State private var eventDate = Date()
     @State private var namesOnRegistry = ""
     @State private var guestNote = ""
-    @State private var homeVision: GiftDNAChoice?
-    @State private var lifestyleMoments: Set<String> = []
+    @State private var moodboardVibe = ""
+    @State private var moodboardPhotos: [PhotosPickerItem] = []
     @State private var homeType: GiftDNAChoice?
-    @State private var roomScale: Double = 2.4
-    @State private var priorities: Set<String> = []
-    @State private var dailyRituals: Set<String> = []
-    @State private var homeCircle: Set<String> = []
+    @State private var hobbies: Set<String> = []
     @State private var productCategories: Set<String> = []
     @State private var budgetPreference: GiftDNAChoice?
-    @State private var giftPreferences: Set<String> = []
-    @State private var visualStyles: Set<String> = []
     @State private var generationProgress: Double = 0
     @State private var completedGenerationSteps: Set<String> = []
+    @State private var hasStartedGeneration = false
+
+    // Skip tracking for optional questions
+    @State private var hobbiesSkipped = false
 
     var body: some View {
         ZStack {
@@ -44,6 +44,15 @@ struct CreateRegistryView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
         .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                if canShowSkipAll {
+                    Button("Skip All") {
+                        skipAllQuestions()
+                    }
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(WSRegistryPalette.warmGray)
+                }
+            }
             ToolbarItem(placement: .topBarTrailing) {
                 Text("\(step.displayIndex)/\(GiftDNAStep.allCases.count)")
                     .font(.system(size: 13, weight: .semibold))
@@ -65,7 +74,7 @@ private extension CreateRegistryView {
             GeometryReader { proxy in
                 ScrollView(showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 22) {
-                        if step == .homeVision {
+                        if step == .moodboard {
                             editorialHero(height: 168)
                         }
 
@@ -78,27 +87,16 @@ private extension CreateRegistryView {
                         switch step {
                         case .basics:
                             EmptyView()
-                        case .homeVision:
-                            singleChoiceGrid(GiftDNAData.homeVisions, selection: $homeVision, imageCards: true)
-                        case .moments:
-                            multiChoiceGrid(GiftDNAData.moments, selection: $lifestyleMoments)
+                        case .moodboard:
+                            moodboardInputCard
                         case .homeType:
                             singleChoiceGrid(GiftDNAData.homeTypes, selection: $homeType, imageCards: false)
-                            roomScaleCard
-                        case .priorities:
-                            multiChoiceGrid(GiftDNAData.priorities, selection: $priorities)
-                        case .rituals:
-                            multiChoiceGrid(GiftDNAData.rituals, selection: $dailyRituals)
-                        case .people:
-                            multiChoiceGrid(GiftDNAData.people, selection: $homeCircle)
+                        case .hobbies:
+                            multiChoiceGrid(GiftDNAData.hobbies, selection: $hobbies)
                         case .productCategories:
                             multiChoiceGrid(GiftDNAData.productCategories, selection: $productCategories)
                         case .budget:
                             singleChoiceGrid(GiftDNAData.budgetPreferences, selection: $budgetPreference, imageCards: false)
-                        case .giftPreferences:
-                            multiChoiceGrid(GiftDNAData.giftPreferences, selection: $giftPreferences)
-                        case .visualStyle:
-                            largeImageChoiceGrid(GiftDNAData.visualStyles, selection: $visualStyles)
                         case .generating:
                             EmptyView()
                         }
@@ -106,7 +104,7 @@ private extension CreateRegistryView {
                     .frame(width: max(0, proxy.size.width - 32), alignment: .leading)
                     .padding(.horizontal, 16)
                     .padding(.top, 10)
-                    .padding(.bottom, step == .visualStyle ? 152 : 132)
+                    .padding(.bottom, 132)
                 }
                 .scrollClipDisabled(false)
             }
@@ -163,7 +161,7 @@ private extension CreateRegistryView {
                     .lineSpacing(2)
                     .fixedSize(horizontal: false, vertical: true)
 
-                Text("We'll personalize your registry experience.")
+                Text("We’ll personalize your registry recommendations.")
                     .font(.system(size: 18, weight: .regular))
                     .foregroundStyle(WSRegistryPalette.cocoa.opacity(0.78))
                     .lineSpacing(4)
@@ -174,7 +172,7 @@ private extension CreateRegistryView {
         }
         .frame(maxWidth: .infinity)
         .frame(height: 236)
-        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 2, style: .continuous))
     }
 
     var eventTypeCard: some View {
@@ -206,10 +204,10 @@ private extension CreateRegistryView {
                         .frame(maxWidth: .infinity, minHeight: 62)
                         .background(
                             selectedEvent == event ? WSRegistryPalette.espresso : WSRegistryPalette.porcelain,
-                            in: RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            in: RoundedRectangle(cornerRadius: 2, style: .continuous)
                         )
                         .overlay(
-                            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            RoundedRectangle(cornerRadius: 2, style: .continuous)
                                 .stroke(selectedEvent == event ? WSRegistryPalette.espresso.opacity(0.12) : WSRegistryPalette.hairline.opacity(0.62), lineWidth: 1)
                         )
                     }
@@ -239,9 +237,9 @@ private extension CreateRegistryView {
             .tint(WSRegistryPalette.gold)
             .padding(.horizontal, 16)
             .frame(maxWidth: .infinity, minHeight: 58, alignment: .leading)
-            .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 13, style: .continuous))
+            .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 2, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: 13, style: .continuous)
+                RoundedRectangle(cornerRadius: 2, style: .continuous)
                     .stroke(WSRegistryPalette.hairline.opacity(0.62), lineWidth: 1)
             )
         }
@@ -264,9 +262,9 @@ private extension CreateRegistryView {
             }
             .padding(.horizontal, 16)
             .frame(maxWidth: .infinity, minHeight: 58, alignment: .leading)
-            .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 13, style: .continuous))
+            .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 2, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: 13, style: .continuous)
+                RoundedRectangle(cornerRadius: 2, style: .continuous)
                     .stroke(WSRegistryPalette.hairline.opacity(0.62), lineWidth: 1)
             )
         }
@@ -323,9 +321,9 @@ private extension CreateRegistryView {
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
                     .padding(14)
             }
-            .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 13, style: .continuous))
+            .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 2, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: 13, style: .continuous)
+                RoundedRectangle(cornerRadius: 2, style: .continuous)
                     .stroke(WSRegistryPalette.hairline.opacity(0.62), lineWidth: 1)
             )
             .onChange(of: guestNote) { _, newValue in
@@ -345,7 +343,7 @@ private extension CreateRegistryView {
             }
             .padding(14)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(WSRegistryPalette.ivory, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .background(WSRegistryPalette.ivory, in: RoundedRectangle(cornerRadius: 2, style: .continuous))
         }
         .onboardingCardPadding()
     }
@@ -395,9 +393,9 @@ private extension CreateRegistryView {
             .scaledToFill()
             .frame(maxWidth: .infinity)
             .frame(height: height)
-            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: 2, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                RoundedRectangle(cornerRadius: 2, style: .continuous)
                     .stroke(WSRegistryPalette.cream.opacity(0.65), lineWidth: 1)
             )
             .shadow(color: WSRegistryPalette.espresso.opacity(0.08), radius: 18, x: 0, y: 10)
@@ -488,9 +486,9 @@ private extension CreateRegistryView {
                         }
                         .padding(16)
                     }
-                    .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: 2, style: .continuous))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        RoundedRectangle(cornerRadius: 2, style: .continuous)
                             .stroke(isSelected ? WSRegistryPalette.gold : WSRegistryPalette.hairline.opacity(0.45), lineWidth: isSelected ? 2 : 1)
                     )
                     .shadow(color: WSRegistryPalette.espresso.opacity(isSelected ? 0.13 : 0.045), radius: isSelected ? 14 : 8, x: 0, y: 6)
@@ -521,7 +519,7 @@ private extension CreateRegistryView {
                     selectionIndicator(isSelected: isSelected)
                         .padding(8)
                 }
-                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: 2, style: .continuous))
             } else {
                 ZStack(alignment: .topTrailing) {
                     Circle()
@@ -565,9 +563,9 @@ private extension CreateRegistryView {
         .padding(.bottom, imageCards ? 10 : 12)
         .frame(height: imageCards ? 154 : 106, alignment: .top)
         .frame(maxWidth: .infinity)
-        .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 2, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
+            RoundedRectangle(cornerRadius: 2, style: .continuous)
                 .stroke(isSelected ? WSRegistryPalette.gold : WSRegistryPalette.hairline.opacity(0.44), lineWidth: isSelected ? 2 : 1)
         )
         .shadow(color: WSRegistryPalette.espresso.opacity(isSelected ? 0.11 : 0.035), radius: isSelected ? 12 : 6, x: 0, y: 5)
@@ -591,49 +589,66 @@ private extension CreateRegistryView {
         }
     }
 
-    var roomScaleCard: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Room scale")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(WSRegistryPalette.espresso)
-                    Text("Optional")
-                        .font(.system(size: 12, weight: .regular))
-                        .foregroundStyle(WSRegistryPalette.warmGray)
-                }
-                Spacer()
-                Text(roomScaleLabel)
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(WSRegistryPalette.cocoa)
-            }
 
-            Slider(value: $roomScale, in: 1...4, step: 1)
-                .tint(WSRegistryPalette.gold)
-
-            HStack {
-                Text("Intimate")
-                Spacer()
-                Text("Expansive")
-            }
-            .font(.system(size: 12, weight: .regular))
-            .foregroundStyle(WSRegistryPalette.warmGray)
-        }
-        .padding(20)
-        .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .stroke(WSRegistryPalette.hairline.opacity(0.6), lineWidth: 1)
-        )
+    var isOptionalStep: Bool {
+        step != .basics && step != .generating
     }
 
-    var roomScaleLabel: String {
-        switch roomScale {
-        case 1: return "Small"
-        case 2: return "Balanced"
-        case 3: return "Open"
-        default: return "Grand"
+    var canShowSkipAll: Bool {
+        step != .basics && step != .generating
+    }
+
+    var moodboardInputCard: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Describe your vibe")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundStyle(WSRegistryPalette.espresso)
+                Text("Example: subtle warm and cozy hall, modular kitchen and cutlery.")
+                    .font(.system(size: 13, weight: .regular))
+                    .foregroundStyle(WSRegistryPalette.warmGray)
+            }
+
+            TextField("Enter your vibe...", text: $moodboardVibe, axis: .vertical)
+                .font(.system(size: 16, weight: .regular))
+                .lineLimit(3...5)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 12)
+                .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 2, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 2, style: .continuous)
+                        .stroke(WSRegistryPalette.hairline.opacity(0.65), lineWidth: 1)
+                )
+
+            PhotosPicker(
+                selection: $moodboardPhotos,
+                maxSelectionCount: 5,
+                matching: .images
+            ) {
+                HStack(spacing: 10) {
+                    Image(systemName: "photo.on.rectangle")
+                        .font(.system(size: 18, weight: .semibold))
+                    Text(moodboardPhotos.isEmpty ? "Upload 3 to 5 inspiration photos" : "\(moodboardPhotos.count) photos selected")
+                        .font(.system(size: 15, weight: .semibold))
+                    Spacer()
+                    Image(systemName: "plus")
+                        .font(.system(size: 13, weight: .bold))
+                }
+                .foregroundStyle(WSRegistryPalette.espresso)
+                .padding(.horizontal, 14)
+                .frame(maxWidth: .infinity, minHeight: 50, alignment: .leading)
+                .background(WSRegistryPalette.ivory, in: RoundedRectangle(cornerRadius: 2, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 2, style: .continuous)
+                        .stroke(WSRegistryPalette.hairline.opacity(0.65), lineWidth: 1)
+                )
+            }
+
+            Text("Tip: More context improves recommendations, but you can continue with only text.")
+                .font(.system(size: 13, weight: .regular))
+                .foregroundStyle(WSRegistryPalette.warmGray.opacity(0.9))
         }
+        .onboardingCardPadding()
     }
 
     var bottomContinueButton: some View {
@@ -654,14 +669,29 @@ private extension CreateRegistryView {
                 .foregroundStyle(WSRegistryPalette.cream)
                 .padding(.horizontal, 20)
                 .frame(height: 58)
-                .background(WSRegistryPalette.espresso, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .background(WSRegistryPalette.espresso, in: RoundedRectangle(cornerRadius: 2, style: .continuous))
             }
             .buttonStyle(.plain)
             .disabled(!canContinue)
             .opacity(canContinue ? 1 : 0.42)
             .padding(.horizontal, 16)
             .padding(.top, 12)
-            .padding(.bottom, 12)
+
+            // Skip button for optional steps
+            if isOptionalStep {
+                Button {
+                    skipCurrentStep()
+                } label: {
+                    Text("Skip for now")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(WSRegistryPalette.warmGray)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 44)
+                }
+                .buttonStyle(.plain)
+            }
+
+            Spacer().frame(height: 12)
         }
         .background(.ultraThinMaterial)
     }
@@ -712,14 +742,14 @@ private extension CreateRegistryView {
                         .symbolEffect(.pulse, options: .repeating.speed(0.45), value: completedGenerationSteps.count)
 
                     VStack(spacing: 18) {
-                        Text("Creating your\nhome profile...")
+                        Text("Creating your\nregistry profile...")
                             .font(.system(size: 32, weight: .regular, design: .serif))
                             .foregroundStyle(WSRegistryPalette.espresso)
                             .multilineTextAlignment(.center)
                             .lineLimit(2)
                             .fixedSize(horizontal: false, vertical: true)
 
-                        Text("Our AI is understanding your lifestyle and building your personalized home readiness.")
+                        Text("Our AI is learning your gifting style to build a personalized registry plan.")
                             .font(.system(size: 16, weight: .regular))
                             .foregroundStyle(WSRegistryPalette.warmGray)
                             .multilineTextAlignment(.center)
@@ -780,26 +810,16 @@ private extension CreateRegistryView {
         switch step {
         case .basics:
             return !namesOnRegistry.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-        case .homeVision:
-            return homeVision != nil
-        case .moments:
-            return !lifestyleMoments.isEmpty
+        case .moodboard:
+            return !moodboardVibe.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || !moodboardPhotos.isEmpty
         case .homeType:
             return homeType != nil
-        case .priorities:
-            return !priorities.isEmpty
-        case .rituals:
-            return !dailyRituals.isEmpty
-        case .people:
-            return !homeCircle.isEmpty
+        case .hobbies:
+            return !hobbies.isEmpty // Skip button handles empty state
         case .productCategories:
             return !productCategories.isEmpty
         case .budget:
             return budgetPreference != nil
-        case .giftPreferences:
-            return !giftPreferences.isEmpty
-        case .visualStyle:
-            return !visualStyles.isEmpty
         case .generating:
             return true
         }
@@ -817,6 +837,55 @@ private extension CreateRegistryView {
         return (cleaned.isEmpty ? "GiftDNA" : cleaned, "Home")
     }
 
+    func skipCurrentStep() {
+        switch step {
+        case .moodboard:
+            if moodboardVibe.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                moodboardVibe = "Warm timeless style with a functional kitchen and shared dining."
+            }
+        case .homeType:
+            if homeType == nil {
+                homeType = GiftDNAData.homeTypes.first
+            }
+        case .hobbies:
+            hobbiesSkipped = true
+            hobbies = []
+        case .productCategories:
+            if productCategories.isEmpty {
+                productCategories = Set(GiftDNAData.productCategories.prefix(3).map(\.id))
+            }
+        case .budget:
+            if budgetPreference == nil {
+                budgetPreference = GiftDNAData.budgetPreferences[safe: 1] ?? GiftDNAData.budgetPreferences.first
+            }
+        default:
+            break
+        }
+        goForward()
+    }
+
+    func skipAllQuestions() {
+        // Backfill required answers with stable defaults.
+        if moodboardVibe.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            moodboardVibe = "Warm timeless style with a functional kitchen and shared dining."
+        }
+        if homeType == nil {
+            homeType = GiftDNAData.homeTypes.first
+        }
+        if productCategories.isEmpty {
+            productCategories = Set(GiftDNAData.productCategories.prefix(3).map(\.id))
+        }
+        if budgetPreference == nil {
+            budgetPreference = GiftDNAData.budgetPreferences[safe: 1] ?? GiftDNAData.budgetPreferences.first
+        }
+        hobbiesSkipped = true
+        hobbies = []
+
+        withAnimation(.easeInOut(duration: 0.24)) {
+            step = .generating
+        }
+    }
+
     func goForward() {
         guard let next = step.next else { return }
         withAnimation(.easeInOut(duration: 0.24)) {
@@ -825,10 +894,19 @@ private extension CreateRegistryView {
     }
 
     func runGeneration() {
+        guard !hasStartedGeneration else { return }
+        hasStartedGeneration = true
+
         generationProgress = 0
         completedGenerationSteps = []
 
         Task { @MainActor in
+            // Create registry first
+            let names = parsedRegistryNames
+            let registryID = UUID()
+            registryRepo.createRegistry(firstName: names.first, lastName: names.last, event: selectedEvent, date: eventDate)
+
+            // Animate generation progress
             for (index, item) in GiftDNAData.generationSteps.enumerated() {
                 try? await Task.sleep(nanoseconds: 520_000_000)
                 withAnimation(.easeInOut(duration: 0.55)) {
@@ -838,10 +916,23 @@ private extension CreateRegistryView {
             }
 
             try? await Task.sleep(nanoseconds: 450_000_000)
-            let names = parsedRegistryNames
-            registryRepo.createRegistry(firstName: names.first, lastName: names.last, event: selectedEvent, date: eventDate)
+
+            // Build questionnaire payload
+            let payload = QuestionnaireReducer.buildPayload(
+                registryID: registryRepo.currentRegistry?.id ?? registryID,
+                moodboardVibe: moodboardVibe,
+                moodboardPhotoCount: moodboardPhotos.count,
+                homeType: homeType?.title,
+                hobbies: hobbies,
+                hobbiesSkipped: hobbiesSkipped,
+                productCategories: productCategories,
+                budgetPreference: budgetPreference?.title,
+                homeVision: nil
+            )
+
+            // Navigate to recommendation review
             tabBarVM.resetRegistryFlow()
-            tabBarVM.selectTab(.registry)
+            tabBarVM.registryPath.append(RegistryRoute.recommendations(payload))
         }
     }
 }
@@ -852,12 +943,18 @@ private extension View {
         self
             .padding(22)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 2, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                RoundedRectangle(cornerRadius: 2, style: .continuous)
                     .stroke(WSRegistryPalette.cream.opacity(0.78), lineWidth: 1)
             )
             .shadow(color: WSRegistryPalette.espresso.opacity(0.035), radius: 14, x: 0, y: 8)
+    }
+}
+
+private extension Collection {
+    subscript(safe index: Index) -> Element? {
+        indices.contains(index) ? self[index] : nil
     }
 }
 
@@ -939,50 +1036,39 @@ private struct FlowLayout: Layout {
 
 private enum GiftDNAStep: Int, CaseIterable {
     case basics
-    case homeVision
-    case moments
+    case moodboard
     case homeType
-    case priorities
-    case rituals
-    case people
+    case hobbies          // Optional — skippable
     case productCategories
     case budget
-    case giftPreferences
-    case visualStyle
     case generating
 
     var title: String {
         switch self {
         case .basics: return "Just the basics to get started"
-        case .homeVision: return "What kind of home are you building?"
-        case .moments: return "How do you imagine spending time at home?"
-        case .homeType: return "What best describes your space?"
-        case .priorities: return "What matters most in your future home?"
-        case .rituals: return "What are your daily rituals?"
-        case .people: return "Who are you building this home with?"
+        case .moodboard: return "Show us your moodboard and vibe"
+        case .homeType: return "What type of living setup should we optimize for?"
+        case .hobbies: return "Which lifestyle habits should influence gift picks?"
         case .productCategories: return "Which products should we prioritize?"
         case .budget: return "What price range feels right?"
-        case .giftPreferences: return "How should we sort your gifts?"
-        case .visualStyle: return "Which spaces feel most like home to you?"
-        case .generating: return "Creating your home profile..."
+        case .generating: return "Creating your registry profile..."
         }
     }
 
     var subtitle: String {
         switch self {
         case .basics: return "Tell us what you are celebrating and who the registry is for."
-        case .homeVision: return "We'll create a registry around how you'll actually live, host, and grow together."
-        case .moments: return "Choose the moments that matter most to you."
-        case .homeType: return "This helps us tailor your future registry."
-        case .priorities: return "Your answers shape your registry recommendations."
-        case .rituals: return "We'll help build around the routines you value most."
-        case .people: return "This helps GiftDNA personalize your registry."
+        case .moodboard: return "Upload inspiration photos and describe the look you want to build."
+        case .homeType: return "This helps us tailor recommendations for your space and routine."
+        case .hobbies: return "Optional. Tell us how you cook, host, and live day to day."
         case .productCategories: return "Pick the rooms and product families that should come first in your registry."
         case .budget: return "This helps match recommendations to products your guests will feel good gifting."
-        case .giftPreferences: return "Tell us what matters when comparing similar products from the dataset."
-        case .visualStyle: return "Choose the styles you naturally gravitate toward."
-        case .generating: return "GiftDNA is learning how you live, gather, host, and grow together."
+        case .generating: return "AURA is building a recommendation profile for your registry."
         }
+    }
+
+    var isOptional: Bool {
+        self != .basics && self != .generating
     }
 
     var displayIndex: Int { rawValue + 1 }
@@ -1007,16 +1093,16 @@ private struct GiftDNAChoice: Identifiable, Hashable {
 }
 
 private enum GiftDNAData {
-    static let homeVisions = [
-        GiftDNAChoice("Warm & Cozy", icon: "flame", tint: WSRegistryPalette.gold, subtitle: "Layered, welcoming, lived in."),
-        GiftDNAChoice("Modern Minimal", icon: "square.split.diagonal", tint: WSRegistryPalette.warmGray, subtitle: "Calm lines and clear surfaces."),
-        GiftDNAChoice("Social & Hosting-Focused", icon: "wineglass", tint: WSRegistryPalette.cocoa, subtitle: "A home made for gathering."),
-        GiftDNAChoice("Calm & Restorative", icon: "leaf", tint: WSRegistryPalette.sage, subtitle: "Soft rituals and quiet rooms."),
-        GiftDNAChoice("Creative & Expressive", icon: "paintpalette", tint: WSRegistryPalette.gold, subtitle: "Personal, storied, artful."),
-        GiftDNAChoice("Functional Everyday Living", icon: "checklist", tint: WSRegistryPalette.sage, subtitle: "Beautiful pieces that work hard.")
+    static let homeTypes = [
+        GiftDNAChoice("City apartment", icon: "building.2"),
+        GiftDNAChoice("First home", icon: "house"),
+        GiftDNAChoice("Family house", icon: "house.lodge"),
+        GiftDNAChoice("Shared living space", icon: "person.2"),
+        GiftDNAChoice("Open entertaining space", icon: "table.furniture"),
+        GiftDNAChoice("Cozy compact home", icon: "sofa")
     ]
 
-    static let moments = [
+    static let hobbies = [
         GiftDNAChoice("Hosting dinners with friends", icon: "fork.knife"),
         GiftDNAChoice("Slow mornings & coffee rituals", icon: "cup.and.saucer"),
         GiftDNAChoice("Cooking together", icon: "frying.pan"),
@@ -1029,51 +1115,6 @@ private enum GiftDNAData {
         GiftDNAChoice("Wellness & self-care", icon: "leaf")
     ]
 
-    static let homeTypes = [
-        GiftDNAChoice("City apartment", icon: "building.2"),
-        GiftDNAChoice("First home", icon: "house"),
-        GiftDNAChoice("Family house", icon: "house.lodge"),
-        GiftDNAChoice("Shared living space", icon: "person.2"),
-        GiftDNAChoice("Cozy small home", icon: "sofa"),
-        GiftDNAChoice("Open entertaining space", icon: "table.furniture")
-    ]
-
-    static let priorities = [
-        GiftDNAChoice("Comfort", icon: "sofa"),
-        GiftDNAChoice("Functionality", icon: "slider.horizontal.3"),
-        GiftDNAChoice("Hosting", icon: "wineglass"),
-        GiftDNAChoice("Timeless quality", icon: "seal"),
-        GiftDNAChoice("Organization", icon: "square.grid.2x2"),
-        GiftDNAChoice("Emotional warmth", icon: "heart"),
-        GiftDNAChoice("Flexibility", icon: "arrow.triangle.2.circlepath"),
-        GiftDNAChoice("Aesthetics", icon: "sparkles"),
-        GiftDNAChoice("Daily ease", icon: "sun.max"),
-        GiftDNAChoice("Shared experiences", icon: "person.3")
-    ]
-
-    static let rituals = [
-        GiftDNAChoice("Morning coffee", icon: "cup.and.saucer"),
-        GiftDNAChoice("Tea rituals", icon: "mug"),
-        GiftDNAChoice("Cooking nightly", icon: "frying.pan"),
-        GiftDNAChoice("Reading corners", icon: "book"),
-        GiftDNAChoice("Wellness routines", icon: "leaf"),
-        GiftDNAChoice("Sunday hosting", icon: "table.furniture"),
-        GiftDNAChoice("Baking weekends", icon: "birthday.cake"),
-        GiftDNAChoice("Evening wine rituals", icon: "wineglass"),
-        GiftDNAChoice("Cozy movie nights", icon: "play.tv"),
-        GiftDNAChoice("Shared breakfasts", icon: "fork.knife")
-    ]
-
-    static let people = [
-        GiftDNAChoice("My partner", icon: "heart"),
-        GiftDNAChoice("Future family", icon: "figure.2.and.child.holdinghands"),
-        GiftDNAChoice("Pets", icon: "pawprint"),
-        GiftDNAChoice("Frequent guests", icon: "person.3"),
-        GiftDNAChoice("Mostly just us", icon: "person.2"),
-        GiftDNAChoice("Friends always visiting", icon: "door.left.hand.open"),
-        GiftDNAChoice("Children in the future", icon: "figure.and.child.holdinghands"),
-        GiftDNAChoice("Multi-generational family", icon: "house.and.flag")
-    ]
 
     static let productCategories = [
         GiftDNAChoice("Cookware & bakeware", icon: "frying.pan"),
@@ -1093,32 +1134,12 @@ private enum GiftDNAData {
         GiftDNAChoice("Investment pieces", icon: "seal")
     ]
 
-    static let giftPreferences = [
-        GiftDNAChoice("Top-rated items", icon: "star"),
-        GiftDNAChoice("Essentials first", icon: "checklist"),
-        GiftDNAChoice("Mix of prices", icon: "slider.horizontal.3"),
-        GiftDNAChoice("Available now", icon: "checkmark.seal"),
-        GiftDNAChoice("Trusted brands", icon: "building.columns"),
-        GiftDNAChoice("Easy to ship", icon: "shippingbox"),
-        GiftDNAChoice("Most useful daily", icon: "sun.max"),
-        GiftDNAChoice("Statement pieces", icon: "sparkles")
-    ]
-
-    static let visualStyles = [
-        GiftDNAChoice("Warm Modern", icon: "sun.max"),
-        GiftDNAChoice("Soft Scandinavian", icon: "snowflake"),
-        GiftDNAChoice("Earthy Minimalism", icon: "leaf"),
-        GiftDNAChoice("Quiet Luxury", icon: "sparkles"),
-        GiftDNAChoice("Coastal Calm", icon: "water.waves"),
-        GiftDNAChoice("Vintage Editorial", icon: "camera")
-    ]
-
     static let generationSteps = [
         "Understanding your lifestyle",
-        "Mapping your home priorities",
+        "Mapping your registry priorities",
         "Reading your product preferences",
-        "Building your home readiness profile",
-        "Curating your future home"
+        "Building your registry profile",
+        "Curating your registry recommendations"
     ]
 }
 

@@ -1,7 +1,14 @@
 // AIConciergeView.swift
-// Team12_WSI — Elegant 4-tab AI Concierge panel
+// Team12_WSI — Elegant AI Concierge dedicated Chatbot panel
 
 import SwiftUI
+
+struct ConciergeChatMessage: Identifiable {
+    let id = UUID()
+    let isUser: Bool
+    let text: String
+    let products: [ProductItem]
+}
 
 struct AIConciergeView: View {
     let allProducts: [ProductItem]
@@ -9,14 +16,17 @@ struct AIConciergeView: View {
     let onSelectProduct: (ProductItem) -> Void
 
     @Environment(\.dismiss) private var dismiss
-    @State private var selectedTab = 0
 
-    private let tabs = [
-        ("heart.text.square", "Registry"),
-        ("photo.on.rectangle", "Room Styling"),
-        ("fork.knife", "Hosting"),
-        ("gift", "Gifting")
+    // Chatbot States
+    @State private var messages: [ConciergeChatMessage] = [
+        ConciergeChatMessage(
+            isUser: false,
+            text: "Welcome to your Aura AI Concierge. I am your personal home designer, trained on the complete Williams-Sonoma catalog. Feel free to ask me anything in natural language—whether you are looking for premium cookware, organic dining plates, or suggestions to complete your registry style!",
+            products: []
+        )
     ]
+    @State private var chatInputText = ""
+    @State private var isAILoading = false
 
     var body: some View {
         ZStack {
@@ -24,9 +34,8 @@ struct AIConciergeView: View {
 
             VStack(spacing: 0) {
                 conciergeHeader
-                tabSelector
                 WSDivider()
-                tabContent
+                askAuraTab
             }
         }
     }
@@ -65,285 +74,255 @@ struct AIConciergeView: View {
         .background(Color.wsWarmIvory)
     }
 
-    // MARK: - Tab Selector
+    // MARK: - Ask Aura AI Chatbot
 
-    private var tabSelector: some View {
-        HStack(spacing: 0) {
-            ForEach(tabs.indices, id: \.self) { i in
-                Button(action: {
-                    withAnimation(.easeInOut(duration: 0.2)) { selectedTab = i }
-                }) {
-                    VStack(spacing: 5) {
-                        Image(systemName: tabs[i].0)
-                            .font(.system(size: 16, weight: .light))
-                            .foregroundColor(selectedTab == i ? .wsCharcoal : .wsSecondary)
-                        Text(tabs[i].1)
-                            .font(.wsLabel(size: 9))
-                            .tracking(0.5)
-                            .foregroundColor(selectedTab == i ? .wsCharcoal : .wsSecondary)
+    private var askAuraTab: some View {
+        VStack(spacing: 0) {
+            ScrollViewReader { proxy in
+                ScrollView(showsIndicators: false) {
+                    VStack(alignment: .leading, spacing: 20) {
+                        ForEach(messages) { msg in
+                            chatBubble(msg: msg)
+                                .id(msg.id)
+                        }
+
+                        if isAILoading {
+                            typingIndicator
+                                .id("typingIndicator")
+                        }
                     }
-                    .frame(maxWidth: .infinity)
+                    .padding(.horizontal, 24)
+                    .padding(.top, 16)
+                    .padding(.bottom, 24)
+                }
+                .onChange(of: messages.count) { _ in
+                    if let last = messages.last {
+                        withAnimation { proxy.scrollTo(last.id, anchor: .bottom) }
+                    }
+                }
+                .onChange(of: isAILoading) { loading in
+                    if loading {
+                        withAnimation { proxy.scrollTo("typingIndicator", anchor: .bottom) }
+                    }
+                }
+            }
+
+            if messages.count == 1 {
+                chatQuickSuggestions
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 12)
+            }
+
+            chatInputBar
+                .padding(.horizontal, 24)
+                .padding(.bottom, 24)
+        }
+    }
+
+    private func chatBubble(msg: ConciergeChatMessage) -> some View {
+        HStack(alignment: .top, spacing: 10) {
+            if msg.isUser {
+                Spacer()
+
+                Text(msg.text)
+                    .font(.wsSerif(size: 15))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 16)
                     .padding(.vertical, 12)
-                    .overlay(
-                        Rectangle()
-                            .fill(selectedTab == i ? Color.wsCharcoal : Color.clear)
-                            .frame(height: 1.5),
-                        alignment: .bottom
-                    )
-                }
-            }
-        }
-        .background(Color.wsWarmIvory)
-    }
+                    .background(WSRegistryPalette.espresso, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            } else {
+                Image(systemName: "sparkles")
+                    .font(.system(size: 12))
+                    .foregroundColor(WSRegistryPalette.gold)
+                    .frame(width: 28, height: 28)
+                    .background(WSRegistryPalette.gold.opacity(0.12), in: Circle())
+                    .padding(.top, 4)
 
-    // MARK: - Tab Content
+                VStack(alignment: .leading, spacing: 12) {
+                    Text(msg.text)
+                        .font(.wsSerif(size: 14))
+                        .foregroundColor(WSRegistryPalette.espresso)
+                        .lineSpacing(4)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 12)
+                        .background(Color.white, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                        .wsShadow()
 
-    @ViewBuilder
-    private var tabContent: some View {
-        ScrollView(showsIndicators: false) {
-            VStack(alignment: .leading, spacing: 28) {
-                switch selectedTab {
-                case 0: registryTab
-                case 1: roomStylingTab
-                case 2: hostingTab
-                case 3: giftingTab
-                default: EmptyView()
-                }
-                Spacer().frame(height: 30)
-            }
-            .padding(.top, 24)
-        }
-    }
-
-    // MARK: - Tab 0: Registry
-
-    private var registryTab: some View {
-        VStack(alignment: .leading, spacing: 24) {
-            conciergeCard(
-                icon: "heart.text.square",
-                headline: "Registry Guidance",
-                body: "A well-balanced registry includes pieces across every price tier — from meaningful everyday items to aspirational statement pieces. Aim for 3–5 items per category."
-            )
-
-            conciergeCard(
-                icon: "checkmark.seal",
-                headline: "Registry Best Practice",
-                body: "The most-gifted registries include 60–70% items under $100, creating accessibility for all guests while still featuring aspirational pieces above $200."
-            )
-
-            conciergeCard(
-                icon: "sparkles",
-                headline: "Aura AI Insight",
-                body: "Based on Williams-Sonoma gifting patterns, cookware and bedding sets have the highest gifting conversion. Consider prioritizing these categories."
-            )
-
-            productCarouselSection(title: "Registry Essentials", products: Array(allProducts.prefix(6)))
-        }
-        .padding(.horizontal, 24)
-    }
-
-    // MARK: - Tab 1: Room Styling
-
-    private var roomStylingTab: some View {
-        VStack(alignment: .leading, spacing: 24) {
-            // Moodboard entry card
-            VStack(alignment: .leading, spacing: 16) {
-                HStack(spacing: 10) {
-                    Image(systemName: "photo.on.rectangle.angled")
-                        .font(.system(size: 20, weight: .light))
-                        .foregroundColor(.wsMutedBrass)
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("AI Room Analysis")
-                            .font(.wsSerif(size: 16, weight: .semibold))
-                            .foregroundColor(.wsCharcoal)
-                        Text("Upload photos of your space for personalized recommendations.")
-                            .font(.wsBody(size: 13))
-                            .foregroundColor(.wsSecondary)
+                    if !msg.products.isEmpty {
+                        chatCarousel(products: msg.products)
+                            .padding(.top, 4)
                     }
                 }
 
-                Text("OPEN YOUR MOODBOARD")
-                    .font(.wsLabel(size: 11))
-                    .tracking(1.5)
-                    .foregroundColor(.wsCharcoal)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 44)
-                    .overlay(Rectangle().stroke(Color.wsCharcoal, lineWidth: 1))
-            }
-            .padding(20)
-            .background(Color.white)
-            .wsShadow()
-
-            conciergeCard(
-                icon: "house",
-                headline: "Room Intelligence",
-                body: "Our AI analyzes your room's lighting, color palette, and spatial density to recommend pieces that integrate seamlessly — not just products that look good in isolation."
-            )
-
-            conciergeCard(
-                icon: "circle.hexagongrid",
-                headline: "Style Compatibility",
-                body: "\"These ceramics complement your oak flooring.\" \"Your dining room supports a larger serving table.\" \"This scale of artwork suits your ceiling height.\""
-            )
-
-            productCarouselSection(title: "Room-Ready Pieces", products: Array(allProducts.shuffled().prefix(6)))
-        }
-        .padding(.horizontal, 24)
-    }
-
-    // MARK: - Tab 2: Hosting
-
-    private var hostingTab: some View {
-        VStack(alignment: .leading, spacing: 24) {
-            // Seasonal bundle preview
-            VStack(alignment: .leading, spacing: 12) {
-                HStack(spacing: 6) {
-                    Image(systemName: "sparkles")
-                        .font(.system(size: 10))
-                        .foregroundColor(.wsMutedBrass)
-                    Text("SEASONAL RECOMMENDATION")
-                        .font(.wsLabel(size: 9))
-                        .tracking(1.5)
-                        .foregroundColor(.wsMutedBrass)
-                }
-
-                Text(SeasonalContextEngine.seasonalSectionHeader())
-                    .font(.wsSerif(size: 20, weight: .bold))
-                    .foregroundColor(.wsCharcoal)
-
-                Text("A curated hosting collection for this season — selected to work beautifully together.")
-                    .font(.wsBody(size: 13))
-                    .foregroundColor(.wsSecondary)
-                    .lineSpacing(3)
-            }
-            .padding(20)
-            .background(Color.white)
-            .wsShadow()
-
-            conciergeCard(
-                icon: "fork.knife",
-                headline: "Hosting Essentials",
-                body: "A memorable dinner party requires three layers: the foundation (linens + dinnerware), the elevation (serving pieces + centerpiece), and the finishing touch (candles + small decorative objects)."
-            )
-
-            productCarouselSection(
-                title: "Hosting Picks",
-                products: seasonalProducts
-            )
-        }
-        .padding(.horizontal, 24)
-    }
-
-    // MARK: - Tab 3: Gifting
-
-    private var giftingTab: some View {
-        VStack(alignment: .leading, spacing: 24) {
-            conciergeCard(
-                icon: "gift",
-                headline: "Gifting Intelligence",
-                body: "The most appreciated gifts feel intentional — a piece the recipient wouldn't buy for themselves but would cherish. Think elevated everyday objects over grand statements."
-            )
-
-            conciergeCard(
-                icon: "chart.bar",
-                headline: "Price Tier Strategy",
-                body: "Great registry gifting spans three tiers: the meaningful gesture ($50–$100), the considered gift ($100–$250), and the aspirational present ($250+). Each serves a different relationship."
-            )
-
-            productCarouselSection(title: "Top Gifting Items", products: giftingProducts)
-        }
-        .padding(.horizontal, 24)
-    }
-
-    // MARK: - Reusable Components
-
-    private func conciergeCard(icon: String, headline: String, body: String) -> some View {
-        HStack(alignment: .top, spacing: 16) {
-            Image(systemName: icon)
-                .font(.system(size: 18, weight: .ultraLight))
-                .foregroundColor(.wsMutedBrass)
-                .frame(width: 28)
-
-            VStack(alignment: .leading, spacing: 6) {
-                Text(headline)
-                    .font(.wsSerif(size: 15, weight: .semibold))
-                    .foregroundColor(.wsCharcoal)
-                Text(body)
-                    .font(.wsBody(size: 13))
-                    .foregroundColor(.wsSecondary)
-                    .lineSpacing(3)
-                    .fixedSize(horizontal: false, vertical: true)
+                Spacer()
             }
         }
-        .padding(20)
-        .background(Color.white)
-        .wsShadow()
     }
 
-    private func productCarouselSection(title: String, products: [ProductItem]) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text(title)
-                .font(.wsSerif(size: 16, weight: .semibold))
-                .foregroundColor(.wsCharcoal)
+    private func chatCarousel(products: [ProductItem]) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("RECOMMENDED FROM THE CATALOG  ✦")
+                .font(.wsLabel(size: 8))
+                .tracking(1.5)
+                .foregroundColor(WSRegistryPalette.gold)
+                .padding(.horizontal, 4)
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
                     ForEach(products) { product in
-                        Button(action: {
+                        Button {
                             dismiss()
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                                 onSelectProduct(product)
                             }
-                        }) {
-                            conciergeProductTile(product: product)
+                        } label: {
+                            VStack(alignment: .leading, spacing: 6) {
+                                CustomAsyncImage(url: product.imageURL)
+                                    .frame(width: 102, height: 102)
+                                    .clipped()
+                                    .cornerRadius(8)
+
+                                Text(product.name)
+                                    .font(.system(size: 11, weight: .regular))
+                                    .foregroundColor(WSRegistryPalette.espresso)
+                                    .lineLimit(1)
+                                    .frame(width: 102, alignment: .leading)
+
+                                if let price = product.price {
+                                    Text("$\(price, specifier: "%.2f")")
+                                        .font(.system(size: 11, weight: .bold))
+                                        .foregroundColor(WSRegistryPalette.espresso)
+                                }
+                            }
+                            .padding(8)
+                            .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                    .stroke(WSRegistryPalette.hairline.opacity(0.48), lineWidth: 1)
+                            )
                         }
                         .buttonStyle(.plain)
                     }
                 }
-                .padding(.horizontal, 1)
             }
         }
     }
 
-    private func conciergeProductTile(product: ProductItem) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            CustomAsyncImage(url: product.imageURL)
-                .frame(width: 130, height: 130)
-                .clipped()
-                .cornerRadius(2)
+    private var typingIndicator: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "sparkles")
+                .font(.system(size: 12))
+                .foregroundColor(WSRegistryPalette.gold)
+                .frame(width: 28, height: 28)
+                .background(WSRegistryPalette.gold.opacity(0.12), in: Circle())
 
-            Text(product.name)
-                .font(.wsBody(size: 11))
-                .foregroundColor(.wsCharcoal)
-                .lineLimit(2)
-                .frame(width: 130, alignment: .leading)
+            HStack(spacing: 5) {
+                Circle()
+                    .fill(WSRegistryPalette.warmGray.opacity(0.4))
+                    .frame(width: 6, height: 6)
+                Circle()
+                    .fill(WSRegistryPalette.warmGray.opacity(0.6))
+                    .frame(width: 6, height: 6)
+                Circle()
+                    .fill(WSRegistryPalette.warmGray.opacity(0.8))
+                    .frame(width: 6, height: 6)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(Color.white, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .wsShadow()
+        }
+    }
 
-            if let price = product.price {
-                Text("$\(price, specifier: "%.2f")")
-                    .font(.wsLabel(size: 10))
-                    .foregroundColor(.wsCrimson)
+    private var chatQuickSuggestions: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("SUGGESTED DISCOVERIES")
+                .font(.wsLabel(size: 8))
+                .tracking(1.5)
+                .foregroundColor(WSRegistryPalette.gold)
+                .padding(.horizontal, 4)
+
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
+                suggestionButton("🍳 Premium Cookware") {
+                    submitChatQuery("Show me premium cookware and pans under $500")
+                }
+                suggestionButton("🍽️ Organic Dinnerware") {
+                    submitChatQuery("Recommend ceramic plates and organic bowls")
+                }
+                suggestionButton("🍷 Entertaining & Wine") {
+                    submitChatQuery("What wine glasses and entertaining tools should I add?")
+                }
+                suggestionButton("🧼 Elegant Homekeeping") {
+                    submitChatQuery("Show me Williams Sonoma board oils or homekeeping items")
+                }
             }
         }
     }
 
-    // MARK: - Computed Data
-
-    private var seasonalProducts: [ProductItem] {
-        let keywords = SeasonalContextEngine.seasonalKeywords()
-        return HomeAIPersonalizationEngine.scoreProducts(allProducts, keywords: keywords, colorTokens: [])
+    private func suggestionButton(_ title: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text(title)
+                .font(.system(size: 13, weight: .medium))
+                .foregroundColor(WSRegistryPalette.espresso)
+                .frame(maxWidth: .infinity, minHeight: 40)
+                .background(Color.white, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .stroke(WSRegistryPalette.hairline.opacity(0.62), lineWidth: 1)
+                )
+                .wsShadow()
+        }
+        .buttonStyle(.plain)
     }
 
-    private var giftingProducts: [ProductItem] {
-        allProducts
-            .compactMap { p -> (ProductItem, Double)? in
-                guard let price = p.price, price > 0 else { return nil }
-                // Score mid-range products higher for gifting
-                let score: Double = (price >= 50 && price <= 250) ? price : price * 0.5
-                return (p, score)
+    private var chatInputBar: some View {
+        HStack(spacing: 12) {
+            TextField("Message ", text: $chatInputText, axis: .vertical)
+                .font(.system(size: 15))
+                .foregroundColor(WSRegistryPalette.espresso)
+                .lineLimit(1...5)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+                .frame(minHeight: 48)
+                .background(
+                    RoundedRectangle(cornerRadius: 24, style: .continuous)
+                        .fill(WSRegistryPalette.porcelain)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 24, style: .continuous)
+                        .stroke(WSRegistryPalette.hairline.opacity(0.85), lineWidth: 1)
+                )
+
+            Button {
+                let query = chatInputText.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !query.isEmpty else { return }
+                submitChatQuery(query)
+            } label: {
+                Image(systemName: "paperplane.fill")
+                    .font(.system(size: 15, weight: .bold))
+                    .foregroundColor(WSRegistryPalette.porcelain)
+                    .frame(width: 48, height: 48)
+                    .background(WSRegistryPalette.espresso, in: Circle())
+                    .wsShadow()
             }
-            .sorted { $0.1 > $1.1 }
-            .map { $0.0 }
-            .prefix(8)
-            .map { $0 }
+            .disabled(chatInputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+        }
+    }
+
+    private func submitChatQuery(_ query: String) {
+        chatInputText = ""
+
+        let userMessage = ConciergeChatMessage(isUser: true, text: query, products: [])
+        messages.append(userMessage)
+
+        isAILoading = true
+
+        AuraAIService.shared.sendMessage(query, catalog: allProducts) { replyText, recommendedItems in
+            isAILoading = false
+            let aiMessage = ConciergeChatMessage(isUser: false, text: replyText, products: recommendedItems)
+            withAnimation(.spring()) {
+                messages.append(aiMessage)
+            }
+        }
     }
 }

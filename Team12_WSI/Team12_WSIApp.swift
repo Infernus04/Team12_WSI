@@ -21,6 +21,9 @@ struct Team12_WSIApp: App {
                 .environmentObject(registryRepository)
                 .environmentObject(tabBarViewModel)
                 .environmentObject(saveForLaterRepository)
+                .onAppear {
+                    registryRepository.loadPersistedState()
+                }
         }
     }
 }

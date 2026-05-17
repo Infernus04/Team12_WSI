@@ -287,7 +287,7 @@ struct HomeView: View {
                     Text(scene.subtitle).font(.wsBody(size: 13)).foregroundColor(.white.opacity(0.8))
                     // Mini product thumbnails
                     HStack(spacing: 6) {
-                        ForEach([(scene.productOffset+1)%max(1,viewModel.products.count), (scene.productOffset+2)%max(1,viewModel.products.count)], id: \.self) { idx in
+                        ForEach(Array([(scene.productOffset+1)%max(1,viewModel.products.count), (scene.productOffset+2)%max(1,viewModel.products.count)].enumerated()), id: \.offset) { index, idx in
                             if let url = viewModel.product(at: idx)?.imageURL {
                                 CustomAsyncImage(url: url).frame(width: 36, height: 36).clipped().clipShape(Circle()).overlay(Circle().stroke(Color.white.opacity(0.5), lineWidth: 1))
                             }
