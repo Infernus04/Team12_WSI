@@ -4,6 +4,7 @@ import SwiftUI
 
 struct AURARecommendationReviewView: View {
     @StateObject private var viewModel: AURARecommendationReviewViewModel
+    @State private var showMinimalHeader = false
     @EnvironmentObject var cartRepo: CartRepository
     @EnvironmentObject var registryRepo: RegistryRepository
     @EnvironmentObject var tabBarVM: WSTabBarViewModel
@@ -52,13 +53,8 @@ private extension AURARecommendationReviewView {
     var recommendationContent: some View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 26) {
-                headerSection
-                contextBanner
+                minimalHeader
                 bulkActionsCard
-
-                ForEach(viewModel.sections) { section in
-                    categorySection(section)
-                }
 
                 if !viewModel.recommendations.isEmpty {
                     aiPicksSection
@@ -68,6 +64,10 @@ private extension AURARecommendationReviewView {
                     collectionsSection
                 }
 
+                ForEach(viewModel.sections) { section in
+                    categorySection(section)
+                }
+
                 viewRegistryButton
             }
             .padding(.horizontal, 18)
@@ -75,58 +75,33 @@ private extension AURARecommendationReviewView {
             .padding(.bottom, 120)
         }
         .scrollClipDisabled(false)
+        .onAppear {
+            withAnimation(.easeOut(duration: 0.6)) {
+                showMinimalHeader = true
+            }
+        }
     }
 
     // MARK: Header
 
-    var headerSection: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack(spacing: 10) {
-                Image(systemName: "sparkles")
-                    .font(.system(size: 20, weight: .medium))
-                    .foregroundStyle(WSRegistryPalette.gold)
-                Text("AURA")
-                    .font(.system(size: 14, weight: .bold))
-                    .tracking(2.4)
-                    .foregroundStyle(WSRegistryPalette.gold)
-            }
-
-            Text("Curated for\nyour registry")
-                .font(.system(size: 36, weight: .regular, design: .serif))
+    var minimalHeader: some View {
+        VStack(spacing: 10) {
+            Text("Made uniquely for you")
+                .font(.system(size: 32, weight: .regular, design: .serif))
                 .foregroundStyle(WSRegistryPalette.espresso)
-                .lineSpacing(2)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity)
 
-            Text("AI-powered recommendations based on your registry profile. Review and add the pieces that fit your event.")
-                .font(.system(size: 16, weight: .regular))
+            Text("A personalized registry curated around your style, vibe, and lifestyle.")
+                .font(.system(size: 15, weight: .regular))
                 .foregroundStyle(WSRegistryPalette.warmGray)
-                .lineSpacing(4)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.top, 4)
-    }
-
-    // MARK: Context Banner
-
-    var contextBanner: some View {
-        HStack(spacing: 14) {
-            Image(systemName: "checkmark.seal")
-                .font(.system(size: 22, weight: .medium))
-                .foregroundStyle(WSRegistryPalette.sage)
-
-            Text(viewModel.contextSummary)
-                .font(.system(size: 14, weight: .regular))
-                .foregroundStyle(WSRegistryPalette.cocoa.opacity(0.88))
-                .lineSpacing(3)
-
-            Spacer(minLength: 0)
-        }
-        .padding(16)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(WSRegistryPalette.sage.opacity(0.10), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .stroke(WSRegistryPalette.sage.opacity(0.25), lineWidth: 1)
-        )
+        .padding(.top, 40)
+        .padding(.bottom, 24)
+        .opacity(showMinimalHeader ? 1 : 0)
+        .offset(y: showMinimalHeader ? 0 : 8)
     }
 
     // MARK: Category Section
@@ -134,20 +109,20 @@ private extension AURARecommendationReviewView {
     func categorySection(_ section: RegistryRecommendationSection) -> some View {
         let sectionRecs = viewModel.recommendations(for: section)
 
-        return VStack(alignment: .leading, spacing: 14) {
-            VStack(alignment: .leading, spacing: 5) {
+        return VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 6) {
                 Text(section.title.uppercased())
-                    .font(.system(size: 12, weight: .bold))
-                    .tracking(1.8)
+                    .font(.system(size: 11, weight: .bold))
+                    .tracking(2.2)
                     .foregroundStyle(WSRegistryPalette.warmGray)
 
                 Text(section.category)
-                    .font(.system(size: 24, weight: .regular, design: .serif))
+                    .font(.system(size: 26, weight: .regular, design: .serif))
                     .foregroundStyle(WSRegistryPalette.espresso)
             }
 
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 14) {
+                LazyHStack(spacing: 14) {
                     ForEach(sectionRecs) { rec in
                         recommendationCard(rec)
                     }
@@ -174,7 +149,7 @@ private extension AURARecommendationReviewView {
                         subtitle: "Best-selling registry fundamentals"
                     )
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(PremiumPressButtonStyle())
                 .disabled(!viewModel.canAddTopEssentials())
                 .opacity(viewModel.canAddTopEssentials() ? 1 : 0.55)
 
@@ -187,17 +162,24 @@ private extension AURARecommendationReviewView {
                         subtitle: "Your full curated recommendation set"
                     )
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(PremiumPressButtonStyle())
                 .disabled(!viewModel.canAddPersonalizedSet())
                 .opacity(viewModel.canAddPersonalizedSet() ? 1 : 0.55)
             }
         }
+        .padding(18)
+        .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                .stroke(WSRegistryPalette.hairline.opacity(0.45), lineWidth: 1)
+        )
+        .shadow(color: WSRegistryPalette.espresso.opacity(0.06), radius: 20, x: 0, y: 10)
     }
 
     func quickAddLabel(icon: String, title: String, subtitle: String) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Image(systemName: icon)
-                .font(.system(size: 17, weight: .semibold))
+                .font(.system(size: 22, weight: .semibold))
                 .foregroundStyle(WSRegistryPalette.gold)
             Text(title)
                 .font(.system(size: 14, weight: .semibold))
@@ -209,10 +191,10 @@ private extension AURARecommendationReviewView {
                 .lineLimit(2)
         }
         .padding(12)
-        .frame(maxWidth: .infinity, minHeight: 110, alignment: .topLeading)
-        .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .frame(maxWidth: .infinity, minHeight: 120, alignment: .topLeading)
+        .background(Color.white.opacity(0.55), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .stroke(WSRegistryPalette.hairline.opacity(0.45), lineWidth: 1)
         )
     }
@@ -232,20 +214,26 @@ private extension AURARecommendationReviewView {
                         .foregroundStyle(WSRegistryPalette.gold)
                 }
 
-                Text("Individual Recommendations")
+                Text("AI Picks For You")
                     .font(.system(size: 24, weight: .regular, design: .serif))
                     .foregroundStyle(WSRegistryPalette.espresso)
+
+                Text("Selected individually based on your registry vibe.")
+                    .font(.system(size: 13, weight: .regular))
+                    .foregroundStyle(WSRegistryPalette.warmGray)
             }
 
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
+                LazyHStack(spacing: 12) {
                     ForEach(viewModel.recommendations.prefix(8)) { rec in
                         aiPickCard(rec)
                     }
                 }
+                .scrollTargetLayout()
                 .padding(.horizontal, 2)
                 .padding(.vertical, 4)
             }
+            .scrollTargetBehavior(.viewAligned)
         }
     }
 
@@ -260,12 +248,12 @@ private extension AURARecommendationReviewView {
         )
         let registryQty = registryRepo.currentRegistry?.items.first(where: { $0.id == product.id })?.quantity ?? 0
 
-        return VStack(alignment: .leading, spacing: 6) {
+        return VStack(alignment: .leading, spacing: 8) {
             ZStack(alignment: .topLeading) {
                 CustomAsyncImage(url: product.imageURL)
-                    .frame(width: 170, height: 170)
+                    .frame(width: 200, height: 200)
                     .clipped()
-                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
 
                 Text(rec.confidenceLabel.uppercased())
                     .font(.system(size: 9, weight: .bold))
@@ -281,7 +269,19 @@ private extension AURARecommendationReviewView {
                 .font(.system(size: 13, weight: .semibold))
                 .foregroundStyle(WSRegistryPalette.espresso)
                 .lineLimit(2)
-                .frame(width: 170, alignment: .leading)
+                .frame(width: 200, alignment: .leading)
+
+            HStack(spacing: 6) {
+                ForEach(viewModel.vibeTags(for: rec), id: \.self) { tag in
+                    Text(tag)
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(WSRegistryPalette.espresso)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(WSRegistryPalette.ivory, in: Capsule())
+                }
+            }
+            .frame(width: 200, alignment: .leading)
 
             if let price = product.price {
                 Text("$\(price, specifier: "%.2f")")
@@ -289,11 +289,19 @@ private extension AURARecommendationReviewView {
                     .foregroundStyle(Color(hex: "#C8102E"))
             }
 
-            Text(rec.explanation)
-                .font(.system(size: 11, weight: .regular))
-                .foregroundStyle(WSRegistryPalette.warmGray)
-                .lineLimit(2)
-                .frame(width: 170, alignment: .leading)
+            DisclosureGroup {
+                Text(rec.explanation)
+                    .font(.system(size: 11, weight: .regular))
+                    .foregroundStyle(WSRegistryPalette.warmGray)
+                    .lineSpacing(2)
+                    .frame(width: 200, alignment: .leading)
+                    .padding(.top, 4)
+            } label: {
+                Text("Why this pick?")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(WSRegistryPalette.gold)
+            }
+            .tint(WSRegistryPalette.gold)
 
             Button {
                 if registryQty > 0 {
@@ -306,7 +314,7 @@ private extension AURARecommendationReviewView {
                     .font(.system(size: 10, weight: .bold))
                     .tracking(0.8)
                     .foregroundStyle(registryQty > 0 ? WSRegistryPalette.sage : WSRegistryPalette.espresso)
-                    .frame(width: 170, height: 34)
+                    .frame(width: 200, height: 34)
                     .background(
                         registryQty > 0
                             ? WSRegistryPalette.sage.opacity(0.14)
@@ -323,6 +331,12 @@ private extension AURARecommendationReviewView {
             }
             .buttonStyle(.plain)
         }
+        .padding(12)
+        .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(WSRegistryPalette.hairline.opacity(0.45), lineWidth: 1)
+        )
     }
 
     // MARK: Aesthetic Bundles (Home-Style)
@@ -343,17 +357,23 @@ private extension AURARecommendationReviewView {
                 Text("AI Aesthetic Bundles")
                     .font(.system(size: 24, weight: .regular, design: .serif))
                     .foregroundStyle(WSRegistryPalette.espresso)
+
+                Text("Curated collections designed around a complete aesthetic.")
+                    .font(.system(size: 13, weight: .regular))
+                    .foregroundStyle(WSRegistryPalette.warmGray)
             }
 
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 16) {
+                LazyHStack(spacing: 16) {
                     ForEach(viewModel.homeBundles) { bundle in
                         bundleCard(bundle)
                     }
                 }
+                .scrollTargetLayout()
                 .padding(.horizontal, 2)
                 .padding(.vertical, 4)
             }
+            .scrollTargetBehavior(.viewAligned)
         }
     }
 
@@ -361,58 +381,50 @@ private extension AURARecommendationReviewView {
     func bundleCard(_ bundle: HomeInspiredBundle) -> some View {
         let isAdded = viewModel.isCollectionAdded(bundle)
         let bundleProducts = viewModel.products(for: bundle)
+        let heroPath = bundleProducts.first?.imagePath
 
         VStack(alignment: .leading, spacing: 0) {
-            // 2×2 product image grid
-            ZStack(alignment: .topTrailing) {
-                LazyVGrid(
-                    columns: [GridItem(.flexible(), spacing: 2), GridItem(.flexible(), spacing: 2)],
-                    spacing: 2
-                ) {
-                    ForEach(Array(bundleProducts.prefix(4).enumerated()), id: \.offset) { _, product in
-                        if let path = product.imagePath {
-                            CustomAsyncImage(url: URL(string: AppConstants.API.imageBasePath + path))
-                                .frame(height: 120)
-                                .clipped()
-                        } else {
-                            Rectangle()
-                                .fill(WSRegistryPalette.ivory)
-                                .frame(height: 120)
-                        }
-                    }
+            ZStack(alignment: .bottomLeading) {
+                if let heroPath {
+                    CustomAsyncImage(url: URL(string: AppConstants.API.imageBasePath + heroPath))
+                        .frame(height: 220)
+                        .frame(maxWidth: .infinity)
+                        .clipped()
+                } else {
+                    Rectangle()
+                        .fill(WSRegistryPalette.ivory)
+                        .frame(height: 220)
                 }
-                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
 
-                // Match badge
-                Text("\(bundle.compatibilityScore)% MATCH")
-                    .font(.system(size: 9, weight: .bold))
-                    .tracking(0.5)
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 5)
-                    .background(
-                        LinearGradient(
-                            colors: [WSRegistryPalette.gold, WSRegistryPalette.gold.opacity(0.85)],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        ),
-                        in: Capsule()
-                    )
-                    .padding(10)
+                LinearGradient(
+                    colors: [.clear, Color.black.opacity(0.72)],
+                    startPoint: .center,
+                    endPoint: .bottom
+                )
+                .frame(height: 220)
+
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(bundle.title)
+                        .font(.system(size: 24, weight: .regular, design: .serif))
+                        .foregroundStyle(.white)
+                        .lineLimit(2)
+
+                    Text(bundle.description)
+                        .font(.system(size: 13, weight: .regular))
+                        .foregroundStyle(.white.opacity(0.88))
+                        .lineLimit(2)
+                }
+                .padding(16)
             }
+            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
 
-            VStack(alignment: .leading, spacing: 8) {
-                Text(bundle.title)
-                    .font(.system(size: 17, weight: .semibold, design: .serif))
-                    .foregroundStyle(WSRegistryPalette.espresso)
-                    .lineLimit(2)
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 8) {
+                    badge("\(bundle.compatibilityScore)% Match")
+                    badge("\(bundle.productCount) Items")
+                    badge("$\(String(format: "%.0f", bundle.estimatedTotal))")
+                }
 
-                Text(bundle.description)
-                    .font(.system(size: 12, weight: .regular))
-                    .foregroundStyle(WSRegistryPalette.warmGray)
-                    .lineLimit(2)
-
-                // WHY THIS WORKS
                 DisclosureGroup {
                     Text(bundle.aiReason)
                         .font(.system(size: 12, weight: .regular))
@@ -423,7 +435,7 @@ private extension AURARecommendationReviewView {
                     HStack(spacing: 5) {
                         Image(systemName: "sparkles")
                             .font(.system(size: 10))
-                        Text("WHY THIS WORKS")
+                        Text("WHY THIS BUNDLE")
                             .font(.system(size: 10, weight: .bold))
                             .tracking(1.0)
                     }
@@ -431,33 +443,50 @@ private extension AURARecommendationReviewView {
                 }
                 .tint(WSRegistryPalette.gold)
 
-                Button {
-                    viewModel.addCollection(bundle)
-                } label: {
-                    Text(isAdded ? "Bundle Added ✓" : "ADD BUNDLE")
-                        .font(.system(size: 11, weight: .bold))
-                        .tracking(1.0)
-                        .foregroundStyle(isAdded ? WSRegistryPalette.sage : WSRegistryPalette.cream)
-                        .frame(maxWidth: .infinity, minHeight: 42)
-                        .background(
-                            isAdded
-                                ? WSRegistryPalette.sage.opacity(0.16)
-                                : WSRegistryPalette.espresso,
-                            in: RoundedRectangle(cornerRadius: 10, style: .continuous)
-                        )
+                HStack(spacing: 10) {
+                    Button {
+                        tabBarVM.registryPath.append(RegistryRoute.categoryProducts(bundle.title))
+                    } label: {
+                        Text("Preview Collection")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundStyle(WSRegistryPalette.espresso)
+                            .frame(maxWidth: .infinity, minHeight: 42)
+                            .background(Color.clear, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                    .stroke(WSRegistryPalette.espresso.opacity(0.55), lineWidth: 1)
+                            )
+                    }
+                    .buttonStyle(PremiumPressButtonStyle())
+
+                    Button {
+                        viewModel.addCollection(bundle)
+                    } label: {
+                        Text(isAdded ? "Bundle Added ✓" : "Add Entire Bundle")
+                            .font(.system(size: 12, weight: .bold))
+                            .tracking(0.5)
+                            .foregroundStyle(isAdded ? WSRegistryPalette.sage : WSRegistryPalette.cream)
+                            .frame(maxWidth: .infinity, minHeight: 42)
+                            .background(
+                                isAdded
+                                    ? WSRegistryPalette.sage.opacity(0.16)
+                                    : WSRegistryPalette.espresso,
+                                in: RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            )
+                    }
+                    .buttonStyle(PremiumPressButtonStyle())
+                    .disabled(isAdded)
                 }
-                .buttonStyle(.plain)
-                .disabled(isAdded)
             }
-            .padding(14)
+            .padding(16)
         }
-        .frame(width: 262)
-        .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .frame(width: UIScreen.main.bounds.width - 36)
+        .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
                 .stroke(WSRegistryPalette.hairline.opacity(0.45), lineWidth: 1)
         )
-        .shadow(color: WSRegistryPalette.espresso.opacity(0.06), radius: 14, x: 0, y: 6)
+        .shadow(color: WSRegistryPalette.espresso.opacity(0.08), radius: 18, x: 0, y: 8)
     }
 
     // MARK: Product Card
@@ -477,6 +506,7 @@ private extension AURARecommendationReviewView {
             ZStack(alignment: .topLeading) {
                 CustomAsyncImage(url: product.imageURL)
                     .frame(width: 170, height: 170)
+                    .scaledToFill()
                     .clipped()
                     .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
 
@@ -675,6 +705,27 @@ private extension AURARecommendationReviewView {
         case "Medium": return WSRegistryPalette.gold
         default: return WSRegistryPalette.warmGray
         }
+    }
+
+    func badge(_ text: String) -> some View {
+        Text(text)
+            .font(.system(size: 10, weight: .semibold))
+            .foregroundStyle(WSRegistryPalette.espresso)
+            .padding(.horizontal, 9)
+            .padding(.vertical, 5)
+            .background(WSRegistryPalette.ivory, in: Capsule())
+            .overlay(
+                Capsule()
+                    .stroke(WSRegistryPalette.hairline.opacity(0.35), lineWidth: 1)
+            )
+    }
+}
+
+private struct PremiumPressButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.97 : 1.0)
+            .animation(.easeOut(duration: 0.16), value: configuration.isPressed)
     }
 }
 
