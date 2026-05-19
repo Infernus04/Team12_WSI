@@ -66,3 +66,7 @@ fastlane/test_output
 .DS_Store
 node_modules
 .env
+
+# API Keys and Secrets
+Team12_WSI/Core/Keys.plist
+
