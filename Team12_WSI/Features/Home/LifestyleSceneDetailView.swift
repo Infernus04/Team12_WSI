@@ -290,7 +290,6 @@ struct SceneProductCard: View {
                         .foregroundColor(.wsCrimson)
                 }
 
-                HStack(spacing: 8) {
                     Button(action: {
                         onAddToCart()
                         withAnimation(.spring()) { isAdded = true }
@@ -311,15 +310,6 @@ struct SceneProductCard: View {
                         .background(isAdded ? Color.wsMutedBrass : Color.wsCharcoal)
                         .cornerRadius(2)
                     }
-
-                    Button(action: onAddToRegistry) {
-                        Image(systemName: "heart")
-                            .font(.system(size: 13))
-                            .foregroundColor(.wsCharcoal)
-                            .frame(width: 32, height: 32)
-                            .overlay(Rectangle().stroke(Color.wsIvoryShadow, lineWidth: 1))
-                    }
-                }
             }
             .padding(10)
         }

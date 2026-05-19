@@ -1,5 +1,6 @@
 import { Hono } from 'hono'
 import { serveStatic } from '@hono/node-server/serve-static'
+import { logger } from 'hono/logger'
 
 import { analyzeCart } from './lib/cartRecommender.js'
 import { getCatalog, getRawCatalog } from './lib/catalogRepository.js'
@@ -7,16 +8,20 @@ import { quoteCheckout, submitCheckout } from './lib/mockCheckout.js'
 
 const app = new Hono()
 
+// Log all requests
+app.use('*', logger())
+
 // Serve static images
 app.use('/images/*', serveStatic({ root: './' }))
 
-
 app.get('/', (c) => {
+  console.log('[GET] /')
   return c.text('Hello Hono!')
 })
 
 // Wedding Registry Recommendation Engine - Initial Filtering
 app.get('/products/wedding', async (c) => {
+  console.log('[GET] /products/wedding - Endpoint hit')
   try {
     const products = await getRawCatalog()
 
@@ -49,6 +54,7 @@ app.get('/products/wedding', async (c) => {
 
 // Suggest recommendations based on current registry
 app.post('/recommendations', async (c) => {
+  console.log('[POST] /recommendations - Endpoint hit')
   try {
     const { currentItems = [] } = await c.req.json()
     const allProducts = await getCatalog()
@@ -83,8 +89,10 @@ app.post('/recommendations', async (c) => {
 })
 
 app.post('/cart/analyze', async (c) => {
+  console.log('[POST] /cart/analyze - Endpoint hit')
   try {
     const { items = [] } = await c.req.json()
+    console.log(`[POST] /cart/analyze - Received ${items.length} items`)
 
     if (!Array.isArray(items)) {
       return c.json({ error: 'items must be an array' }, 400)
@@ -99,8 +107,10 @@ app.post('/cart/analyze', async (c) => {
 })
 
 app.post('/checkout/quote', async (c) => {
+  console.log('[POST] /checkout/quote - Endpoint hit')
   try {
     const { items = [] } = await c.req.json()
+    console.log(`[POST] /checkout/quote - Quoting for ${items.length} items`)
 
     if (!Array.isArray(items)) {
       return c.json({ error: 'items must be an array' }, 400)
@@ -125,19 +135,25 @@ app.post('/checkout/submit', async (c) => {
 
 // Unfiltered Product Catalogue
 app.get('/skus', async (c) => {
+  console.log('[GET] /skus - Endpoint hit by client')
   try {
     const products = await getRawCatalog()
+    console.log(`[GET] /skus - Successfully loaded ${products.length} products`)
     return c.json({
       count: products.length,
       products: products
     })
   } catch (error) {
+    console.error('[GET] /skus - Error fetching skus:', error)
     return c.json({ error: 'Failed to fetch skus' }, 500)
   }
 })
 
-export default app
-export { app }
+export default {
+  port: 3000,
+  hostname: '0.0.0.0',
+  fetch: app.fetch
+}
 
 
 
