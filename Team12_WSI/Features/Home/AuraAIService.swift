@@ -7,7 +7,7 @@ final class AuraAIService {
     
     private var isApiKeyConfigured: Bool {
         let key = AppConstants.API.geminiAPIKey
-        return !key.isEmpty && !key.contains("YOUR_GEMINI_API_KEY")
+        return !key.isEmpty && key != "YOUR_GEMINI_API_KEY_HERE"
     }
     
     private func levenshteinDistance(_ s1: String, _ s2: String) -> Int {
@@ -323,12 +323,35 @@ final class AuraAIService {
                     completion(textReply, matchedProducts)
                 }
             } catch {
-                print("Aura AI Gemini Error: \(error)")
+                print("Aura AI Gemini Error (Graceful Fallback Initiated): \(error)")
+                // Automatically fall back to simulated responses on 429 quota or connection issues
                 DispatchQueue.main.async {
                     self.runSimulatedFallback(query: query, image: image, catalog: catalog, completion: completion)
                 }
             }
         }
     }
+    
+    /// Generates highly relevant simulated recommendations based on the catalog when the live API fails or is limited.
+    private func runFallbackSimulation(
+        query: String,
+        catalog: [ProductItem],
+        completion: @escaping (String, [ProductItem]) -> Void
+    ) {
+        let lower = query.lowercased()
+        if lower.contains("cookware") || lower.contains("pot") || lower.contains("pan") {
+            let matches = catalog.filter { ($0.productType ?? "").lowercased().contains("cookware") || $0.name.lowercased().contains("cookware") }
+            completion("I would love to guide you through our exquisite cookware selections. For an inspiring kitchen foundation, a high-performance Le Creuset or professional copper set makes a wonderful anchor for your registry list.", Array(matches.prefix(3)))
+        } else if lower.contains("plate") || lower.contains("ceramic") || lower.contains("dining") || lower.contains("tabletop") || lower.contains("bowl") {
+            let matches = catalog.filter { ($0.productType ?? "").lowercased().contains("cutting") || $0.name.lowercased().contains("board") || $0.name.lowercased().contains("bowl") }
+            completion("To set an inviting, social table for your guests, I highly recommend incorporating organic textures and multi-layer serving platters that elevate shared meals.", Array(matches.prefix(3)))
+        } else if lower.contains("homekeeping") || lower.contains("cleaning") || lower.contains("oil") || lower.contains("soap") {
+            let matches = catalog.filter { ($0.pattern ?? "").lowercased().contains("homekeeping") || $0.name.lowercased().contains("oil") }
+            completion("To keep your registry highly functional and keep your gourmet cookware and boards in perfect shape, Williams-Sonoma premium homekeeping cleaners and board oils are essential additions.", Array(matches.prefix(3)))
+        } else {
+            completion("That sounds like a beautiful addition to your home story. Let me know if you would like me to curate cookware foundations, luxury tabletop details, or daily entertaining essentials for your registry!", [])
+        }
+    }
 }
+
 

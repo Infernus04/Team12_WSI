@@ -69,7 +69,13 @@ struct HomeView: View {
             }
             .sheet(item: $selectedArticle) { article in articleSheet(article) }
             .sheet(isPresented: $showMoodboard) {
-                NavigationStack { MoodboardView(allProducts: viewModel.products) }
+                NavigationStack {
+                    MoodboardView(
+                        allProducts: viewModel.products,
+                        onAddToCart: { viewModel.addToCart($0) },
+                        onAddToRegistry: { viewModel.addToRegistry($0) }
+                    )
+                }
             }
             .sheet(isPresented: $showHeroCollection) {
                 HomeSearchView(
@@ -563,12 +569,18 @@ struct HomeView: View {
             }
             .padding(.horizontal, 20)
 
-            VStack(spacing: 20) {
-                ForEach(HomeEditorialData.articles) { article in
-                    Button(action: { selectedArticle = article }) { editorialCard(article) }.buttonStyle(.plain)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 18) {
+                    ForEach(HomeEditorialData.articles) { article in
+                        Button(action: { selectedArticle = article }) {
+                            editorialCard(article)
+                        }
+                        .buttonStyle(.plain)
+                        .frame(width: 320)
+                    }
                 }
+                .padding(.horizontal, 20)
             }
-            .padding(.horizontal, 20)
         }
     }
 
