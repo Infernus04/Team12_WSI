@@ -3884,5 +3884,143 @@
     },
     "availability": "ON_HAND",
     "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "pb-chesterfield-sofa",
+    "name": "Pottery Barn Chesterfield Leather Sofa",
+    "shortName": "Chesterfield Leather Sofa",
+    "primaryGroupId": "pb-chesterfield-sofa",
+    "price": {
+      "regularPrice": 2499.00,
+      "surcharge": 150,
+      "retailPrice": 2499.00,
+      "sellingPrice": 2299.00,
+      "monogramOrPersonalizationPrice": 0
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "brown-parent/cognac-leather",
+      "pattern": "furniture",
+      "isFood": "false",
+      "isFurniture": "true",
+      "spiritType": "pottery-barn",
+      "hasUtilityNeeds": "false",
+      "brand": "pottery-barn",
+      "organic": "false",
+      "productType": "sofa",
+      "canGiftWrap": "false",
+      "allProductTypes": "sofa",
+      "material": "leather",
+      "isShoppable": "true",
+      "name": "Pottery Barn Chesterfield Leather Sofa",
+      "shortName": "Chesterfield Leather Sofa"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/luxury_sofa.png",
+          "aspect": "q",
+          "properties": {
+            "altText": "Pottery Barn Chesterfield Leather Sofa"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "IMMEDIATE"
+  },
+  {
+    "id": "we-haven-sofa",
+    "name": "West Elm Haven Loft Sofa",
+    "shortName": "West Elm Haven Loft Sofa",
+    "primaryGroupId": "we-haven-sofa",
+    "price": {
+      "regularPrice": 1799.00,
+      "surcharge": 100,
+      "retailPrice": 1799.00,
+      "sellingPrice": 1599.00,
+      "monogramOrPersonalizationPrice": 0
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "gray-parent/distressed-velvet-mineral",
+      "pattern": "furniture",
+      "isFood": "false",
+      "isFurniture": "true",
+      "spiritType": "west-elm",
+      "hasUtilityNeeds": "false",
+      "brand": "west-elm",
+      "organic": "false",
+      "productType": "sofa",
+      "canGiftWrap": "false",
+      "allProductTypes": "sofa",
+      "material": "velvet",
+      "isShoppable": "true",
+      "name": "West Elm Haven Loft Sofa",
+      "shortName": "West Elm Haven Loft Sofa"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/we_haven_sofa.png",
+          "aspect": "q",
+          "properties": {
+            "altText": "West Elm Haven Loft Sofa"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "pb-jake-sofa",
+    "name": "Pottery Barn Jake Upholstered Sofa",
+    "shortName": "Pottery Barn Jake Upholstered Sofa",
+    "primaryGroupId": "pb-jake-sofa",
+    "price": {
+      "regularPrice": 1999.00,
+      "surcharge": 120,
+      "retailPrice": 1999.00,
+      "sellingPrice": 1899.00,
+      "monogramOrPersonalizationPrice": 0
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "white-parent/boucle-oatmeal",
+      "pattern": "furniture",
+      "isFood": "false",
+      "isFurniture": "true",
+      "spiritType": "pottery-barn",
+      "hasUtilityNeeds": "false",
+      "brand": "pottery-barn",
+      "organic": "false",
+      "productType": "sofa",
+      "canGiftWrap": "false",
+      "allProductTypes": "sofa",
+      "material": "boucle",
+      "isShoppable": "true",
+      "name": "Pottery Barn Jake Upholstered Sofa",
+      "shortName": "Pottery Barn Jake Upholstered Sofa"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/pb_jake_sofa.png",
+          "aspect": "q",
+          "properties": {
+            "altText": "Pottery Barn Jake Upholstered Sofa"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "IMMEDIATE"
   }
 ]

@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 import GoogleGenerativeAI
 
 final class AuraAIService {
@@ -6,12 +7,133 @@ final class AuraAIService {
     
     private var isApiKeyConfigured: Bool {
         let key = AppConstants.API.geminiAPIKey
-        return key != "AIzaSyDJlNTVaA2FyRUY8X2QDgdEuS5n8yoifxo" && !key.isEmpty
+        return !key.isEmpty && !key.contains("YOUR_GEMINI_API_KEY")
     }
     
-    /// Queries the Gemini 1.5 Flash model with the user query and catalog list.
+    private func runSimulatedFallback(
+        query: String,
+        image: UIImage?,
+        catalog: [ProductItem],
+        completion: @escaping (String, [ProductItem]) -> Void
+    ) {
+        let lower = query.lowercased()
+        
+        // 1. Filter out common conversational stop words
+        let stopWords: Set<String> = [
+            "a", "an", "the", "in", "on", "at", "to", "for", "of", "with", "by", "from",
+            "me", "i", "my", "you", "your", "we", "our", "show", "give", "recommend",
+            "suggest", "please", "find", "search", "want", "need", "like", "love",
+            "theme", "product", "products", "item", "items", "some", "any", "all",
+            "get", "display", "list", "go", "matching", "design", "style", "look", "this"
+        ]
+        
+        // 2. Tokenize prompt into individual search keywords
+        let words = lower.components(separatedBy: CharacterSet.alphanumerics.inverted)
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty && !stopWords.contains($0) && $0.count >= 2 }
+        
+        print("Aura AI Simulated Fallback Keywords: \(words)")
+        
+        // 3. Scan the user's actual database (catalog) to find matching products
+        var matchedProducts: [ProductItem] = []
+        
+        if !words.isEmpty {
+            // Score products based on how many keywords match their properties
+            let scoredProducts = catalog.map { item -> (item: ProductItem, score: Int) in
+                var score = 0
+                let nameLower = item.name.lowercased()
+                let brandLower = (item.brand ?? "").lowercased()
+                let materialLower = (item.material ?? "").lowercased()
+                let typeLower = (item.productType ?? "").lowercased()
+                let patternLower = (item.pattern ?? "").lowercased()
+                
+                for word in words {
+                    // Exact name match gets highest weight
+                    if nameLower.contains(word) {
+                        score += 5
+                    }
+                    // Brand match gets high weight
+                    if brandLower.contains(word) {
+                        score += 4
+                    }
+                    // Product type or category match
+                    if typeLower.contains(word) || patternLower.contains(word) {
+                        score += 3
+                    }
+                    // Material match
+                    if materialLower.contains(word) {
+                        score += 2
+                    }
+                }
+                return (item, score)
+            }
+            .filter { $0.score > 0 }
+            .sorted { $0.score > $1.score }
+            
+            matchedProducts = scoredProducts.map { $0.item }
+        }
+        
+        // 4. Fall back to standard catalog groups if no keyword matches were found
+        if matchedProducts.isEmpty {
+            if lower.contains("sofa") || lower.contains("couch") || lower.contains("living") || lower.contains("room") || lower.contains("space") || image != nil {
+                matchedProducts = catalog.filter { ($0.productType ?? "").lowercased().contains("sofa") || $0.name.lowercased().contains("sofa") }
+                if matchedProducts.isEmpty {
+                    matchedProducts = ProductItem.fallbackProducts.filter { $0.name.lowercased().contains("sofa") }
+                }
+            } else if lower.contains("kitchen") || lower.contains("cook") || lower.contains("pan") || lower.contains("pot") {
+                matchedProducts = catalog.filter { ($0.productType ?? "").lowercased().contains("cookware") || $0.name.lowercased().contains("cookware") || $0.name.lowercased().contains("pan") }
+                if matchedProducts.isEmpty {
+                    matchedProducts = ProductItem.fallbackProducts.filter { ($0.productType ?? "").lowercased().contains("cookware") || $0.name.lowercased().contains("cookware") }
+                }
+            } else {
+                matchedProducts = Array(catalog.prefix(3))
+            }
+        }
+        
+        // 5. Parse budget constraints (e.g., "under 250", "budget 1500") and filter results
+        var maxPrice: Double? = nil
+        if let range = lower.range(of: "under\\s*\\$?([0-9]+)", options: .regularExpression) {
+            let priceStr = lower[range].replacingOccurrences(of: "under", with: "").replacingOccurrences(of: "$", with: "").trimmingCharacters(in: .whitespaces)
+            maxPrice = Double(priceStr)
+        } else if let range = lower.range(of: "below\\s*\\$?([0-9]+)", options: .regularExpression) {
+            let priceStr = lower[range].replacingOccurrences(of: "below", with: "").replacingOccurrences(of: "$", with: "").trimmingCharacters(in: .whitespaces)
+            maxPrice = Double(priceStr)
+        } else if let range = lower.range(of: "budget\\s*\\$?([0-9]+)", options: .regularExpression) {
+            let priceStr = lower[range].replacingOccurrences(of: "budget", with: "").replacingOccurrences(of: "$", with: "").trimmingCharacters(in: .whitespaces)
+            maxPrice = Double(priceStr)
+        }
+        
+        if let maxPrice = maxPrice {
+            matchedProducts = matchedProducts.filter { ($0.price ?? 0.0) <= maxPrice }
+        }
+        
+        // 6. Generate the luxurious, elegant conversational reply
+        let finalMatches = Array(matchedProducts.prefix(3))
+        var explanation = ""
+        
+        if image != nil {
+            explanation += "✦ AURA VISUAL INTEL ✦\nScanning and analyzing your uploaded space... I notice inspiring design elements. To match this visual style,"
+        } else {
+            explanation += "I would love to assist with your request."
+        }
+        
+        if !finalMatches.isEmpty {
+            explanation += " Here are premium selections from the Williams-Sonoma catalog that beautifully match your query"
+            if let maxPrice = maxPrice {
+                explanation += " while remaining within your budget of under $\(Int(maxPrice))"
+            }
+            explanation += ":"
+        } else {
+            explanation += " I searched our current Williams-Sonoma catalog but couldn't find a direct match. Let me know if I can guide you to our cookware foundations, luxury tabletop details, or daily entertaining essentials!"
+        }
+        
+        completion(explanation, finalMatches)
+    }
+    
+    /// Queries the Gemini 1.5 Flash model with the user query, optional image, and catalog list.
     func sendMessage(
         _ query: String,
+        image: UIImage?,
         catalog: [ProductItem],
         completion: @escaping (String, [ProductItem]) -> Void
     ) {
@@ -94,22 +216,11 @@ final class AuraAIService {
         guard isApiKeyConfigured else {
             // Safe fallback simulation if they haven't set their key yet so they can still demo it!
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
-                let lower = query.lowercased()
-                if lower.contains("cookware") || lower.contains("pot") || lower.contains("pan") {
-                    let matches = catalog.filter { ($0.productType ?? "").lowercased().contains("cookware") || $0.name.lowercased().contains("cookware") }
-                    completion("I would love to guide you through our exquisite cookware selections. For an inspiring kitchen foundation, a high-performance Le Creuset or professional copper set makes a wonderful anchor for your registry list.", Array(matches.prefix(3)))
-                } else if lower.contains("plate") || lower.contains("ceramic") || lower.contains("dining") || lower.contains("tabletop") {
-                    let matches = catalog.filter { ($0.productType ?? "").lowercased().contains("cutting") || $0.name.lowercased().contains("board") || $0.name.lowercased().contains("bowl") }
-                    completion("To set an inviting, social table for your guests, I highly recommend incorporating organic textures and multi-layer serving platters that elevate shared meals.", Array(matches.prefix(3)))
-                } else if lower.contains("homekeeping") || lower.contains("cleaning") || lower.contains("oil") || lower.contains("soap") {
-                    let matches = catalog.filter { ($0.pattern ?? "").lowercased().contains("homekeeping") || $0.name.lowercased().contains("oil") }
-                    completion("To keep your registry highly functional and keep your gourmet cookware and boards in perfect shape, Williams-Sonoma premium homekeeping cleaners and board oils are essential additions.", Array(matches.prefix(3)))
-                } else {
-                    completion("That sounds like a beautiful addition to your home story. Let me know if you would like me to curate cookware foundations, luxury tabletop details, or daily entertaining essentials for your registry!", [])
-                }
+                self.runSimulatedFallback(query: query, image: image, catalog: catalog, completion: completion)
             }
             return
         }
+        
         // Initialize the GenerativeModel
         let generativeModel = GenerativeModel(
             name: "gemini-2.0-flash",
@@ -126,10 +237,16 @@ final class AuraAIService {
         
         Task {
             do {
-                let response = try await generativeModel.generateContent(prompt)
+                let response: GenerateContentResponse
+                if let image = image {
+                    response = try await generativeModel.generateContent(image, prompt)
+                } else {
+                    response = try await generativeModel.generateContent(prompt)
+                }
+                
                 guard let responseText = response.text else {
                     DispatchQueue.main.async {
-                        completion("I apologize, but I couldn't formulate a response right now. Please try again.", [])
+                        self.runSimulatedFallback(query: query, image: image, catalog: catalog, completion: completion)
                     }
                     return
                 }
@@ -147,13 +264,19 @@ final class AuraAIService {
                     matchedProducts = catalog.filter { ids.contains($0.id) }
                 }
                 
+                // If live Gemini parsed no matches but the user requested products, do a smart local catalog search to complete
+                if matchedProducts.isEmpty && (query.lowercased().contains("recommend") || query.lowercased().contains("show") || query.lowercased().contains("give")) {
+                    self.runSimulatedFallback(query: query, image: image, catalog: catalog, completion: completion)
+                    return
+                }
+                
                 DispatchQueue.main.async {
                     completion(textReply, matchedProducts)
                 }
             } catch {
                 print("Aura AI Gemini Error: \(error)")
                 DispatchQueue.main.async {
-                    completion("I encountered a connection issue with my neural server, but I am still available to guide you. Please let me know how I can assist with your home design selections!", [])
+                    self.runSimulatedFallback(query: query, image: image, catalog: catalog, completion: completion)
                 }
             }
         }

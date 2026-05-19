@@ -123,10 +123,11 @@ struct HomeView: View {
     private func homeDestination(for route: HomeRoute) -> some View {
         switch route {
         case .product(let id):
-            if let product = viewModel.products.first(where: { $0.id == id }) {
+            let allProds = viewModel.products + ProductItem.fallbackProducts
+            if let product = allProds.first(where: { $0.id == id }) {
                 ProductDetailView(
                     product: product,
-                    allProducts: viewModel.products,
+                    allProducts: allProds,
                     onAddToCart: { viewModel.addToCart($0) },
                     onAddToRegistry: { viewModel.addToRegistry($0) },
                     onAddToSaveForLater: { viewModel.addToSaveForLater($0) },

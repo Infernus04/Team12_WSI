@@ -38,6 +38,49 @@ struct ProductItem: Identifiable, Hashable {
 }
 
 extension ProductItem {
+    static let fallbackProducts: [ProductItem] = [
+        ProductItem(
+            id: "pb-chesterfield-sofa",
+            name: "Pottery Barn Chesterfield Leather Sofa",
+            price: 2299.00,
+            path: "/luxury_sofa.png",
+            productType: "sofa",
+            brand: "pottery-barn"
+        ),
+        ProductItem(
+            id: "we-haven-sofa",
+            name: "West Elm Haven Loft Sofa",
+            price: 1599.00,
+            path: "/we_haven_sofa.png",
+            productType: "sofa",
+            brand: "west-elm"
+        ),
+        ProductItem(
+            id: "pb-jake-sofa",
+            name: "Pottery Barn Jake Upholstered Sofa",
+            price: 1899.00,
+            path: "/pb_jake_sofa.png",
+            productType: "sofa",
+            brand: "pottery-barn"
+        ),
+        ProductItem(
+            id: "2505456",
+            name: "Williams Sonoma End-Grain Cutting Board, Acacia, 15\" X 20\"",
+            price: 129.95,
+            path: "/ws_walnut_board.jpg",
+            productType: "cutting-board",
+            brand: "williams-sonoma"
+        ),
+        ProductItem(
+            id: "8800061",
+            name: "Vitamix Immersion Blender, 5-Speed",
+            price: 149.56,
+            path: "/mc_mocha_kettle.jpg",
+            productType: "blender",
+            brand: "vitamix"
+        )
+    ]
+    
     // Custom initializer for backward compatibility with manual instantiations in other views
     init(
         id: String,
