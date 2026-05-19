@@ -6,7 +6,7 @@ final class AuraAIService {
     
     private var isApiKeyConfigured: Bool {
         let key = AppConstants.API.geminiAPIKey
-        return key != "AIzaSyDJlNTVaA2FyRUY8X2QDgdEuS5n8yoifxo" && !key.isEmpty
+        return !key.isEmpty && key != "YOUR_GEMINI_API_KEY_HERE"
     }
     
     /// Queries the Gemini 1.5 Flash model with the user query and catalog list.
@@ -94,19 +94,7 @@ final class AuraAIService {
         guard isApiKeyConfigured else {
             // Safe fallback simulation if they haven't set their key yet so they can still demo it!
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
-                let lower = query.lowercased()
-                if lower.contains("cookware") || lower.contains("pot") || lower.contains("pan") {
-                    let matches = catalog.filter { ($0.productType ?? "").lowercased().contains("cookware") || $0.name.lowercased().contains("cookware") }
-                    completion("I would love to guide you through our exquisite cookware selections. For an inspiring kitchen foundation, a high-performance Le Creuset or professional copper set makes a wonderful anchor for your registry list.", Array(matches.prefix(3)))
-                } else if lower.contains("plate") || lower.contains("ceramic") || lower.contains("dining") || lower.contains("tabletop") {
-                    let matches = catalog.filter { ($0.productType ?? "").lowercased().contains("cutting") || $0.name.lowercased().contains("board") || $0.name.lowercased().contains("bowl") }
-                    completion("To set an inviting, social table for your guests, I highly recommend incorporating organic textures and multi-layer serving platters that elevate shared meals.", Array(matches.prefix(3)))
-                } else if lower.contains("homekeeping") || lower.contains("cleaning") || lower.contains("oil") || lower.contains("soap") {
-                    let matches = catalog.filter { ($0.pattern ?? "").lowercased().contains("homekeeping") || $0.name.lowercased().contains("oil") }
-                    completion("To keep your registry highly functional and keep your gourmet cookware and boards in perfect shape, Williams-Sonoma premium homekeeping cleaners and board oils are essential additions.", Array(matches.prefix(3)))
-                } else {
-                    completion("That sounds like a beautiful addition to your home story. Let me know if you would like me to curate cookware foundations, luxury tabletop details, or daily entertaining essentials for your registry!", [])
-                }
+                self.runFallbackSimulation(query: query, catalog: catalog, completion: completion)
             }
             return
         }
@@ -129,7 +117,7 @@ final class AuraAIService {
                 let response = try await generativeModel.generateContent(prompt)
                 guard let responseText = response.text else {
                     DispatchQueue.main.async {
-                        completion("I apologize, but I couldn't formulate a response right now. Please try again.", [])
+                        self.runFallbackSimulation(query: query, catalog: catalog, completion: completion)
                     }
                     return
                 }
@@ -151,12 +139,35 @@ final class AuraAIService {
                     completion(textReply, matchedProducts)
                 }
             } catch {
-                print("Aura AI Gemini Error: \(error)")
+                print("Aura AI Gemini Error (Graceful Fallback Initiated): \(error)")
+                // Automatically fall back to simulated responses on 429 quota or connection issues
                 DispatchQueue.main.async {
-                    completion("I encountered a connection issue with my neural server, but I am still available to guide you. Please let me know how I can assist with your home design selections!", [])
+                    self.runFallbackSimulation(query: query, catalog: catalog, completion: completion)
                 }
             }
         }
     }
+    
+    /// Generates highly relevant simulated recommendations based on the catalog when the live API fails or is limited.
+    private func runFallbackSimulation(
+        query: String,
+        catalog: [ProductItem],
+        completion: @escaping (String, [ProductItem]) -> Void
+    ) {
+        let lower = query.lowercased()
+        if lower.contains("cookware") || lower.contains("pot") || lower.contains("pan") {
+            let matches = catalog.filter { ($0.productType ?? "").lowercased().contains("cookware") || $0.name.lowercased().contains("cookware") }
+            completion("I would love to guide you through our exquisite cookware selections. For an inspiring kitchen foundation, a high-performance Le Creuset or professional copper set makes a wonderful anchor for your registry list.", Array(matches.prefix(3)))
+        } else if lower.contains("plate") || lower.contains("ceramic") || lower.contains("dining") || lower.contains("tabletop") || lower.contains("bowl") {
+            let matches = catalog.filter { ($0.productType ?? "").lowercased().contains("cutting") || $0.name.lowercased().contains("board") || $0.name.lowercased().contains("bowl") }
+            completion("To set an inviting, social table for your guests, I highly recommend incorporating organic textures and multi-layer serving platters that elevate shared meals.", Array(matches.prefix(3)))
+        } else if lower.contains("homekeeping") || lower.contains("cleaning") || lower.contains("oil") || lower.contains("soap") {
+            let matches = catalog.filter { ($0.pattern ?? "").lowercased().contains("homekeeping") || $0.name.lowercased().contains("oil") }
+            completion("To keep your registry highly functional and keep your gourmet cookware and boards in perfect shape, Williams-Sonoma premium homekeeping cleaners and board oils are essential additions.", Array(matches.prefix(3)))
+        } else {
+            completion("That sounds like a beautiful addition to your home story. Let me know if you would like me to curate cookware foundations, luxury tabletop details, or daily entertaining essentials for your registry!", [])
+        }
+    }
 }
+
 
