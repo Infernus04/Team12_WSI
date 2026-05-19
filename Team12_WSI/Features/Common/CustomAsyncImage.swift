@@ -9,6 +9,7 @@ import SwiftUI
 
 struct CustomAsyncImage: View {    
     let url: URL?
+    var contentMode: ContentMode = .fill
     @StateObject private var loader = CustomImageLoader()
     
     var body: some View {
@@ -16,7 +17,7 @@ struct CustomAsyncImage: View {
             if let image = loader.image {
                 Image(uiImage: image)
                     .resizable()
-                    .scaledToFill()
+                    .aspectRatio(contentMode: contentMode)
             } else {
                 ZStack {
                     Color(.systemGray5)
