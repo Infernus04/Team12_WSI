@@ -4114,5 +4114,394 @@
     },
     "availability": "ON_HAND",
     "deliveryEstimate": "IMMEDIATE"
+  },
+  {
+    "id": "1110001",
+    "name": "Limone Striped Table Runner",
+    "shortName": "Limone Striped Table Runner",
+    "primaryGroupId": "limone-collection",
+    "price": {
+      "regularPrice": 69.95,
+      "surcharge": 0,
+      "retailPrice": 69.95,
+      "sellingPrice": 69.95,
+      "monogramOrPersonalizationPrice": 15
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "pattern": "tabletop",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "brand": "williams-sonoma",
+      "organic": "true",
+      "productType": "table-runner",
+      "earthFriendly": "true",
+      "canGiftWrap": "true",
+      "collection": "limone",
+      "isShoppable": "true",
+      "name": "Limone Striped Table Runner",
+      "shortName": "Limone Striped Table Runner"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/limone_table_runner.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Limone Striped Table Runner"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "IMMEDIATE"
+  },
+  {
+    "id": "1110002",
+    "name": "Limone Striped Napkins, Set of 4",
+    "shortName": "Limone Striped Napkins, Set of 4",
+    "primaryGroupId": "limone-collection",
+    "price": {
+      "regularPrice": 49.95,
+      "surcharge": 0,
+      "retailPrice": 49.95,
+      "sellingPrice": 49.95,
+      "monogramOrPersonalizationPrice": 15
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "pattern": "tabletop",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "brand": "williams-sonoma",
+      "organic": "true",
+      "productType": "napkin",
+      "earthFriendly": "true",
+      "canGiftWrap": "true",
+      "collection": "limone",
+      "isShoppable": "true",
+      "name": "Limone Striped Napkins, Set of 4",
+      "shortName": "Limone Striped Napkins, Set of 4"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/limone_napkins.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Limone Striped Napkins, Set of 4"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "IMMEDIATE"
+  },
+  {
+    "id": "1110003",
+    "name": "Citron Pasta Bowl Set with Serving Bowl",
+    "shortName": "Citron Pasta Bowl Set with Serving Bowl",
+    "primaryGroupId": "citron-collection",
+    "price": {
+      "regularPrice": 129.95,
+      "surcharge": 0,
+      "retailPrice": 129.95,
+      "sellingPrice": 129.95,
+      "monogramOrPersonalizationPrice": 0
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "pattern": "tabletop",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "brand": "williams-sonoma",
+      "organic": "false",
+      "productType": "bowl",
+      "canGiftWrap": "true",
+      "collection": "citron",
+      "isShoppable": "true",
+      "name": "Citron Pasta Bowl Set with Serving Bowl",
+      "shortName": "Citron Pasta Bowl Set with Serving Bowl"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/citron_pasta_bowl.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Citron Pasta Bowl Set with Serving Bowl"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "IMMEDIATE"
+  },
+  {
+    "id": "1110004",
+    "name": "Citron Platter",
+    "shortName": "Citron Platter",
+    "primaryGroupId": "citron-collection",
+    "price": {
+      "regularPrice": 89.95,
+      "surcharge": 0,
+      "retailPrice": 89.95,
+      "sellingPrice": 89.95,
+      "monogramOrPersonalizationPrice": 0
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "pattern": "tabletop",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "brand": "williams-sonoma",
+      "organic": "false",
+      "productType": "platter",
+      "canGiftWrap": "true",
+      "collection": "citron",
+      "isShoppable": "true",
+      "name": "Citron Platter",
+      "shortName": "Citron Platter"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/citron_platter.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Citron Platter"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "IMMEDIATE"
+  },
+  {
+    "id": "1110005",
+    "name": "Limone Appetizer Plates, Set of 4",
+    "shortName": "Limone Appetizer Plates",
+    "primaryGroupId": "limone-collection",
+    "price": {
+      "regularPrice": 59.95,
+      "surcharge": 0,
+      "retailPrice": 59.95,
+      "sellingPrice": 59.95,
+      "monogramOrPersonalizationPrice": 0
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "pattern": "tabletop",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "brand": "williams-sonoma",
+      "organic": "false",
+      "productType": "plate",
+      "canGiftWrap": "true",
+      "collection": "limone",
+      "isShoppable": "true",
+      "name": "Limone Appetizer Plates, Set of 4",
+      "shortName": "Limone Appetizer Plates"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/limone_plates.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Limone Appetizer Plates"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "IMMEDIATE"
+  },
+  {
+    "id": "1110006",
+    "name": "Limone Lacquer Tray",
+    "shortName": "Limone Lacquer Tray",
+    "primaryGroupId": "limone-collection",
+    "price": {
+      "regularPrice": 99.95,
+      "surcharge": 0,
+      "retailPrice": 99.95,
+      "sellingPrice": 99.95,
+      "monogramOrPersonalizationPrice": 15
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "pattern": "decor",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "brand": "williams-sonoma",
+      "organic": "false",
+      "productType": "tray",
+      "canGiftWrap": "true",
+      "collection": "limone",
+      "isShoppable": "true",
+      "name": "Limone Lacquer Tray",
+      "shortName": "Limone Lacquer Tray"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/limone_tray.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Limone Lacquer Tray"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "IMMEDIATE"
+  },
+  {
+    "id": "1110007",
+    "name": "Limone Teapot and Teacup Set",
+    "shortName": "Limone Teapot and Teacup Set",
+    "primaryGroupId": "limone-collection",
+    "price": {
+      "regularPrice": 149.95,
+      "surcharge": 0,
+      "retailPrice": 149.95,
+      "sellingPrice": 149.95,
+      "monogramOrPersonalizationPrice": 0
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "pattern": "tabletop",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "brand": "williams-sonoma",
+      "organic": "false",
+      "productType": "teapot",
+      "canGiftWrap": "true",
+      "collection": "limone",
+      "isShoppable": "true",
+      "name": "Limone Teapot and Teacup Set",
+      "shortName": "Limone Teapot and Teacup Set"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/limone_teapot.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Limone Teapot and Teacup Set"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "IMMEDIATE"
+  },
+  {
+    "id": "1110008",
+    "name": "Citron Serving Bowl",
+    "shortName": "Citron Serving Bowl",
+    "primaryGroupId": "citron-collection",
+    "price": {
+      "regularPrice": 79.95,
+      "surcharge": 0,
+      "retailPrice": 79.95,
+      "sellingPrice": 79.95,
+      "monogramOrPersonalizationPrice": 0
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "pattern": "tabletop",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "brand": "williams-sonoma",
+      "organic": "false",
+      "productType": "bowl",
+      "canGiftWrap": "true",
+      "collection": "citron",
+      "isShoppable": "true",
+      "name": "Citron Serving Bowl",
+      "shortName": "Citron Serving Bowl"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/citron_serving_bowl.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Citron Serving Bowl"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "IMMEDIATE"
+  },
+  {
+    "id": "1110009",
+    "name": "Citron Dinner Plates, Set of 4",
+    "shortName": "Citron Dinner Plates",
+    "primaryGroupId": "citron-collection",
+    "price": {
+      "regularPrice": 69.95,
+      "surcharge": 0,
+      "retailPrice": 69.95,
+      "sellingPrice": 69.95,
+      "monogramOrPersonalizationPrice": 0
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "pattern": "tabletop",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "brand": "williams-sonoma",
+      "organic": "false",
+      "productType": "plate",
+      "canGiftWrap": "true",
+      "collection": "citron",
+      "isShoppable": "true",
+      "name": "Citron Dinner Plates, Set of 4",
+      "shortName": "Citron Dinner Plates"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/citron_dinner_plates.jpg",
+          "aspect": "q",
+          "properties": {
+            "altText": "Citron Dinner Plates"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "IMMEDIATE"
   }
 ]
