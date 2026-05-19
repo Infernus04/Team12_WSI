@@ -15,6 +15,8 @@ final class RegistryRepository: ObservableObject {
     @Published var activeRegistryID: UUID?
     @Published var currentRegistry: Registry?
     @Published var activities: [RegistryActivity] = MockRegistryActivities.generate()
+    /// In-memory cover image for the currently active registry (set during creation).
+    @Published var activeCoverImageData: Data? = nil
 
     private let persistenceStore = RegistryPersistenceStore.shared
     private var hasBoundPersistence = false
@@ -53,8 +55,9 @@ final class RegistryRepository: ObservableObject {
                         lastName: String,
                         event: RegistryEvent,
                         date: Date,
-                        budget: Double? = nil) {
-        let created = Registry(
+                        budget: Double? = nil,
+                        coverImageData: Data? = nil) {
+        var created = Registry(
             id: UUID(),
             firstName: firstName,
             lastName: lastName,
@@ -63,6 +66,8 @@ final class RegistryRepository: ObservableObject {
             items: [],
             budget: budget
         )
+        created.coverImageData = coverImageData
+        activeCoverImageData = coverImageData
         registries.append(created)
         activeRegistryID = created.id
         syncCurrentRegistry()

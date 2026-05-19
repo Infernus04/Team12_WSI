@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 enum RegistryRoute: Hashable {
     case create
@@ -65,7 +66,7 @@ struct RegistryView: View {
                     .ignoresSafeArea()
 
                 ScrollView(showsIndicators: false) {
-                    VStack(alignment: .leading, spacing: 24) {
+                    VStack(alignment: .leading, spacing: 12) {
                         headerSection
                             .opacity(s1On ? 1 : 0).offset(y: s1On ? 0 : 16)
                             .onAppear { withAnimation(.easeOut(duration: 0.5)) { s1On = true } }
@@ -93,15 +94,15 @@ struct RegistryView: View {
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .topBarLeading) {
                     Button {
                         showActivitySheet = true
                     } label: {
                         ZStack(alignment: .topTrailing) {
                             Image(systemName: "bell")
-                                .font(.system(size: 17, weight: .semibold))
+                                .font(.system(size: 16, weight: .semibold))
                                 .foregroundStyle(WSRegistryPalette.espresso)
-                                .frame(width: 36, height: 36)
+                                .frame(width: 34, height: 34)
                                 .background(WSRegistryPalette.porcelain, in: Circle())
                                 .overlay(
                                     Circle()
@@ -111,12 +112,34 @@ struct RegistryView: View {
                             if !registryRepo.activities.isEmpty {
                                 Circle()
                                     .fill(WSRegistryPalette.gold)
-                                    .frame(width: 10, height: 10)
-                                    .offset(x: 2, y: -1)
+                                    .frame(width: 8, height: 8)
+                                    .offset(x: 0, y: -2)
                             }
                         }
                     }
                     .accessibilityLabel("Activity")
+                }
+
+                ToolbarItem(placement: .principal) {
+                    Text("REGISTRY")
+                        .font(.system(size: 15, weight: .bold))
+                        .tracking(1.5)
+                        .foregroundStyle(WSRegistryPalette.espresso)
+                }
+
+                ToolbarItem(placement: .topBarTrailing) {
+                    AsyncImage(url: URL(string: "https://randomuser.me/api/portraits/women/44.jpg")) { phase in
+                        if let image = phase.image {
+                            image.resizable().scaledToFill()
+                        } else {
+                            Image(systemName: "person.crop.circle.fill")
+                                .resizable()
+                                .foregroundStyle(WSRegistryPalette.warmGray.opacity(0.3))
+                        }
+                    }
+                    .frame(width: 32, height: 32)
+                    .clipShape(Circle())
+                    .overlay(Circle().stroke(WSRegistryPalette.hairline, lineWidth: 1))
                 }
             }
             .sheet(isPresented: $showActivitySheet) {
@@ -168,6 +191,7 @@ struct RegistryView: View {
         }) {
             NavigationView {
                 RegistryLandingView()
+                    .environmentObject(registryRepo)
             }
         }
         // Browse Registry presented cleanly from RegistryView (root level).
@@ -192,34 +216,17 @@ struct RegistryView: View {
 
 private extension RegistryView {
     var headerSection: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack(spacing: 8) {
-                Image(systemName: "sparkles")
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundStyle(WSRegistryPalette.gold)
-                Text("WILLIAMS SONOMA")
-                    .font(.wsLabel(size: 10))
-                    .tracking(2.2)
-                    .foregroundStyle(WSRegistryPalette.gold)
-            }
-
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Gift Registry")
-                    .font(.wsDisplay(size: 36))
-                    .foregroundStyle(WSRegistryPalette.espresso)
-                    .lineSpacing(1)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.82)
-
-                Text("Create, manage, and share registries for every milestone.")
-                    .font(.wsSerif(size: 15))
-                    .foregroundStyle(WSRegistryPalette.warmGray)
-                    .lineSpacing(3)
-                    .lineLimit(2)
-            }
+        VStack(alignment: .center, spacing: 6) {
+            Text("Create, manage, and share registries\nfor every milestone.")
+                .font(.wsSerif(size: 17))
+                .foregroundStyle(WSRegistryPalette.warmGray)
+                .multilineTextAlignment(.center)
+                .lineSpacing(4)
+                .lineLimit(2)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.top, 4)
+        .frame(maxWidth: .infinity, alignment: .center)
+        .padding(.top, 6)
+        .padding(.bottom, 4)
     }
 
     // MARK: - Create Registry Button
@@ -230,36 +237,37 @@ private extension RegistryView {
         } label: {
             HStack(spacing: 14) {
                 Image(systemName: "plus.circle.fill")
-                    .font(.system(size: 22, weight: .semibold))
+                    .font(.system(size: 24, weight: .semibold))
                     .foregroundStyle(.white)
+                    .background(Circle().fill(Color.black.opacity(0.2)).frame(width: 24, height: 24))
 
-                VStack(alignment: .leading, spacing: 3) {
+                VStack(alignment: .leading, spacing: 4) {
                     Text("Create New Registry")
                         .font(.system(size: 17, weight: .semibold))
                         .foregroundStyle(.white)
-                    Text("Start a registry for a wedding, housewarming, or event")
+                    Text("Start a registry for a wedding, housewarming, or more")
                         .font(.system(size: 13, weight: .regular))
-                        .foregroundStyle(.white.opacity(0.8))
+                        .foregroundStyle(.white.opacity(0.85))
                         .lineLimit(1)
                 }
 
                 Spacer(minLength: 8)
 
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 13, weight: .bold))
-                    .foregroundStyle(.white.opacity(0.65))
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundStyle(.white.opacity(0.8))
             }
             .padding(.horizontal, 18)
-            .frame(maxWidth: .infinity, minHeight: 68, alignment: .leading)
+            .frame(maxWidth: .infinity, minHeight: 74, alignment: .leading)
             .background(
                 LinearGradient(
-                    colors: [WSRegistryPalette.espresso, Color(red: 0.245, green: 0.165, blue: 0.110)],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
+                    colors: [WSRegistryPalette.espresso, Color(red: 0.35, green: 0.25, blue: 0.20)],
+                    startPoint: .leading,
+                    endPoint: .trailing
                 ),
-                in: RoundedRectangle(cornerRadius: 14, style: .continuous)
+                in: RoundedRectangle(cornerRadius: 16, style: .continuous)
             )
-            .shadow(color: WSRegistryPalette.espresso.opacity(0.16), radius: 14, x: 0, y: 8)
+            .shadow(color: WSRegistryPalette.espresso.opacity(0.25), radius: 16, x: 0, y: 10)
         }
         .buttonStyle(.plain)
     }
@@ -270,11 +278,11 @@ private extension RegistryView {
         VStack(alignment: .leading, spacing: 14) {
             HStack {
                 HStack(spacing: 8) {
-                    Image(systemName: "heart.text.square")
+                    Image(systemName: "list.clipboard")
                         .font(.system(size: 16, weight: .medium))
                         .foregroundStyle(WSRegistryPalette.gold)
-                    Text("Your Registries")
-                        .font(.wsSerif(size: 20, weight: .semibold))
+                    Text("Manage My Registry")
+                        .font(.wsSerif(size: 22, weight: .bold))
                         .foregroundStyle(WSRegistryPalette.espresso)
                 }
                 Spacer()
@@ -284,13 +292,13 @@ private extension RegistryView {
             }
 
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 14) {
+                HStack(spacing: 16) {
                     ForEach(registryRepo.registries.sorted(by: { $0.date > $1.date })) { registry in
                         registryHorizontalCard(registry)
                     }
                 }
-                .padding(.horizontal, 2)
-                .padding(.vertical, 4)
+                .padding(.horizontal, 4)
+                .padding(.vertical, 8)
             }
         }
     }
@@ -304,56 +312,63 @@ private extension RegistryView {
             tabBarVM.registryPath.append(RegistryRoute.details)
         } label: {
             ZStack(alignment: .bottomLeading) {
-                Image("giftdna_living_room")
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 260, height: 170)
-                    .clipped()
-                    .overlay(
-                        LinearGradient(
-                            colors: [.clear, WSRegistryPalette.espresso.opacity(0.82)],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    )
-
-                VStack(alignment: .leading, spacing: 8) {
-                    if isActive {
-                        Text("ACTIVE")
-                            .font(.system(size: 9, weight: .bold))
-                            .tracking(1.2)
-                            .foregroundStyle(.white)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 3)
-                            .background(WSRegistryPalette.gold, in: Capsule())
-                    }
-
-                    Text(registry.displayName)
-                        .font(.wsSerif(size: 17, weight: .semibold))
-                        .foregroundStyle(.white)
-                        .lineLimit(2)
-
-                    Text(registry.event.rawValue + " • " + registry.date.formatted(date: .abbreviated, time: .omitted))
-                        .font(.system(size: 12, weight: .regular))
-                        .foregroundStyle(.white.opacity(0.8))
-
-                    HStack(spacing: 10) {
-                        registryHeroStat(value: "\(RegistryDetailContent.totalItems(from: items))", label: "Items")
-                        registryHeroStat(value: "\(RegistryDetailContent.collectionCount(from: items))", label: "Collections")
+                Group {
+                    if let data = registry.coverImageData, let uiImage = UIImage(data: data) {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .scaledToFill()
+                    } else {
+                        Image("giftdna_living_room")
+                            .resizable()
+                            .scaledToFill()
                     }
                 }
-                .padding(16)
-            }
-            .frame(width: 260, height: 170)
-            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .stroke(
-                        isActive ? WSRegistryPalette.gold.opacity(0.6) : Color.clear,
-                        lineWidth: 2
+                .frame(width: 280, height: 190)
+                .clipped()
+                .overlay(
+                    LinearGradient(
+                        colors: [Color.black.opacity(0.1), WSRegistryPalette.espresso.opacity(0.9)],
+                        startPoint: .top,
+                        endPoint: .bottom
                     )
-            )
-            .shadow(color: WSRegistryPalette.espresso.opacity(0.12), radius: 14, x: 0, y: 6)
+                )
+
+                VStack(alignment: .leading, spacing: 10) {
+                    if isActive {
+                        Text("ACTIVE")
+                            .font(.system(size: 9, weight: .heavy))
+                            .tracking(1.5)
+                            .foregroundStyle(WSRegistryPalette.espresso)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 4)
+                            .background(WSRegistryPalette.gold.opacity(0.9), in: Capsule())
+                    }
+
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(registry.displayName)
+                            .font(.wsSerif(size: 20, weight: .bold))
+                            .foregroundStyle(WSRegistryPalette.ivory)
+                            .lineLimit(2)
+
+                        Text(registry.event.rawValue + " • " + registry.date.formatted(date: .abbreviated, time: .omitted))
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundStyle(WSRegistryPalette.ivory.opacity(0.85))
+                    }
+
+                    HStack(spacing: 16) {
+                        registryHeroStat(value: "\(RegistryDetailContent.totalItems(from: items))", label: "Items")
+                        Rectangle()
+                            .fill(WSRegistryPalette.ivory.opacity(0.4))
+                            .frame(width: 1, height: 24)
+                        registryHeroStat(value: "\(RegistryDetailContent.collectionCount(from: items))", label: "Collections")
+                    }
+                    .padding(.top, 4)
+                }
+                .padding(20)
+            }
+            .frame(width: 280, height: 190)
+            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .shadow(color: WSRegistryPalette.espresso.opacity(0.2), radius: 16, x: 0, y: 8)
         }
         .buttonStyle(.plain)
     }
@@ -504,12 +519,11 @@ private extension RegistryView {
     }
 
     var secondaryActions: some View {
-        VStack(spacing: 10) {
+        VStack(spacing: 12) {
             actionRow(
                 icon: "magnifyingglass",
                 title: "Find Other Registries",
-                subtitle: "Search by name or email",
-                accentColor: WSRegistryPalette.cocoa
+                subtitle: "Search by name or email"
             ) {
                 tabBarVM.registryPath.append(RegistryRoute.findRegistry)
             }
@@ -517,77 +531,32 @@ private extension RegistryView {
             actionRow(
                 icon: "clock.arrow.circlepath",
                 title: "Past Registries",
-                subtitle: "Registries you created or participated in",
-                accentColor: WSRegistryPalette.warmGray
+                subtitle: "Registries you created or participated in"
             ) {
                 tabBarVM.registryPath.append(RegistryRoute.pastRegistries)
             }
 
-            // TEMP DEMO ENTRY POINT FOR RECEIVER FLOW
-            receiverFlowDemoButton
-        }
-    }
-
-    // MARK: - Receiver Flow Demo Entry Point
-    // TEMP DEMO ENTRY POINT FOR RECEIVER FLOW
-    private var receiverFlowDemoButton: some View {
-        Button {
-            showReceiverFlowDemo = true
-        } label: {
-            HStack(spacing: 14) {
-                Image(systemName: "gift.fill")
-                    .font(.system(size: 17, weight: .semibold))
-                    .foregroundStyle(WSRegistryPalette.gold)
-                    .frame(width: 42, height: 42)
-                    .background(
-                        WSRegistryPalette.gold.opacity(0.13),
-                        in: RoundedRectangle(cornerRadius: 13, style: .continuous)
-                    )
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Trial Receiver Side View")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(WSRegistryPalette.espresso)
-                    Text("Preview the guest registry experience")
-                        .font(.system(size: 13, weight: .regular))
-                        .foregroundStyle(WSRegistryPalette.warmGray)
-                        .lineLimit(2)
-                }
-
-                Spacer(minLength: 10)
-
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 13, weight: .bold))
-                    .foregroundStyle(WSRegistryPalette.warmGray.opacity(0.65))
+            actionRow(
+                icon: "gift",
+                title: "Trial Registries",
+                subtitle: "Explore and try creating a registry"
+            ) {
+                showReceiverFlowDemo = true
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 14)
-            .frame(maxWidth: .infinity, minHeight: 72, alignment: .leading)
-            .background(
-                WSRegistryPalette.porcelain,
-                in: RoundedRectangle(cornerRadius: 18, style: .continuous)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 19, style: .continuous)
-                    .stroke(WSRegistryPalette.gold.opacity(0.28), lineWidth: 1)
-            )
-            .shadow(color: WSRegistryPalette.espresso.opacity(0.05), radius: 12, x: 0, y: 6)
         }
-        .buttonStyle(.plain)
     }
 
-    func actionRow(icon: String, title: String, subtitle: String, accentColor: Color, action: @escaping () -> Void = {}) -> some View {
+    func actionRow(icon: String, title: String, subtitle: String, action: @escaping () -> Void = {}) -> some View {
         Button(action: action) {
-            HStack(spacing: 14) {
+            HStack(spacing: 16) {
                 Image(systemName: icon)
-                    .font(.system(size: 17, weight: .semibold))
-                    .foregroundStyle(accentColor)
-                    .frame(width: 42, height: 42)
-                    .background(accentColor.opacity(0.12), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    .font(.system(size: 20, weight: .light))
+                    .foregroundStyle(WSRegistryPalette.espresso)
+                    .frame(width: 32, height: 32)
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title)
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(.system(size: 16, weight: .medium))
                         .foregroundStyle(WSRegistryPalette.espresso)
                     Text(subtitle)
                         .font(.system(size: 13, weight: .regular))
@@ -598,18 +567,14 @@ private extension RegistryView {
                 Spacer(minLength: 10)
 
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 13, weight: .bold))
-                    .foregroundStyle(WSRegistryPalette.warmGray.opacity(0.65))
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundStyle(WSRegistryPalette.warmGray.opacity(0.7))
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 14)
-            .frame(maxWidth: .infinity, minHeight: 72, alignment: .leading)
-            .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .stroke(WSRegistryPalette.hairline.opacity(0.55), lineWidth: 1)
-            )
-            .shadow(color: WSRegistryPalette.espresso.opacity(0.03), radius: 10, x: 0, y: 4)
+            .padding(.horizontal, 18)
+            .padding(.vertical, 18)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(WSRegistryPalette.ivory, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .shadow(color: WSRegistryPalette.espresso.opacity(0.04), radius: 12, x: 0, y: 6)
         }
         .buttonStyle(.plain)
     }

@@ -8,9 +8,15 @@ struct Registry: Identifiable, Codable {
     var date: Date
     var items: [RegistryItem]
     var budget: Double?
+    /// In-memory only — not persisted to disk. Excluded from CodingKeys.
+    var coverImageData: Data? = nil
     
     var displayName: String {
         "\(firstName) \(lastName)'s \(event.rawValue) Registry"
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id, firstName, lastName, event, date, items, budget
     }
 }
 

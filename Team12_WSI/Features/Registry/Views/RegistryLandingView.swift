@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct RegistryLandingView: View {
     @State private var daysRemaining: Int = 45
@@ -8,6 +9,7 @@ struct RegistryLandingView: View {
     @State private var heroAppeared = false
     @State private var contentAppeared = false
     
+    @EnvironmentObject var registryRepo: RegistryRepository
     @Environment(\.dismiss) var dismiss
     
     var body: some View {
@@ -66,26 +68,34 @@ struct RegistryLandingView: View {
         
         return ZStack(alignment: .top) {
             // Full-bleed image flooding behind dynamic island
-            Image("giftdna_living_room")
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(width: geometry.size.width, height: heroImageHeight)
-                .clipped()
-                .overlay(
-                    // Seamless fade: image dissolves into porcelain background
-                    LinearGradient(
-                        stops: [
-                            .init(color: Color.clear, location: 0.0),
-                            .init(color: Color(red: 0.12, green: 0.08, blue: 0.05).opacity(0.08), location: 0.25),
-                            .init(color: Color(red: 0.12, green: 0.08, blue: 0.05).opacity(0.30), location: 0.50),
-                            .init(color: Color(red: 0.12, green: 0.08, blue: 0.05).opacity(0.55), location: 0.68),
-                            .init(color: WSRegistryPalette.porcelain.opacity(0.80), location: 0.85),
-                            .init(color: WSRegistryPalette.porcelain, location: 1.0)
-                        ],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
+            Group {
+                if let data = registryRepo.activeCoverImageData, let uiImage = UIImage(data: data) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                } else {
+                    Image("giftdna_living_room")
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                }
+            }
+            .frame(width: geometry.size.width, height: heroImageHeight)
+            .clipped()
+            .overlay(
+                // Seamless fade: image dissolves into porcelain background
+                LinearGradient(
+                    stops: [
+                        .init(color: Color.clear, location: 0.0),
+                        .init(color: Color(red: 0.12, green: 0.08, blue: 0.05).opacity(0.08), location: 0.25),
+                        .init(color: Color(red: 0.12, green: 0.08, blue: 0.05).opacity(0.30), location: 0.50),
+                        .init(color: Color(red: 0.12, green: 0.08, blue: 0.05).opacity(0.55), location: 0.68),
+                        .init(color: WSRegistryPalette.porcelain.opacity(0.80), location: 0.85),
+                        .init(color: WSRegistryPalette.porcelain, location: 1.0)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
                 )
+            )
             
             // All content flows over the fading image
             VStack(spacing: 0) {
