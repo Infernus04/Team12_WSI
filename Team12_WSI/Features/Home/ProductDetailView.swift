@@ -15,12 +15,14 @@ struct ProductDetailView: View {
     var onSelectRelatedProduct: ((ProductItem) -> Void)? = nil
 
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject var registryRepository: RegistryRepository
 
     @State private var showAIModal = false
     @State private var heartPressed = false
     @State private var addedToCart = false
     @State private var showCopiedToast = false
     @State private var sectionAppeared = [false, false, false, false, false]
+    @State private var showRegistryPicker = false      // Registry chooser sheet
     // Recommendation card navigation
     @State private var selectedRecommendation: ProductItem?
 
@@ -64,6 +66,10 @@ struct ProductDetailView: View {
         .navigationBarHidden(true)
         .sheet(isPresented: $showAIModal) {
             aiExplanationModal
+        }
+        .sheet(isPresented: $showRegistryPicker) {
+            RegistryPickerView(product: product)
+                .environmentObject(registryRepository)
         }
         // Tapping any recommendation card opens that product's detail
         .fullScreenCover(item: $selectedRecommendation) { rec in
@@ -237,13 +243,13 @@ struct ProductDetailView: View {
                 .buttonStyle(WSSecondaryButtonStyle())
             }
 
-            // Save to registry
+            // Save to registry — opens picker to choose which registry
             Button(action: {
                 withAnimation(.spring(response: 0.3, dampingFraction: 0.5)) { heartPressed = true }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                     withAnimation { heartPressed = false }
                 }
-                onAddToRegistry(product)
+                showRegistryPicker = true
             }) {
                 HStack(spacing: 8) {
                     Image(systemName: registryQuantity > 0 ? "heart.fill" : "heart")
