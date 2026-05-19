@@ -64,9 +64,13 @@ struct LifestyleSceneDetailView: View {
         ZStack(alignment: .bottom) {
             // Hero image — full bleed cinematic
             if let hero = heroProduct {
-                CustomAsyncImage(url: hero.imageURL)
+                Color(.systemGray6)
                     .frame(maxWidth: .infinity)
                     .frame(height: 440)
+                    .overlay(
+                        CustomAsyncImage(url: hero.imageURL, contentMode: .fit)
+                            .padding(16)
+                    )
                     .clipped()
             } else {
                 Color.wsChampagne.frame(height: 440)
@@ -251,9 +255,12 @@ struct SceneProductCard: View {
             // Tappable image → ProductDetailView
             Button(action: onSelect) {
                 ZStack(alignment: .topTrailing) {
-                    CustomAsyncImage(url: product.imageURL)
-                        .frame(maxWidth: .infinity)
+                    Color(.systemGray6)
                         .frame(height: 180)
+                        .overlay(
+                            CustomAsyncImage(url: product.imageURL, contentMode: .fit)
+                                .padding(8)
+                        )
                         .clipped()
 
                     if let badge = badgeLabel {
