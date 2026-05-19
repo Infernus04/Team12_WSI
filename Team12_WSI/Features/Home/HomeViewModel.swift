@@ -129,10 +129,21 @@ class HomeViewModel: ObservableObject {
                 self.isLoading = false
             }
         } catch {
+            #if targetEnvironment(simulator)
+            if let data = try? Data(contentsOf: URL(fileURLWithPath: "/Users/gayatri/Desktop/Team12_WSI/Backend/responses/skus.json")) {
+                if let dtos = try? JSONDecoder().decode([ProductItemDTO].self, from: data) {
+                    await MainActor.run {
+                        self.products = dtos.map { ProductItem(from: $0) }
+                        self.isLoading = false
+                    }
+                    return
+                }
+            }
+            #endif
+            
             await MainActor.run {
-                self.errorMessage = "Failed to load products"
+                self.products = ProductItem.fallbackProducts
                 self.isLoading = false
-                self.hasLoaded = false
             }
         }
     }

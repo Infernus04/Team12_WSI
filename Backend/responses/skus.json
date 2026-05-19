@@ -3884,5 +3884,235 @@
     },
     "availability": "ON_HAND",
     "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "pb-chesterfield-sofa",
+    "name": "Pottery Barn Chesterfield Leather Sofa",
+    "shortName": "Chesterfield Leather Sofa",
+    "primaryGroupId": "pb-chesterfield-sofa",
+    "price": {
+      "regularPrice": 2499.00,
+      "surcharge": 150,
+      "retailPrice": 2499.00,
+      "sellingPrice": 2299.00,
+      "monogramOrPersonalizationPrice": 0
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "brown-parent/cognac-leather",
+      "pattern": "furniture",
+      "isFood": "false",
+      "isFurniture": "true",
+      "spiritType": "pottery-barn",
+      "hasUtilityNeeds": "false",
+      "brand": "pottery-barn",
+      "organic": "false",
+      "productType": "sofa",
+      "canGiftWrap": "false",
+      "allProductTypes": "sofa",
+      "material": "leather",
+      "isShoppable": "true",
+      "name": "Pottery Barn Chesterfield Leather Sofa",
+      "shortName": "Chesterfield Leather Sofa"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/luxury_sofa.png",
+          "aspect": "q",
+          "properties": {
+            "altText": "Pottery Barn Chesterfield Leather Sofa"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "IMMEDIATE"
+  },
+  {
+    "id": "we-haven-sofa",
+    "name": "West Elm Haven Loft Sofa",
+    "shortName": "West Elm Haven Loft Sofa",
+    "primaryGroupId": "we-haven-sofa",
+    "price": {
+      "regularPrice": 1799.00,
+      "surcharge": 100,
+      "retailPrice": 1799.00,
+      "sellingPrice": 1599.00,
+      "monogramOrPersonalizationPrice": 0
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "gray-parent/distressed-velvet-mineral",
+      "pattern": "furniture",
+      "isFood": "false",
+      "isFurniture": "true",
+      "spiritType": "west-elm",
+      "hasUtilityNeeds": "false",
+      "brand": "west-elm",
+      "organic": "false",
+      "productType": "sofa",
+      "canGiftWrap": "false",
+      "allProductTypes": "sofa",
+      "material": "velvet",
+      "isShoppable": "true",
+      "name": "West Elm Haven Loft Sofa",
+      "shortName": "West Elm Haven Loft Sofa"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/we_haven_sofa.png",
+          "aspect": "q",
+          "properties": {
+            "altText": "West Elm Haven Loft Sofa"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "TRANSIT"
+  },
+  {
+    "id": "pb-jake-sofa",
+    "name": "Pottery Barn Jake Upholstered Sofa",
+    "shortName": "Pottery Barn Jake Upholstered Sofa",
+    "primaryGroupId": "pb-jake-sofa",
+    "price": {
+      "regularPrice": 1999.00,
+      "surcharge": 120,
+      "retailPrice": 1999.00,
+      "sellingPrice": 1899.00,
+      "monogramOrPersonalizationPrice": 0
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "white-parent/boucle-oatmeal",
+      "pattern": "furniture",
+      "isFood": "false",
+      "isFurniture": "true",
+      "spiritType": "pottery-barn",
+      "hasUtilityNeeds": "false",
+      "brand": "pottery-barn",
+      "organic": "false",
+      "productType": "sofa",
+      "canGiftWrap": "false",
+      "allProductTypes": "sofa",
+      "material": "boucle",
+      "isShoppable": "true",
+      "name": "Pottery Barn Jake Upholstered Sofa",
+      "shortName": "Pottery Barn Jake Upholstered Sofa"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/pb_jake_sofa.png",
+          "aspect": "q",
+          "properties": {
+            "altText": "Pottery Barn Jake Upholstered Sofa"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "IMMEDIATE"
+  },
+  {
+    "id": "7809112",
+    "name": "Williams Sonoma Classic Logo Towels, Set of 4, Claret",
+    "shortName": "Williams Sonoma Classic Logo Towels, Set of 4, Claret",
+    "primaryGroupId": "williams-sonoma-classic-towels",
+    "price": {
+      "regularPrice": 29.95,
+      "surcharge": 0,
+      "retailPrice": 29.95,
+      "sellingPrice": 29.95,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "red-parent/claret",
+      "pattern": "homekeeping",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "williams-sonoma",
+      "organic": "true",
+      "productType": "kitchen-towels",
+      "canGiftWrap": "true",
+      "allProductTypes": "kitchen-towels",
+      "material": "cotton",
+      "isShoppable": "true",
+      "name": "Williams Sonoma Classic Logo Towels, Set of 4, Claret",
+      "shortName": "Williams Sonoma Classic Logo Towels, Set of 4, Claret"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/ws_classic_towels.png",
+          "aspect": "q",
+          "properties": {
+            "altText": "Williams Sonoma Classic Logo Towels, Set of 4, Claret"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "IMMEDIATE"
+  },
+  {
+    "id": "7809113",
+    "name": "Hold Everything Organic Cotton Dish Towels, Set of 3",
+    "shortName": "Hold Everything Organic Cotton Dish Towels, Set of 3",
+    "primaryGroupId": "hold-everything-organic-towels",
+    "price": {
+      "regularPrice": 24.95,
+      "surcharge": 0,
+      "retailPrice": 24.95,
+      "sellingPrice": 19.95,
+      "monogramOrPersonalizationPrice": 0
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "navy-parent/navy",
+      "pattern": "homekeeping",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "hold-everything",
+      "organic": "true",
+      "productType": "kitchen-towels",
+      "canGiftWrap": "true",
+      "allProductTypes": "kitchen-towels",
+      "material": "organic-cotton",
+      "isShoppable": "true",
+      "name": "Hold Everything Organic Cotton Dish Towels, Set of 3",
+      "shortName": "Hold Everything Organic Cotton Dish Towels, Set of 3"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/ws_classic_towels.png",
+          "aspect": "q",
+          "properties": {
+            "altText": "Hold Everything Organic Cotton Dish Towels, Set of 3"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "IMMEDIATE"
   }
 ]
