@@ -8,6 +8,14 @@ struct ConciergeChatMessage: Identifiable {
     let isUser: Bool
     let text: String
     let products: [ProductItem]
+    let image: UIImage?
+
+    init(isUser: Bool, text: String, products: [ProductItem], image: UIImage? = nil) {
+        self.isUser = isUser
+        self.text = text
+        self.products = products
+        self.image = image
+    }
 }
 
 struct AIConciergeView: View {
@@ -16,6 +24,9 @@ struct AIConciergeView: View {
     let onSelectProduct: (ProductItem) -> Void
 
     @Environment(\.dismiss) private var dismiss
+    
+    @EnvironmentObject var cartRepository: CartRepository
+    @EnvironmentObject var saveForLaterRepository: SaveForLaterRepository
 
     // Chatbot States
     @State private var messages: [ConciergeChatMessage] = [
@@ -28,6 +39,15 @@ struct AIConciergeView: View {
     @State private var chatInputText = ""
     @State private var isAILoading = false
 
+    // Image Picker States
+    @State private var selectedImage: UIImage? = nil
+    @State private var showImageSourceDialog = false
+    @State private var showCameraPicker = false
+    @State private var showLibraryPicker = false
+    
+    // Product Modal Presentation State
+    @State private var selectedProduct: ProductItem? = nil
+
     var body: some View {
         ZStack {
             Color.wsWarmIvory.ignoresSafeArea()
@@ -36,6 +56,44 @@ struct AIConciergeView: View {
                 conciergeHeader
                 WSDivider()
                 askAuraTab
+            }
+        }
+        .confirmationDialog("Upload Photo", isPresented: $showImageSourceDialog, titleVisibility: .visible) {
+            Button("Take Photo") {
+                showCameraPicker = true
+            }
+            Button("Choose from Library") {
+                showLibraryPicker = true
+            }
+            Button("Cancel", role: .cancel) {}
+        }
+        .sheet(isPresented: $showCameraPicker) {
+            ImagePicker(selectedImage: $selectedImage, sourceType: .camera)
+        }
+        .sheet(isPresented: $showLibraryPicker) {
+            ImagePicker(selectedImage: $selectedImage, sourceType: .photoLibrary)
+        }
+        .fullScreenCover(item: $selectedProduct) { product in
+            NavigationStack {
+                ProductDetailView(
+                    product: product,
+                    allProducts: allProducts + ProductItem.fallbackProducts,
+                    onAddToCart: { item in
+                        cartRepository.add(product: item, quantityDelta: 1)
+                    },
+                    onAddToRegistry: { item in
+                        registryRepository.addProduct(item)
+                    },
+                    onAddToSaveForLater: { item in
+                        saveForLaterRepository.add(product: item)
+                    },
+                    cartQuantity: cartRepository.items.first(where: { $0.id == product.id })?.quantity ?? 0,
+                    registryQuantity: registryRepository.currentRegistry?.items.first(where: { $0.id == product.id })?.quantity ?? 0,
+                    isInSaveForLater: saveForLaterRepository.contains(productId: product.id),
+                    onSelectRelatedProduct: { related in
+                        selectedProduct = related
+                    }
+                )
             }
         }
     }
@@ -124,12 +182,26 @@ struct AIConciergeView: View {
             if msg.isUser {
                 Spacer()
 
-                Text(msg.text)
-                    .font(.wsSerif(size: 15))
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
-                    .background(WSRegistryPalette.espresso, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                VStack(alignment: .trailing, spacing: 8) {
+                    if let img = msg.image {
+                        Image(uiImage: img)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 200, height: 150)
+                            .clipped()
+                            .cornerRadius(12)
+                            .wsShadow()
+                    }
+                    
+                    if !msg.text.isEmpty {
+                        Text(msg.text)
+                            .font(.wsSerif(size: 15))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 12)
+                            .background(WSRegistryPalette.espresso, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                    }
+                }
             } else {
                 Image(systemName: "sparkles")
                     .font(.system(size: 12))
@@ -171,10 +243,7 @@ struct AIConciergeView: View {
                 HStack(spacing: 12) {
                     ForEach(products) { product in
                         Button {
-                            dismiss()
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                onSelectProduct(product)
-                            }
+                            selectedProduct = product
                         } label: {
                             VStack(alignment: .leading, spacing: 6) {
                                 CustomAsyncImage(url: product.imageURL)
@@ -276,48 +345,92 @@ struct AIConciergeView: View {
     }
 
     private var chatInputBar: some View {
-        HStack(spacing: 12) {
-            TextField("Message ", text: $chatInputText, axis: .vertical)
-                .font(.system(size: 15))
-                .foregroundColor(WSRegistryPalette.espresso)
-                .lineLimit(1...5)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
-                .frame(minHeight: 48)
-                .background(
-                    RoundedRectangle(cornerRadius: 24, style: .continuous)
-                        .fill(WSRegistryPalette.porcelain)
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 24, style: .continuous)
-                        .stroke(WSRegistryPalette.hairline.opacity(0.85), lineWidth: 1)
-                )
-
-            Button {
-                let query = chatInputText.trimmingCharacters(in: .whitespacesAndNewlines)
-                guard !query.isEmpty else { return }
-                submitChatQuery(query)
-            } label: {
-                Image(systemName: "paperplane.fill")
-                    .font(.system(size: 15, weight: .bold))
-                    .foregroundColor(WSRegistryPalette.porcelain)
-                    .frame(width: 48, height: 48)
-                    .background(WSRegistryPalette.espresso, in: Circle())
-                    .wsShadow()
+        VStack(spacing: 8) {
+            if let img = selectedImage {
+                HStack {
+                    ZStack(alignment: .topTrailing) {
+                        Image(uiImage: img)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 80, height: 80)
+                            .clipped()
+                            .cornerRadius(10)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(WSRegistryPalette.hairline.opacity(0.85), lineWidth: 1)
+                            )
+                        
+                        Button {
+                            selectedImage = nil
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundColor(.wsCharcoal)
+                                .background(Color.white, in: Circle())
+                                .font(.system(size: 18))
+                                .offset(x: 6, y: -6)
+                        }
+                    }
+                    .padding(.leading, 4)
+                    Spacer()
+                }
+                .transition(.scale.combined(with: .opacity))
             }
-            .disabled(chatInputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            
+            HStack(spacing: 12) {
+                Button {
+                    showImageSourceDialog = true
+                } label: {
+                    Image(systemName: "camera.fill")
+                        .font(.system(size: 18))
+                        .foregroundColor(WSRegistryPalette.espresso)
+                        .frame(width: 48, height: 48)
+                        .background(WSRegistryPalette.porcelain, in: Circle())
+                        .overlay(Circle().stroke(WSRegistryPalette.hairline.opacity(0.85), lineWidth: 1))
+                        .wsShadow()
+                }
+
+                TextField("Message ", text: $chatInputText, axis: .vertical)
+                    .font(.system(size: 15))
+                    .foregroundColor(WSRegistryPalette.espresso)
+                    .lineLimit(1...5)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
+                    .frame(minHeight: 48)
+                    .background(
+                        RoundedRectangle(cornerRadius: 24, style: .continuous)
+                            .fill(WSRegistryPalette.porcelain)
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 24, style: .continuous)
+                            .stroke(WSRegistryPalette.hairline.opacity(0.85), lineWidth: 1)
+                    )
+
+                Button {
+                    let query = chatInputText.trimmingCharacters(in: .whitespacesAndNewlines)
+                    submitChatQuery(query, image: selectedImage)
+                } label: {
+                    Image(systemName: "paperplane.fill")
+                        .font(.system(size: 15, weight: .bold))
+                        .foregroundColor(WSRegistryPalette.porcelain)
+                        .frame(width: 48, height: 48)
+                        .background(WSRegistryPalette.espresso, in: Circle())
+                        .wsShadow()
+                }
+                .disabled(chatInputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && selectedImage == nil)
+            }
         }
     }
 
-    private func submitChatQuery(_ query: String) {
+    private func submitChatQuery(_ query: String, image: UIImage? = nil) {
         chatInputText = ""
+        selectedImage = nil
 
-        let userMessage = ConciergeChatMessage(isUser: true, text: query, products: [])
+        let userMessage = ConciergeChatMessage(isUser: true, text: query, products: [], image: image)
         messages.append(userMessage)
 
         isAILoading = true
 
-        AuraAIService.shared.sendMessage(query, catalog: allProducts) { replyText, recommendedItems in
+        AuraAIService.shared.sendMessage(query, image: image, catalog: allProducts) { replyText, recommendedItems in
             isAILoading = false
             let aiMessage = ConciergeChatMessage(isUser: false, text: replyText, products: recommendedItems)
             withAnimation(.spring()) {
