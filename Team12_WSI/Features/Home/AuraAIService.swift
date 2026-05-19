@@ -10,6 +10,47 @@ final class AuraAIService {
         return !key.isEmpty && !key.contains("YOUR_GEMINI_API_KEY")
     }
     
+    private func levenshteinDistance(_ s1: String, _ s2: String) -> Int {
+        let empty = [Int](repeating: 0, count: s2.count + 1)
+        var last = [Int](0...s2.count)
+        
+        for (i, char1) in s1.enumerated() {
+            var cur = [i + 1] + empty[1...]
+            for (j, char2) in s2.enumerated() {
+                cur[j + 1] = char1 == char2 ? last[j] : min(last[j + 1], cur[j], last[j]) + 1
+            }
+            last = cur
+        }
+        return last.last ?? 0
+    }
+    
+    private func isFuzzyMatch(word: String, target: String) -> Bool {
+        let cleanWord = word.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        let cleanTarget = target.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        
+        guard !cleanWord.isEmpty && !cleanTarget.isEmpty else { return false }
+        
+        // 1. Direct substring check: e.g. "glass" is in "glassware" or "wine-glass"
+        if cleanTarget.contains(cleanWord) { return true }
+        
+        // 2. Fuzzy spelling check per target word
+        let targetWords = cleanTarget.components(separatedBy: CharacterSet.alphanumerics.inverted)
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty && $0.count >= 2 }
+            
+        for tWord in targetWords {
+            if tWord.contains(cleanWord) { return true }
+            
+            // Levenshtein check for spelling mistakes (e.g. "glas" -> "glass", "woood" -> "wood")
+            let dist = levenshteinDistance(cleanWord, tWord)
+            let maxAllowedDist = cleanWord.count <= 4 ? 1 : 2
+            if dist <= maxAllowedDist {
+                return true
+            }
+        }
+        return false
+    }
+    
     private func runSimulatedFallback(
         query: String,
         image: UIImage?,
@@ -49,19 +90,19 @@ final class AuraAIService {
                 
                 for word in words {
                     // Exact name match gets highest weight
-                    if nameLower.contains(word) {
+                    if self.isFuzzyMatch(word: word, target: nameLower) {
                         score += 5
                     }
                     // Brand match gets high weight
-                    if brandLower.contains(word) {
+                    if self.isFuzzyMatch(word: word, target: brandLower) {
                         score += 4
                     }
                     // Product type or category match
-                    if typeLower.contains(word) || patternLower.contains(word) {
+                    if self.isFuzzyMatch(word: word, target: typeLower) || self.isFuzzyMatch(word: word, target: patternLower) {
                         score += 3
                     }
                     // Material match
-                    if materialLower.contains(word) {
+                    if self.isFuzzyMatch(word: word, target: materialLower) {
                         score += 2
                     }
                 }
@@ -73,8 +114,10 @@ final class AuraAIService {
             matchedProducts = scoredProducts.map { $0.item }
         }
         
+        let hadExactMatches = !matchedProducts.isEmpty
+        
         // 4. Fall back to standard catalog groups if no keyword matches were found
-        if matchedProducts.isEmpty {
+        if !hadExactMatches {
             if lower.contains("sofa") || lower.contains("couch") || lower.contains("living") || lower.contains("room") || lower.contains("space") || image != nil {
                 matchedProducts = catalog.filter { ($0.productType ?? "").lowercased().contains("sofa") || $0.name.lowercased().contains("sofa") }
                 if matchedProducts.isEmpty {
@@ -107,8 +150,8 @@ final class AuraAIService {
             matchedProducts = matchedProducts.filter { ($0.price ?? 0.0) <= maxPrice }
         }
         
-        // 6. Generate the luxurious, elegant conversational reply
-        let finalMatches = Array(matchedProducts.prefix(3))
+        // 6. Generate the luxurious, elegant conversational reply (Up to 20 database matches allowed)
+        let finalMatches = Array(matchedProducts.prefix(20))
         var explanation = ""
         
         if image != nil {
@@ -117,14 +160,20 @@ final class AuraAIService {
             explanation += "I would love to assist with your request."
         }
         
-        if !finalMatches.isEmpty {
-            explanation += " Here are premium selections from the Williams-Sonoma catalog that beautifully match your query"
-            if let maxPrice = maxPrice {
-                explanation += " while remaining within your budget of under $\(Int(maxPrice))"
-            }
-            explanation += ":"
+        if !hadExactMatches {
+            // No direct matches in the catalog, let the user know and offer high-quality alternatives
+            let searchSubject = words.first ?? "those kind of products"
+            explanation += " I'm sorry, but those kinds of products ('\(searchSubject)') are not available in our catalog at the moment. However, here are some premium Williams-Sonoma options you might enjoy:"
         } else {
-            explanation += " I searched our current Williams-Sonoma catalog but couldn't find a direct match. Let me know if I can guide you to our cookware foundations, luxury tabletop details, or daily entertaining essentials!"
+            if !finalMatches.isEmpty {
+                explanation += " Here are premium selections from the Williams-Sonoma catalog that beautifully match your query"
+                if let maxPrice = maxPrice {
+                    explanation += " while remaining within your budget of under $\(Int(maxPrice))"
+                }
+                explanation += ":"
+            } else {
+                explanation += " I searched our current Williams-Sonoma catalog but couldn't find a direct match under your budget limit. Let me know if I can guide you to our cookware foundations, luxury tabletop details, or daily entertaining essentials!"
+            }
         }
         
         completion(explanation, finalMatches)
@@ -203,7 +252,7 @@ final class AuraAIService {
         When replying:
         1. Keep your tone highly personalized, encouraging, and luxurious.
         2. Help the user choose the perfect essentials based on their query.
-        3. Recommend between 1 to 5 exact matches from the catalog.
+        3. Recommend all relevant matching products from the catalog (up to 20 products if available).
         
         Format your response EXACTLY in this custom structure:
         [Your elegant conversational reply goes here.]
@@ -264,8 +313,8 @@ final class AuraAIService {
                     matchedProducts = catalog.filter { ids.contains($0.id) }
                 }
                 
-                // If live Gemini parsed no matches but the user requested products, do a smart local catalog search to complete
-                if matchedProducts.isEmpty && (query.lowercased().contains("recommend") || query.lowercased().contains("show") || query.lowercased().contains("give")) {
+                // If live Gemini parsed no matches, do a smart local catalog search to complete query-wise
+                if matchedProducts.isEmpty {
                     self.runSimulatedFallback(query: query, image: image, catalog: catalog, completion: completion)
                     return
                 }

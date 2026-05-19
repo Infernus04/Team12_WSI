@@ -4022,5 +4022,97 @@
     },
     "availability": "ON_HAND",
     "deliveryEstimate": "IMMEDIATE"
+  },
+  {
+    "id": "7809112",
+    "name": "Williams Sonoma Classic Logo Towels, Set of 4, Claret",
+    "shortName": "Williams Sonoma Classic Logo Towels, Set of 4, Claret",
+    "primaryGroupId": "williams-sonoma-classic-towels",
+    "price": {
+      "regularPrice": 29.95,
+      "surcharge": 0,
+      "retailPrice": 29.95,
+      "sellingPrice": 29.95,
+      "monogramOrPersonalizationPrice": 17
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "red-parent/claret",
+      "pattern": "homekeeping",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "williams-sonoma",
+      "organic": "true",
+      "productType": "kitchen-towels",
+      "canGiftWrap": "true",
+      "allProductTypes": "kitchen-towels",
+      "material": "cotton",
+      "isShoppable": "true",
+      "name": "Williams Sonoma Classic Logo Towels, Set of 4, Claret",
+      "shortName": "Williams Sonoma Classic Logo Towels, Set of 4, Claret"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/ws_classic_towels.png",
+          "aspect": "q",
+          "properties": {
+            "altText": "Williams Sonoma Classic Logo Towels, Set of 4, Claret"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "IMMEDIATE"
+  },
+  {
+    "id": "7809113",
+    "name": "Hold Everything Organic Cotton Dish Towels, Set of 3",
+    "shortName": "Hold Everything Organic Cotton Dish Towels, Set of 3",
+    "primaryGroupId": "hold-everything-organic-towels",
+    "price": {
+      "regularPrice": 24.95,
+      "surcharge": 0,
+      "retailPrice": 24.95,
+      "sellingPrice": 19.95,
+      "monogramOrPersonalizationPrice": 0
+    },
+    "properties": {
+      "isMarketPlace": "false",
+      "isSpecialOrder": "false",
+      "color": "navy-parent/navy",
+      "pattern": "homekeeping",
+      "isFood": "false",
+      "isFurniture": "false",
+      "spiritType": "williams-sonoma",
+      "hasUtilityNeeds": "true",
+      "brand": "hold-everything",
+      "organic": "true",
+      "productType": "kitchen-towels",
+      "canGiftWrap": "true",
+      "allProductTypes": "kitchen-towels",
+      "material": "organic-cotton",
+      "isShoppable": "true",
+      "name": "Hold Everything Organic Cotton Dish Towels, Set of 3",
+      "shortName": "Hold Everything Organic Cotton Dish Towels, Set of 3"
+    },
+    "media": {
+      "images": [
+        {
+          "type": "prodimage",
+          "path": "/ws_classic_towels.png",
+          "aspect": "q",
+          "properties": {
+            "altText": "Hold Everything Organic Cotton Dish Towels, Set of 3"
+          }
+        }
+      ]
+    },
+    "availability": "ON_HAND",
+    "deliveryEstimate": "IMMEDIATE"
   }
 ]
