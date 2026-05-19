@@ -160,7 +160,7 @@ struct HomeAIPersonalizationEngine {
 
 // MARK: - Array Helper
 
-private extension Array where Element == String {
+extension Array where Element == String {
     func containsAny(_ targets: [String]) -> Bool {
         targets.contains { target in self.contains { $0.contains(target) } }
     }
