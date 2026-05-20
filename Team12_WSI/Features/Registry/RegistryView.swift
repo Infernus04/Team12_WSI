@@ -17,6 +17,7 @@ enum RegistryRoute: Hashable {
     case existingRegistryDetails(UUID)
     case categoryProducts(String)
     case recommendations(RegistryQuestionnairePayload)
+    case bundlePreview(bundleID: String)
     case chronicle
     case activity
     case registryInsights
@@ -166,6 +167,8 @@ struct RegistryView: View {
                     RegistryCategoryProductsView(sectionTitle: title)
                 case .recommendations(let payload):
                     AURARecommendationReviewView(payload: payload, registryRepo: registryRepo)
+                case .bundlePreview(let bundleID):
+                    BundlePreviewView(bundleID: bundleID)
                 case .chronicle:
                     HomeChronicleView()
                 case .activity:

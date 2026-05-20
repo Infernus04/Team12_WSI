@@ -30,18 +30,66 @@ final class AURARecommendationReviewViewModel: ObservableObject {
     @Published var homeBundles: [HomeInspiredBundle] = []
     @Published var addedCollectionIDs: Set<String> = []
 
+    // MARK: - Selection State (select-then-commit)
+
+    @Published var selectedProductIDs: Set<String> = []
+
+    var selectedCount: Int { selectedProductIDs.count }
+    var hasSelection: Bool { !selectedProductIDs.isEmpty }
+
+    func isSelected(_ id: String) -> Bool {
+        selectedProductIDs.contains(id)
+    }
+
+    func toggleSelection(_ id: String) {
+        if selectedProductIDs.contains(id) {
+            selectedProductIDs.remove(id)
+        } else {
+            selectedProductIDs.insert(id)
+        }
+    }
+
+    func selectAll(ids: [String]) {
+        selectedProductIDs.formUnion(ids)
+    }
+
+    func deselectAll(ids: [String]) {
+        selectedProductIDs.subtract(ids)
+    }
+
+    func commitSelectedToRegistry() {
+        let candidates = selectedProductIDs
+            .filter { !addedProductIDs.contains($0) }
+            .compactMap { catalogByID[$0] }
+            .map { productItem(from: $0) }
+        guard !candidates.isEmpty else { return }
+        registryRepo?.addProducts(candidates, collectionName: "AI Picks", sourceTag: "ai-selection-batch")
+        addedProductIDs.formUnion(candidates.map(\.id))
+        selectedProductIDs.removeAll()
+    }
+
     // MARK: - Dependencies
 
     private let intelligenceService = AURAIntelligenceService()
     private let payload: RegistryQuestionnairePayload
-    private weak var registryRepo: RegistryRepository?
-    private var catalogByID: [String: CatalogProduct] = [:]
+    private(set) weak var registryRepo: RegistryRepository?
+    private(set) var catalogByID: [String: CatalogProduct] = [:]
 
     // MARK: - Init
 
     init(payload: RegistryQuestionnairePayload, registryRepo: RegistryRepository?) {
         self.payload = payload
         self.registryRepo = registryRepo
+    }
+
+    // MARK: - Public Product Conversion
+
+    func makeProductItem(from catalog: CatalogProduct) -> ProductItem {
+        productItem(from: catalog)
+    }
+
+    func makeProductItem(from recommendation: RankedRecommendation) -> ProductItem {
+        productItem(from: recommendation.product)
     }
 
     // MARK: - Load Recommendations
@@ -83,18 +131,17 @@ final class AURARecommendationReviewViewModel: ObservableObject {
         await loadRecommendations()
     }
 
-    // MARK: - Add to Registry
+    // MARK: - Add to Registry (legacy single-item)
 
     func addToRegistry(_ recommendation: RankedRecommendation) {
         guard !addedProductIDs.contains(recommendation.id) else { return }
-
         let product = productItem(from: recommendation.product)
         registryRepo?.addProduct(product, collectionName: recommendationCollection(for: recommendation), sourceTag: "ai-recommendation")
         addedProductIDs.insert(recommendation.id)
     }
 
-    func isAdded(_ recommendation: RankedRecommendation) -> Bool {
-        addedProductIDs.contains(recommendation.id)
+    func isAdded(_ id: String) -> Bool {
+        addedProductIDs.contains(id)
     }
 
     // MARK: - Section Recommendations
@@ -183,6 +230,8 @@ final class AURARecommendationReviewViewModel: ObservableObject {
         bundle.productIDs.compactMap { catalogByID[$0] }
     }
 
+    // MARK: - Private
+
     private func productItem(from catalog: CatalogProduct) -> ProductItem {
         ProductItem(
             id: catalog.id,
@@ -250,7 +299,15 @@ final class AURARecommendationReviewViewModel: ObservableObject {
         recommendations: [RankedRecommendation]
     ) -> [HomeInspiredBundle] {
         let topRecommendationIDs = Set(recommendations.prefix(30).map(\.id))
-        let grouped = Dictionary(grouping: catalog) { ($0.collection ?? "").lowercased() }
+
+        // Normalize collection keys: "citrone" -> "citron"
+        let normalized: [(String, CatalogProduct)] = catalog.compactMap { product in
+            guard var col = product.collection?.lowercased(), !col.isEmpty else { return nil }
+            if col == "citrone" { col = "citron" }
+            return (col, product)
+        }
+        let grouped = Dictionary(grouping: normalized, by: \.0).mapValues { $0.map(\.1) }
+
         let targetCollections = ["limone", "citron"]
 
         return targetCollections.compactMap { key in
@@ -268,7 +325,7 @@ final class AURARecommendationReviewViewModel: ObservableObject {
                 : "A refined citrus-led setting designed for modern hosting moments."
             let aiReason = key == "limone"
                 ? "AURA identified warm hosting cues and layered tabletop intent in your profile, making Limone a strong full-table expression."
-                : "AURA matched your registry to elevated entertaining signals where Citron’s composition creates a cohesive, guest-ready narrative."
+                : "AURA matched your registry to elevated entertaining signals where Citron's composition creates a cohesive, guest-ready narrative."
 
             return HomeInspiredBundle(
                 id: "collection-\(key)",
