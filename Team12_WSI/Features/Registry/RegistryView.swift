@@ -1385,6 +1385,8 @@ private struct RegistryDetailsView: View {
     @EnvironmentObject var cartRepo: CartRepository
     @EnvironmentObject var tabBarVM: WSTabBarViewModel
 
+    @State private var isProductListExpanded = true
+
     private var registryItems: [RegistryItem] {
         registryRepo.currentRegistry?.items ?? []
     }
@@ -1477,20 +1479,24 @@ private struct RegistryDetailsView: View {
                     if availableRegistries.count > 1 {
                         registrySwitcher
                     }
+                    // 1. Registry Story
                     homeStoryCard
+                    // 2. Stats (no Collections)
                     statsCard
-                    aiInsightsCard
-                    if !registryItems.isEmpty {
-                        budgetTrackerCard
-                    }
+                    // 3. Browse & Add + Open Recommendations
                     addItemsButton
                     recommendationActionsCard
-                    if sections.isEmpty {
-                        emptyRegistryState
+                    // 4. Collapsible product list
+                    if !registryItems.isEmpty {
+                        collapsibleProductList
                     } else {
-                        ForEach(sections) { section in
-                            registrySection(section)
-                        }
+                        emptyRegistryState
+                    }
+                    // 5. AI Insights
+                    aiInsightsCard
+                    // 6. Budget Tracker
+                    if !registryItems.isEmpty {
+                        budgetTrackerCard
                     }
                 }
                 .padding(.horizontal, 18)
@@ -1561,8 +1567,6 @@ private struct RegistryDetailsView: View {
         HStack(spacing: 0) {
             statItem(value: "\(totalItems)", label: "Items")
             divider
-            statItem(value: "\(totalCollections)", label: "Collections")
-            divider
             statItem(value: "\(purchasedItems)", label: "Purchased")
             divider
             statItem(value: completionText, label: "Completed")
@@ -1575,6 +1579,109 @@ private struct RegistryDetailsView: View {
                 .stroke(WSRegistryPalette.hairline.opacity(0.48), lineWidth: 1)
         )
         .shadow(color: WSRegistryPalette.espresso.opacity(0.05), radius: 12, x: 0, y: 6)
+    }
+
+    // MARK: - Collapsible Product List
+
+    private var collapsibleProductList: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            // Header row
+            Button {
+                withAnimation(.easeInOut(duration: 0.25)) {
+                    isProductListExpanded.toggle()
+                }
+            } label: {
+                HStack(spacing: 10) {
+                    Image(systemName: "list.bullet")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundStyle(WSRegistryPalette.gold)
+                    Text("Registry Items")
+                        .font(.system(size: 18, weight: .semibold, design: .serif))
+                        .foregroundStyle(WSRegistryPalette.espresso)
+                    Spacer()
+                    Text("\(totalItems) items")
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundStyle(WSRegistryPalette.warmGray)
+                    Image(systemName: isProductListExpanded ? "chevron.up" : "chevron.down")
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundStyle(WSRegistryPalette.warmGray.opacity(0.7))
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 14)
+            }
+            .buttonStyle(.plain)
+
+            if isProductListExpanded {
+                Divider().padding(.horizontal, 16)
+
+                ForEach(Array(registryItems.enumerated()), id: \.element.id) { index, item in
+                    productListRow(item: item, isLast: index == registryItems.count - 1)
+                }
+            }
+        }
+        .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(WSRegistryPalette.hairline.opacity(0.48), lineWidth: 1)
+        )
+        .shadow(color: WSRegistryPalette.espresso.opacity(0.04), radius: 12, x: 0, y: 6)
+    }
+
+    private func productListRow(item: RegistryItem, isLast: Bool) -> some View {
+        let isPurchased = false // Placeholder — real purchased state would come from backend
+
+        return VStack(spacing: 0) {
+            HStack(spacing: 14) {
+                // Purchase checkbox
+                Image(systemName: isPurchased ? "checkmark.circle.fill" : "circle")
+                    .font(.system(size: 20, weight: .medium))
+                    .foregroundStyle(isPurchased ? WSRegistryPalette.sage : WSRegistryPalette.hairline)
+
+                // Product image
+                CustomAsyncImage(url: URL(string: AppConstants.API.imageBasePath + item.imageUrl))
+                    .frame(width: 52, height: 52)
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+
+                // Product info
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(item.name)
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(WSRegistryPalette.espresso)
+                        .lineLimit(1)
+                    HStack(spacing: 6) {
+                        if let collection = item.collectionName {
+                            Text(collection)
+                                .font(.system(size: 11, weight: .medium))
+                                .foregroundStyle(WSRegistryPalette.warmGray)
+                                .lineLimit(1)
+                        }
+                        Text("Qty: \(item.quantity)")
+                            .font(.system(size: 11, weight: .medium))
+                            .foregroundStyle(WSRegistryPalette.warmGray)
+                    }
+                }
+
+                Spacer(minLength: 8)
+
+                // Price
+                VStack(alignment: .trailing, spacing: 3) {
+                    Text(item.price.formatted(.currency(code: "USD")))
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundStyle(WSRegistryPalette.espresso)
+                    if isPurchased {
+                        Text("Purchased")
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundStyle(WSRegistryPalette.sage)
+                    }
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+
+            if !isLast {
+                Divider().padding(.leading, 50).padding(.trailing, 16)
+            }
+        }
     }
 
     private var addItemsButton: some View {
