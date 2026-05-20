@@ -16,6 +16,14 @@ final class RegistryRepository: ObservableObject {
     @Published var currentRegistry: Registry?
     @Published var activities: [RegistryActivity] = MockRegistryActivities.generate()
 
+    /// Set this to a product to present the RegistryPickerView bottom sheet from anywhere in the app.
+    @Published var productToShowInRegistryPicker: ProductItem? = nil
+
+    /// Call this from any view/viewmodel instead of addProduct directly — it opens the registry picker sheet.
+    func presentRegistryPicker(for product: ProductItem) {
+        productToShowInRegistryPicker = product
+    }
+
     private let persistenceStore = RegistryPersistenceStore.shared
     private var hasBoundPersistence = false
     
@@ -93,6 +101,7 @@ final class RegistryRepository: ObservableObject {
     }
 
     /// Add a product to a specific registry by its ID (used by the registry picker sheet).
+    /// Also auto-activates that registry so the product is immediately visible in the Registry tab.
     func addProduct(_ product: ProductItem, toRegistryID registryID: UUID) {
         guard let index = registries.firstIndex(where: { $0.id == registryID }) else { return }
         let price = product.price ?? 0.0
@@ -113,6 +122,8 @@ final class RegistryRepository: ObservableObject {
                 )
             )
         }
+        // Auto-activate the chosen registry so the user sees the product immediately in the Registry tab
+        activeRegistryID = registryID
         syncCurrentRegistry()
         persistRegistryState()
         activities.insert(
