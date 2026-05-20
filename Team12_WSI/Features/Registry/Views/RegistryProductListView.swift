@@ -2,6 +2,7 @@ import SwiftUI
 
 struct RegistryProductListView: View {
     @Environment(\.dismiss) var dismiss
+    @EnvironmentObject var registryRepo: RegistryRepository
     @State private var searchText = ""
     @State private var showAIInsights = false
     
@@ -39,6 +40,15 @@ struct RegistryProductListView: View {
         .fullScreenCover(isPresented: $showAIInsights) {
             RegistryAIInsightsView()
         }
+    }
+
+    private func isCompleted(_ item: ReceiverRegistryItem) -> Bool {
+        if item.isGifted { return true }
+        guard let linkedID = item.linkedRegistryItemID else { return false }
+        return registryRepo.currentRegistry?
+            .items
+            .first(where: { $0.id == linkedID })?
+            .isPurchased ?? false
     }
     
     // MARK: - Sections
@@ -162,10 +172,10 @@ struct RegistryProductListView: View {
             LazyVStack(spacing: 16) {
                 ForEach(RegistryMockData.items) { item in
                     NavigationLink(destination: RegistryProductDetailView(item: item)) {
-                        RegistryProductCardView(item: item)
+                        RegistryProductCardView(item: item, isCompleted: isCompleted(item))
                     }
                     .buttonStyle(.plain)
-                    .disabled(item.isGifted)
+                    .disabled(isCompleted(item))
                 }
             }
             .padding(.horizontal, 20)
@@ -252,6 +262,7 @@ struct RegistryProductListView: View {
 // MARK: - Product Card Subview
 struct RegistryProductCardView: View {
     let item: ReceiverRegistryItem
+    let isCompleted: Bool
     
     var body: some View {
         HStack(spacing: 12) {
@@ -260,9 +271,9 @@ struct RegistryProductCardView: View {
                 CustomAsyncImage(url: URL(string: AppConstants.API.imageBasePath + item.imagePath))
                     .frame(width: 80, height: 80)
                     .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-                    .opacity(item.isGifted ? 0.6 : 1.0)
+                    .opacity(isCompleted ? 0.6 : 1.0)
                 
-                if item.isPriority && !item.isGifted {
+                if item.isPriority && !isCompleted {
                     Text("Essential")
                         .font(.system(size: 9, weight: .bold))
                         .foregroundStyle(WSRegistryPalette.espresso)
@@ -280,24 +291,24 @@ struct RegistryProductCardView: View {
                 if let collection = item.collection {
                     Text("Part of: \(collection.name)")
                         .font(.system(size: 10, weight: .semibold))
-                        .foregroundStyle(item.isGifted ? WSRegistryPalette.warmGray : WSRegistryPalette.cocoa)
+                        .foregroundStyle(isCompleted ? WSRegistryPalette.warmGray : WSRegistryPalette.cocoa)
                         .lineLimit(1)
                 }
                 
                 Text(item.name)
                     .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(item.isGifted ? WSRegistryPalette.warmGray : WSRegistryPalette.espresso)
+                    .foregroundStyle(isCompleted ? WSRegistryPalette.warmGray : WSRegistryPalette.espresso)
                     .lineLimit(2)
                 
                 Text("₹\(Int(item.price))")
                     .font(.system(size: 13, weight: .regular))
-                    .foregroundStyle(item.isGifted ? WSRegistryPalette.warmGray : WSRegistryPalette.espresso)
-                    .strikethrough(item.isGifted, color: WSRegistryPalette.warmGray)
+                    .foregroundStyle(isCompleted ? WSRegistryPalette.warmGray : WSRegistryPalette.espresso)
+                    .strikethrough(isCompleted, color: WSRegistryPalette.warmGray)
                 
                 Spacer(minLength: 2)
                 
                 // Status mapping
-                if item.isGifted {
+                if isCompleted {
                     HStack(spacing: 4) {
                         Image(systemName: "checkmark.circle.fill")
                             .font(.system(size: 11))
@@ -318,7 +329,7 @@ struct RegistryProductCardView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.vertical, 2)
             
-            if item.isGifted {
+            if isCompleted {
                 Image(systemName: "checkmark.square.fill")
                     .font(.system(size: 24))
                     .foregroundStyle(WSRegistryPalette.gold.opacity(0.6))
@@ -326,11 +337,11 @@ struct RegistryProductCardView: View {
             }
         }
         .padding(10)
-        .background(item.isGifted ? WSRegistryPalette.porcelain : WSRegistryPalette.ivory)
+        .background(isCompleted ? WSRegistryPalette.porcelain : WSRegistryPalette.ivory)
         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(item.isGifted ? WSRegistryPalette.hairline.opacity(0.3) : WSRegistryPalette.hairline.opacity(0.6), lineWidth: 1))
+        .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(isCompleted ? WSRegistryPalette.hairline.opacity(0.3) : WSRegistryPalette.hairline.opacity(0.6), lineWidth: 1))
         .shadow(color: WSRegistryPalette.espresso.opacity(0.02), radius: 6, x: 0, y: 2)
-        .opacity(item.isGifted ? 0.8 : 1.0)
+        .opacity(isCompleted ? 0.8 : 1.0)
     }
 }
 
