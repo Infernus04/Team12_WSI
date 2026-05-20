@@ -7,6 +7,14 @@ struct RegistryProductDetailView: View {
     @State private var showGroupGiftFlow = false
     @State private var showCelebrationPoolFlow = false
     @State private var isBuyActive = false
+
+    private var isCompleted: Bool {
+        guard let linkedID = item.linkedRegistryItemID else { return item.isGifted }
+        return registryRepo.currentRegistry?
+            .items
+            .first(where: { $0.id == linkedID })?
+            .isPurchased ?? item.isGifted
+    }
     
     var body: some View {
         ScrollView {
@@ -37,14 +45,16 @@ struct RegistryProductDetailView: View {
                         ) {
                             HStack {
                                 VStack(alignment: .leading) {
-                                    Text("Buy this Gift").font(RegistryTheme.Typography.headline)
-                                    Text("Purchase it directly for them").font(RegistryTheme.Typography.caption)
+                                    Text(isCompleted ? "Already Gifted" : "Buy this Gift").font(RegistryTheme.Typography.headline)
+                                    Text(isCompleted ? "This item has been completed in the registry" : "Purchase it directly for them").font(RegistryTheme.Typography.caption)
                                 }
                                 Spacer()
-                                Image(systemName: "gift.fill").foregroundColor(RegistryTheme.Colors.accent)
+                                Image(systemName: isCompleted ? "checkmark.circle.fill" : "gift.fill").foregroundColor(RegistryTheme.Colors.accent)
                             }
                         }
                         .buttonStyle(PrimaryButtonStyle())
+                        .disabled(isCompleted)
+                        .opacity(isCompleted ? 0.6 : 1.0)
                         
                         Button(action: { showGroupGiftFlow = true }) { HStack { VStack(alignment: .leading) { Text("Join Group Gift").font(RegistryTheme.Typography.headline); Text("Collaborate with others").font(RegistryTheme.Typography.caption) }; Spacer(); Image(systemName: "person.3") } }.buttonStyle(SecondaryButtonStyle())
                         Button(action: { showCelebrationPoolFlow = true }) { HStack { VStack(alignment: .leading) { Text("Contribute via Celebration Pool").font(RegistryTheme.Typography.headline); Text("Let AI allocate to meaningful items").font(RegistryTheme.Typography.caption) }; Spacer(); Image(systemName: "heart.fill").foregroundColor(RegistryTheme.Colors.accent) } }.buttonStyle(SecondaryButtonStyle())
