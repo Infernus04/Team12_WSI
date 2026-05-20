@@ -2,327 +2,454 @@ import SwiftUI
 
 struct HelpCompleteCollectionView: View {
     @Environment(\.dismiss) var dismiss
-    
-    // Citron Dining Collection details
-    let collectionName = "Citron Dining Collection"
-    let completionPercentage = 82
-    
+
+    let collectionName: String
+    let registryItems: [RegistryItem]
+
+    // Citron fallback (shown when no registry items match)
+    private static let citronItems: [(name: String, price: String, path: String, status: ItemStatus)] = [
+        ("Citron Dinner Plates, Set of 4", "₹12,000", "/img23m.jpg",  .completed("Celebration Pool helped complete this")),
+        ("Pasta Bowls, Set of 4",          "₹6,500",  "/img10s.jpg",  .completed("Gifted by Aarav")),
+        ("Smeg Espresso Machine",          "₹45,000", "/img122m.jpg", .active(14000, 45000)),
+    ]
+
+    private enum ItemStatus {
+        case completed(String)
+        case active(Double, Double)
+        case available
+    }
+
+    private var completionPct: Int {
+        guard !registryItems.isEmpty else { return 82 }
+        let purchased = registryItems.filter { $0.isPurchased }.count
+        return Int(Double(purchased) / Double(registryItems.count) * 100)
+    }
+
+    private var itemCount: Int { registryItems.isEmpty ? 3 : registryItems.count }
+
+    // MARK: - Body
+
     var body: some View {
         ZStack {
             WSRegistryPalette.porcelain.ignoresSafeArea()
-            
+
             ScrollView(showsIndicators: false) {
-                VStack(spacing: 24) {
-                    // MARK: - EDITORIAL HERO CARD (Inspired by WS dinnerware style)
-                    editorialHeroSection
-                    
-                    // MARK: - COMPLETION STATS CARD
-                    completionProgressCard
-                    
-                    // MARK: - ITEMS IN THE COLLECTION
-                    collectionItemsSection
-                    
-                    // MARK: - AURA EMBELLISHMENT
-                    auraInsightCard
+                VStack(spacing: 0) {
+
+                    // ── Back button header ──────────────────────────────
+                    backButtonRow
+
+                    // ── Cinematic hero ──────────────────────────────────
+                    heroSection
+
+                    // ── Content ─────────────────────────────────────────
+                    VStack(spacing: 20) {
+                        progressCard
+                        itemsSection
+                        auraCard
+                    }
+                    .padding(.top, 24)
+                    .padding(.bottom, 52)
                 }
-                .padding(.bottom, 40)
             }
         }
         .toolbar(.hidden, for: .navigationBar)
-        .overlay(alignment: .topLeading) {
+    }
+
+    // MARK: - Back Button Row
+
+    private var backButtonRow: some View {
+        HStack {
             Button(action: { dismiss() }) {
-                Image(systemName: "chevron.left")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(WSRegistryPalette.espresso)
-                    .frame(width: 38, height: 38)
-                    .background(WSRegistryPalette.ivory)
-                    .clipShape(Circle())
-                    .overlay(Circle().stroke(WSRegistryPalette.hairline.opacity(0.6), lineWidth: 1))
-                    .shadow(color: Color.black.opacity(0.04), radius: 6, x: 0, y: 3)
-            }
-            .padding(.top, 16)
-            .padding(.leading, 20)
-        }
-    }
-    
-    // MARK: - Editorial Hero (Cabbage plate setting theme)
-    private var editorialHeroSection: some View {
-        VStack(spacing: 16) {
-            // High-end Editorial lifestyle dinnerware image
-            ZStack(alignment: .bottom) {
-                Image("giftdna_living_room") // Using existing premium living room photo
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(height: 240)
-                    .clipped()
-                    .overlay(
-                        LinearGradient(
-                            colors: [Color.clear, WSRegistryPalette.porcelain.opacity(0.95)],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    )
-                
-                // Overlay text
-                VStack(spacing: 8) {
-                    Text("Define Your Dinnerware Style")
-                        .font(.system(size: 26, weight: .regular, design: .serif))
-                        .foregroundStyle(WSRegistryPalette.espresso)
-                        .multilineTextAlignment(.center)
-                    
-                    Text("Set the scene for iconic entertaining with curated tableware.")
-                        .font(.system(size: 13, weight: .regular))
-                        .foregroundStyle(WSRegistryPalette.cocoa)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 24)
+                HStack(spacing: 6) {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 15, weight: .semibold))
+                    Text("Back")
+                        .font(.system(size: 15, weight: .medium))
                 }
-                .padding(.bottom, 8)
+                .foregroundStyle(WSRegistryPalette.espresso)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 9)
+                .background(WSRegistryPalette.ivory)
+                .clipShape(Capsule())
+                .overlay(Capsule().stroke(WSRegistryPalette.hairline.opacity(0.7), lineWidth: 1))
+                .shadow(color: WSRegistryPalette.espresso.opacity(0.06), radius: 6, x: 0, y: 3)
             }
+            .buttonStyle(.plain)
+
+            Spacer()
         }
+        .padding(.horizontal, 20)
+        .padding(.top, 14)
+        .padding(.bottom, 10)
     }
-    
-    // MARK: - Completion Progress Card
-    private var completionProgressCard: some View {
-        HStack(spacing: 20) {
-            // Elegant progress ring
+
+    // MARK: - Hero
+
+    private var heroSection: some View {
+        ZStack(alignment: .bottom) {
+            Image("giftdna_living_room")
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(maxWidth: .infinity)
+                .frame(height: 240)
+                .clipped()
+
+            // Multi-stop cinematic fade
+            LinearGradient(
+                stops: [
+                    .init(color: .clear, location: 0.0),
+                    .init(color: WSRegistryPalette.porcelain.opacity(0.55), location: 0.55),
+                    .init(color: WSRegistryPalette.porcelain.opacity(0.92), location: 0.80),
+                    .init(color: WSRegistryPalette.porcelain, location: 1.0),
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+
+            VStack(spacing: 8) {
+                Text(collectionName)
+                    .font(.system(size: 26, weight: .regular, design: .serif))
+                    .foregroundStyle(WSRegistryPalette.espresso)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.horizontal, 32)
+
+                Text("Curated pieces that complete this beautiful collection.")
+                    .font(.system(size: 14, weight: .regular))
+                    .foregroundStyle(WSRegistryPalette.cocoa.opacity(0.8))
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.horizontal, 36)
+            }
+            .padding(.bottom, 20)
+        }
+        .frame(height: 240)
+    }
+
+    // MARK: - Progress Card
+
+    private var progressCard: some View {
+        HStack(alignment: .center, spacing: 16) {
+
+            // Ring — always visible (track shown even at 0%)
             ZStack {
                 Circle()
-                    .stroke(WSRegistryPalette.hairline.opacity(0.4), lineWidth: 8)
-                    .frame(width: 80, height: 80)
-                
-                Circle()
-                    .trim(from: 0.0, to: CGFloat(completionPercentage) / 100.0)
-                    .stroke(
-                        AngularGradient(
-                            colors: [WSRegistryPalette.gold, Color(hex: "#D4AF37"), WSRegistryPalette.gold],
-                            center: .center
-                        ),
-                        style: StrokeStyle(lineWidth: 8, lineCap: .round)
-                    )
-                    .frame(width: 80, height: 80)
-                    .rotationEffect(.degrees(-90))
-                
-                Text("\(completionPercentage)%")
-                    .font(.system(size: 18, weight: .bold, design: .serif))
+                    .stroke(WSRegistryPalette.hairline.opacity(0.4), lineWidth: 6)
+
+                if completionPct > 0 {
+                    Circle()
+                        .trim(from: 0, to: CGFloat(completionPct) / 100)
+                        .stroke(
+                            AngularGradient(
+                                colors: [WSRegistryPalette.gold, Color(hex: "#D4AF37"), WSRegistryPalette.gold],
+                                center: .center
+                            ),
+                            style: StrokeStyle(lineWidth: 6, lineCap: .round)
+                        )
+                        .rotationEffect(.degrees(-90))
+                }
+
+                Text("\(completionPct)%")
+                    .font(.system(size: 14, weight: .bold, design: .serif))
                     .foregroundStyle(WSRegistryPalette.espresso)
             }
-            
-            VStack(alignment: .leading, spacing: 6) {
-                Text("Citron Dining Collection")
-                    .font(.system(size: 18, weight: .semibold, design: .serif))
+            .frame(width: 60, height: 60)
+
+            // Info text — takes all remaining width
+            VStack(alignment: .leading, spacing: 5) {
+                Text(collectionName)
+                    .font(.system(size: 15, weight: .semibold, design: .serif))
                     .foregroundStyle(WSRegistryPalette.espresso)
-                
-                Text("Almost Complete!")
-                    .font(.system(size: 14, weight: .bold))
-                    .foregroundStyle(WSRegistryPalette.gold)
-                
-                Text("Only 1 active gift remains to fully complete this gorgeous dining experience.")
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Text(completionPct >= 100 ? "Fully Complete! 🎉"
+                     : completionPct >= 70  ? "Almost Complete!"
+                     : "In Progress")
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundStyle(completionPct >= 100 ? WSRegistryPalette.sage : WSRegistryPalette.gold)
+
+                let remaining = registryItems.filter { !$0.isPurchased }.count
+                Text(registryItems.isEmpty
+                     ? "Only 1 active gift remains to fully complete this collection."
+                     : "\(remaining) item\(remaining == 1 ? "" : "s") remaining to complete.")
                     .font(.system(size: 12, weight: .regular))
                     .foregroundStyle(WSRegistryPalette.warmGray)
+                    .fixedSize(horizontal: false, vertical: true)
                     .lineSpacing(2)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(20)
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(18)
         .background(WSRegistryPalette.ivory)
-        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(WSRegistryPalette.hairline.opacity(0.8), lineWidth: 1))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(WSRegistryPalette.hairline.opacity(0.65), lineWidth: 1)
+        )
+        .shadow(color: WSRegistryPalette.espresso.opacity(0.05), radius: 12, x: 0, y: 5)
         .padding(.horizontal, 20)
     }
-    
-    // MARK: - Collection Items Section
-    private var collectionItemsSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("Collection Pieces")
-                .font(.system(size: 16, weight: .bold, design: .serif))
-                .foregroundStyle(WSRegistryPalette.espresso)
-                .padding(.horizontal, 20)
-            
-            VStack(spacing: 16) {
-                // Item 1: Citron Dinner Plates (COMPLETED via celebration pool!)
-                HStack(spacing: 16) {
-                    ZStack(alignment: .topLeading) {
-                        CustomAsyncImage(url: URL(string: AppConstants.API.imageBasePath + "/img23m.jpg"))
-                            .frame(width: 90, height: 90)
-                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                        
-                        Text("COMPLETED")
-                            .font(.system(size: 8, weight: .bold))
-                            .foregroundStyle(.white)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 3)
-                            .background(WSRegistryPalette.gold)
-                            .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
-                            .padding(6)
+
+    // MARK: - Items Section
+
+    private var itemsSection: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            // Header
+            VStack(alignment: .leading, spacing: 3) {
+                Text("Collection Pieces")
+                    .font(.system(size: 18, weight: .semibold, design: .serif))
+                    .foregroundStyle(WSRegistryPalette.espresso)
+                Text("\(itemCount) items · \(collectionName)")
+                    .font(.system(size: 12, weight: .regular))
+                    .foregroundStyle(WSRegistryPalette.warmGray)
+            }
+            .padding(.horizontal, 20)
+
+            // Item rows
+            VStack(spacing: 12) {
+                if registryItems.isEmpty {
+                    ForEach(Array(Self.citronItems.enumerated()), id: \.offset) { _, item in
+                        staticRow(name: item.name, price: item.price,
+                                  imagePath: item.path, status: item.status)
                     }
-                    .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(WSRegistryPalette.hairline.opacity(0.5), lineWidth: 1))
-                    
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Citron Dinner Plates, Set of 4")
-                            .font(.system(size: 15, weight: .semibold))
-                            .foregroundStyle(WSRegistryPalette.espresso)
-                        
-                        Text("₹12,000")
-                            .font(.system(size: 13, weight: .regular))
-                            .foregroundStyle(WSRegistryPalette.cocoa)
-                        
-                        HStack(spacing: 4) {
-                            Image(systemName: "sparkles")
-                                .font(.system(size: 10))
-                                .foregroundStyle(WSRegistryPalette.gold)
-                            Text("Celebration Pool helped complete this")
-                                .font(.system(size: 11, weight: .medium))
-                                .foregroundStyle(WSRegistryPalette.gold)
-                        }
-                        .padding(.top, 2)
+                } else {
+                    ForEach(registryItems) { item in
+                        dynamicRow(item)
                     }
-                    Spacer()
                 }
-                .padding(14)
-                .background(WSRegistryPalette.ivory.opacity(0.6))
-                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(WSRegistryPalette.hairline.opacity(0.4), lineWidth: 1))
-                
-                // Item 2: Pasta Bowls, Set of 4 (COMPLETED as well!)
-                HStack(spacing: 16) {
-                    ZStack(alignment: .topLeading) {
-                        CustomAsyncImage(url: URL(string: AppConstants.API.imageBasePath + "/img10s.jpg"))
-                            .frame(width: 90, height: 90)
-                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                        
-                        Text("COMPLETED")
-                            .font(.system(size: 8, weight: .bold))
-                            .foregroundStyle(.white)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 3)
-                            .background(WSRegistryPalette.gold)
-                            .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
-                            .padding(6)
-                    }
-                    .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(WSRegistryPalette.hairline.opacity(0.5), lineWidth: 1))
-                    
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Pasta Bowls, Set of 4")
-                            .font(.system(size: 15, weight: .semibold))
-                            .foregroundStyle(WSRegistryPalette.espresso)
-                        
-                        Text("₹6,500")
-                            .font(.system(size: 13, weight: .regular))
-                            .foregroundStyle(WSRegistryPalette.cocoa)
-                        
-                        HStack(spacing: 4) {
-                            Image(systemName: "checkmark.circle.fill")
-                                .font(.system(size: 11))
-                                .foregroundStyle(WSRegistryPalette.gold)
-                            Text("Gifted by Aarav")
-                                .font(.system(size: 11, weight: .medium))
-                                .foregroundStyle(WSRegistryPalette.gold)
-                        }
-                        .padding(.top, 2)
-                    }
-                    Spacer()
-                }
-                .padding(14)
-                .background(WSRegistryPalette.ivory.opacity(0.6))
-                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(WSRegistryPalette.hairline.opacity(0.4), lineWidth: 1))
-                
-                // Item 3: Smeg Espresso Machine (ALMOST COMPLETE - 31% contributed!)
-                HStack(spacing: 16) {
-                    ZStack(alignment: .topLeading) {
-                        CustomAsyncImage(url: URL(string: AppConstants.API.imageBasePath + "/img122m.jpg"))
-                            .frame(width: 90, height: 90)
-                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                        
-                        Text("ACTIVE")
-                            .font(.system(size: 8, weight: .bold))
-                            .foregroundStyle(.white)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 3)
-                            .background(WSRegistryPalette.espresso)
-                            .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
-                            .padding(6)
-                    }
-                    .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(WSRegistryPalette.hairline.opacity(0.5), lineWidth: 1))
-                    
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Smeg Espresso Machine")
-                            .font(.system(size: 15, weight: .semibold))
-                            .foregroundStyle(WSRegistryPalette.espresso)
-                        
-                        Text("₹45,000")
-                            .font(.system(size: 13, weight: .regular))
-                            .foregroundStyle(WSRegistryPalette.cocoa)
-                        
-                        VStack(alignment: .leading, spacing: 3) {
-                            ProgressView(value: 14000, total: 45000)
-                                .progressViewStyle(LinearProgressViewStyle(tint: WSRegistryPalette.gold))
-                                .scaleEffect(x: 1, y: 0.8, anchor: .center)
-                            
-                            HStack {
-                                Text("₹14,000 contributed")
-                                    .font(.system(size: 10, weight: .semibold))
-                                    .foregroundStyle(WSRegistryPalette.gold)
-                                Spacer()
-                                Text("31% Funded")
-                                    .font(.system(size: 10, weight: .semibold))
-                                    .foregroundStyle(WSRegistryPalette.warmGray)
-                            }
-                        }
-                    }
-                    Spacer()
-                }
-                .padding(14)
-                .background(WSRegistryPalette.ivory)
-                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(WSRegistryPalette.hairline.opacity(0.8), lineWidth: 1))
-                .shadow(color: WSRegistryPalette.espresso.opacity(0.02), radius: 6, x: 0, y: 3)
             }
             .padding(.horizontal, 20)
         }
     }
-    
-    // MARK: - Aura Insight Card
-    private var auraInsightCard: some View {
-        VStack(spacing: 12) {
-            HStack(spacing: 8) {
-                Image(systemName: "sparkles")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(WSRegistryPalette.gold)
-                Text("AURA AI COMPLETION INSIGHT")
-                    .font(.system(size: 11, weight: .bold))
-                    .tracking(1.5)
-                    .foregroundStyle(WSRegistryPalette.gold)
+
+    // MARK: - Dynamic Row (live registry items)
+
+    private func dynamicRow(_ item: RegistryItem) -> some View {
+        HStack(alignment: .top, spacing: 14) {
+
+            // Thumbnail with status badge
+            ZStack(alignment: .topLeading) {
+                CustomAsyncImage(url: URL(string: AppConstants.API.imageBasePath + item.imageUrl))
+                    .frame(width: 72, height: 72)
+                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .stroke(WSRegistryPalette.hairline.opacity(0.5), lineWidth: 1)
+                    )
+
+                badge(item.isPurchased ? "GIFTED" : "ACTIVE",
+                      color: item.isPurchased ? WSRegistryPalette.sage : WSRegistryPalette.espresso)
+            }
+
+            // Text content — maxWidth ensures it never overflows
+            VStack(alignment: .leading, spacing: 5) {
+                Text(item.name)
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(item.isPurchased ? WSRegistryPalette.warmGray : WSRegistryPalette.espresso)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Text("₹\(Int(item.price))")
+                    .font(.system(size: 13, weight: .regular))
+                    .foregroundStyle(item.isPurchased
+                                     ? WSRegistryPalette.warmGray.opacity(0.7)
+                                     : WSRegistryPalette.cocoa)
+                    .strikethrough(item.isPurchased, color: WSRegistryPalette.warmGray.opacity(0.5))
+
+                if item.isPurchased {
+                    statusLine(icon: "checkmark.circle.fill",
+                               text: "Already Gifted",
+                               color: WSRegistryPalette.sage)
+                } else if let col = item.collectionName {
+                    Text(col)
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(WSRegistryPalette.gold.opacity(0.85))
+                }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            
-            Text("By completing this dinnerware collection, you are gifting Ananya & Rohan the beautiful privilege of hosting their very first formal dinner party in their new home with perfect coordination.")
+
+            if item.isPurchased {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.system(size: 18))
+                    .foregroundStyle(WSRegistryPalette.sage.opacity(0.55))
+                    .padding(.top, 2)
+            }
+        }
+        .padding(14)
+        .background(item.isPurchased ? WSRegistryPalette.porcelain.opacity(0.6) : WSRegistryPalette.ivory)
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .stroke(WSRegistryPalette.hairline.opacity(item.isPurchased ? 0.3 : 0.6), lineWidth: 1)
+        )
+        .shadow(color: WSRegistryPalette.espresso.opacity(item.isPurchased ? 0 : 0.03),
+                radius: 8, x: 0, y: 3)
+        .opacity(item.isPurchased ? 0.72 : 1)
+    }
+
+    // MARK: - Static Row (Citron fallback)
+
+    private func staticRow(name: String, price: String,
+                           imagePath: String, status: ItemStatus) -> some View {
+        // Split layout: thumbnail+text on top, contribution bar below (full width — fixes clipping)
+        VStack(alignment: .leading, spacing: 10) {
+
+            HStack(alignment: .top, spacing: 14) {
+                ZStack(alignment: .topLeading) {
+                    CustomAsyncImage(url: URL(string: AppConstants.API.imageBasePath + imagePath))
+                        .frame(width: 72, height: 72)
+                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                .stroke(WSRegistryPalette.hairline.opacity(0.5), lineWidth: 1)
+                        )
+
+                    switch status {
+                    case .completed: badge("COMPLETED", color: WSRegistryPalette.gold)
+                    case .active:    badge("ACTIVE",    color: WSRegistryPalette.espresso)
+                    case .available: EmptyView()
+                    }
+                }
+
+                VStack(alignment: .leading, spacing: 5) {
+                    Text(name)
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(WSRegistryPalette.espresso)
+                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    Text(price)
+                        .font(.system(size: 13, weight: .regular))
+                        .foregroundStyle(WSRegistryPalette.cocoa)
+
+                    if case .completed(let note) = status {
+                        statusLine(icon: "checkmark.circle.fill",
+                                   text: note,
+                                   color: WSRegistryPalette.gold)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+
+            // Contribution bar lives OUTSIDE the HStack so it gets full card width
+            if case .active(let contributed, let total) = status {
+                contributionBar(contributed: contributed, total: total)
+            }
+        }
+        .padding(14)
+        .background(WSRegistryPalette.ivory)
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .stroke(WSRegistryPalette.hairline.opacity(0.6), lineWidth: 1)
+        )
+        .shadow(color: WSRegistryPalette.espresso.opacity(0.04), radius: 8, x: 0, y: 3)
+    }
+
+    // MARK: - Shared helpers
+
+    private func badge(_ text: String, color: Color) -> some View {
+        Text(text)
+            .font(.system(size: 7, weight: .bold))
+            .tracking(0.4)
+            .foregroundStyle(.white)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 3)
+            .background(color)
+            .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+            .padding(5)
+    }
+
+    private func statusLine(icon: String, text: String, color: Color) -> some View {
+        HStack(spacing: 4) {
+            Image(systemName: icon)
+                .font(.system(size: 9, weight: .semibold))
+                .foregroundStyle(color)
+            Text(text)
+                .font(.system(size: 11, weight: .medium))
+                .foregroundStyle(color)
+                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(.top, 1)
+    }
+
+    // Full-width bar — outside the thumbnail HStack so it never gets clipped
+    private func contributionBar(contributed: Double, total: Double) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    Capsule()
+                        .fill(WSRegistryPalette.hairline.opacity(0.3))
+                        .frame(height: 4)
+                    Capsule()
+                        .fill(
+                            LinearGradient(
+                                colors: [WSRegistryPalette.gold.opacity(0.7), WSRegistryPalette.gold],
+                                startPoint: .leading, endPoint: .trailing
+                            )
+                        )
+                        .frame(width: geo.size.width * CGFloat(contributed / total), height: 4)
+                }
+            }
+            .frame(height: 4)
+
+            HStack {
+                Text("₹\(Int(contributed)) contributed")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(WSRegistryPalette.gold)
+                Spacer()
+                Text("\(Int(contributed / total * 100))% Funded")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(WSRegistryPalette.warmGray)
+            }
+        }
+    }
+
+    // MARK: - AURA Card
+
+    private var auraCard: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(spacing: 8) {
+                Image(systemName: "sparkles")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(WSRegistryPalette.gold)
+                Text("AURA AI COMPLETION INSIGHT")
+                    .font(.system(size: 10, weight: .bold))
+                    .tracking(1.4)
+                    .foregroundStyle(WSRegistryPalette.gold)
+            }
+
+            Text("By completing the \(collectionName), you are gifting the couple the beautiful privilege of hosting their very first formal dinner in their new home with perfect, curated coordination.")
                 .font(.system(size: 13, weight: .regular, design: .serif))
                 .foregroundStyle(WSRegistryPalette.espresso.opacity(0.85))
-                .lineSpacing(4)
-                .multilineTextAlignment(.leading)
-            
+                .lineSpacing(5)
+                .fixedSize(horizontal: false, vertical: true)
+
             NavigationLink(destination: GroupGiftDetailView()) {
                 Text("Help Complete with a Contribution")
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.system(size: 15, weight: .semibold))
                     .foregroundStyle(WSRegistryPalette.cream)
-                    .frame(maxWidth: .infinity, minHeight: 46)
+                    .frame(maxWidth: .infinity, minHeight: 50)
                     .background(WSRegistryPalette.espresso)
-                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-                    .padding(.top, 8)
+                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
             }
             .buttonStyle(.plain)
         }
-        .padding(18)
+        .padding(20)
         .background(
             LinearGradient(
                 colors: [WSRegistryPalette.ivory, Color(red: 0.98, green: 0.96, blue: 0.91)],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
+                startPoint: .topLeading, endPoint: .bottomTrailing
             )
         )
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(WSRegistryPalette.gold.opacity(0.35), lineWidth: 1))
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .stroke(WSRegistryPalette.gold.opacity(0.3), lineWidth: 1)
+        )
+        .shadow(color: WSRegistryPalette.gold.opacity(0.08), radius: 14, x: 0, y: 6)
         .padding(.horizontal, 20)
     }
 }

@@ -305,12 +305,19 @@ struct CelebrationPoolContributionView: View {
     @Environment(\.dismiss) var dismiss
     @State private var customAmount: String = ""
     @State private var personalMessage: String = ""
+    @FocusState private var focusedField: ContributionField?
+    
+    enum ContributionField { case amount, message }
     
     var body: some View {
         ZStack {
-            WSRegistryPalette.ivory.ignoresSafeArea()
+            // Tap anywhere outside to dismiss keyboard
+            WSRegistryPalette.ivory
+                .ignoresSafeArea()
+                .onTapGesture { focusedField = nil }
             
             ScrollView {
+                // Dragging the scroll view also hides the keyboard natively
                 VStack(spacing: 32) {
                     
                     // Header
@@ -346,6 +353,7 @@ struct CelebrationPoolContributionView: View {
                                 .foregroundStyle(WSRegistryPalette.espresso)
                                 .multilineTextAlignment(.center)
                                 .fixedSize()
+                                .focused($focusedField, equals: .amount)
                         }
                         .frame(maxWidth: .infinity, minHeight: 80)
                         
@@ -371,12 +379,14 @@ struct CelebrationPoolContributionView: View {
                             .background(WSRegistryPalette.porcelain)
                             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                             .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(WSRegistryPalette.hairline.opacity(0.6), lineWidth: 1))
+                            .focused($focusedField, equals: .message)
                     }
                     .padding(.horizontal, 24)
                     
                     Spacer(minLength: 40)
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
             
             // Sticky CTA
             VStack {

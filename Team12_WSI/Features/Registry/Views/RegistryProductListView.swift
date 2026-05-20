@@ -39,6 +39,7 @@ struct RegistryProductListView: View {
         .toolbar(.hidden, for: .navigationBar) // Custom header used instead
         .fullScreenCover(isPresented: $showAIInsights) {
             RegistryAIInsightsView()
+                .environmentObject(registryRepo)
         }
     }
 
@@ -183,8 +184,10 @@ struct RegistryProductListView: View {
     }
     
     private var viewAllCTA: some View {
-        Button(action: {}) {
-            HStack(spacing: 4) {
+        NavigationLink(destination: AllRegistryProductsView()
+            .environmentObject(registryRepo)
+        ) {
+            HStack(spacing: 6) {
                 Text("View Full Registry")
                     .font(.system(size: 14, weight: .semibold))
                 Image(systemName: "arrow.right")
@@ -192,6 +195,7 @@ struct RegistryProductListView: View {
             }
             .foregroundStyle(WSRegistryPalette.cocoa)
         }
+        .buttonStyle(.plain)
         .padding(.top, 4)
     }
     

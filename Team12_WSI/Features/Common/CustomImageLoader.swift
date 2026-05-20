@@ -19,7 +19,8 @@ class CustomImageLoader: ObservableObject {
             relativePath = String(relativePath.dropFirst())
         }
         
-        let hostFilePath = "/Users/gayatri/Desktop/Team12_WSI/Backend/Images/" + relativePath
+        let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? ""
+        let hostFilePath = "\(homeDir)/Desktop/Team12_WSI/Backend/Images/" + relativePath
         if FileManager.default.fileExists(atPath: hostFilePath) {
             if let localImage = UIImage(contentsOfFile: hostFilePath) {
                 self.image = localImage
