@@ -18,6 +18,7 @@ enum RegistryRoute: Hashable {
     case categoryProducts(String)
     case recommendations(RegistryQuestionnairePayload)
     case bundlePreview(bundleID: String)
+    case allProducts
     case chronicle
     case activity
     case registryInsights
@@ -169,6 +170,8 @@ struct RegistryView: View {
                     AURARecommendationReviewView(payload: payload, registryRepo: registryRepo)
                 case .bundlePreview(let bundleID):
                     BundlePreviewView(bundleID: bundleID)
+                case .allProducts:
+                    AllRegistryProductsView()
                 case .chronicle:
                     HomeChronicleView()
                 case .activity:
@@ -1584,7 +1587,10 @@ private struct RegistryDetailsView: View {
     // MARK: - Collapsible Product List
 
     private var collapsibleProductList: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        let visibleItems = Array(registryItems.prefix(4))
+        let hasMore = registryItems.count > 4
+
+        return VStack(alignment: .leading, spacing: 0) {
             // Header row
             Button {
                 withAnimation(.easeInOut(duration: 0.25)) {
@@ -1614,8 +1620,30 @@ private struct RegistryDetailsView: View {
             if isProductListExpanded {
                 Divider().padding(.horizontal, 16)
 
-                ForEach(Array(registryItems.enumerated()), id: \.element.id) { index, item in
-                    productListRow(item: item, isLast: index == registryItems.count - 1)
+                ForEach(Array(visibleItems.enumerated()), id: \.element.id) { index, item in
+                    productListRow(item: item, isLast: !hasMore && index == visibleItems.count - 1)
+                }
+
+                // View All button
+                if hasMore {
+                    Divider().padding(.horizontal, 16)
+
+                    Button {
+                        tabBarVM.registryPath.append(RegistryRoute.allProducts)
+                    } label: {
+                        HStack {
+                            Spacer()
+                            Text("View All \(registryItems.count) Items")
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundStyle(WSRegistryPalette.gold)
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 11, weight: .bold))
+                                .foregroundStyle(WSRegistryPalette.gold)
+                            Spacer()
+                        }
+                        .padding(.vertical, 14)
+                    }
+                    .buttonStyle(.plain)
                 }
             }
         }
@@ -1688,32 +1716,42 @@ private struct RegistryDetailsView: View {
         Button {
             tabBarVM.selectTab(.home)
         } label: {
-            HStack(spacing: 12) {
-                Image(systemName: "plus.circle.fill")
-                    .font(.system(size: 20, weight: .semibold))
-                Text("Browse and add gifts")
-                    .font(.system(size: 17, weight: .semibold))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.82)
+            HStack(spacing: 16) {
+                ZStack {
+                    Circle()
+                        .fill(WSRegistryPalette.gold.opacity(0.15))
+                        .frame(width: 44, height: 44)
+                    Image(systemName: "bag.badge.plus")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundStyle(WSRegistryPalette.gold)
+                }
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Browse & Add Gifts")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(WSRegistryPalette.espresso)
+                    Text("Explore the catalog and add items to your registry")
+                        .font(.system(size: 12, weight: .regular))
+                        .foregroundStyle(WSRegistryPalette.warmGray)
+                        .lineLimit(1)
+                }
+
                 Spacer(minLength: 8)
+
                 Image(systemName: "chevron.right")
                     .font(.system(size: 13, weight: .bold))
+                    .foregroundStyle(WSRegistryPalette.warmGray.opacity(0.6))
             }
-            .foregroundStyle(WSRegistryPalette.porcelain)
-            .padding(.horizontal, 18)
-            .frame(maxWidth: .infinity, minHeight: 58, alignment: .leading)
-            .background(
-                LinearGradient(
-                    colors: [WSRegistryPalette.espresso, Color(red: 0.245, green: 0.165, blue: 0.110)],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                ),
-                in: RoundedRectangle(cornerRadius: 14, style: .continuous)
+            .padding(16)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .stroke(WSRegistryPalette.hairline.opacity(0.48), lineWidth: 1)
             )
-            .shadow(color: WSRegistryPalette.espresso.opacity(0.16), radius: 14, x: 0, y: 8)
+            .shadow(color: WSRegistryPalette.espresso.opacity(0.05), radius: 12, x: 0, y: 6)
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("Add items to your registry")
     }
 
     private var aiInsightsCard: some View {
@@ -2007,68 +2045,58 @@ private struct RegistryDetailsView: View {
     }
 
     private var recommendationActionsCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 8) {
-                Image(systemName: "sparkles")
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundStyle(WSRegistryPalette.gold)
-                Text("AI AESTHETIC BUNDLES")
-                    .font(.system(size: 11, weight: .bold))
-                    .tracking(1.5)
-                    .foregroundStyle(WSRegistryPalette.gold)
-            }
-
-            Text("AI Registry Recommendations")
-                .font(.wsSerif(size: 20, weight: .semibold))
-                .foregroundStyle(WSRegistryPalette.espresso)
-
-            Text("Continue from your onboarding results: add items one-by-one, add bundles, or quick-add essentials.")
-                .font(.wsBody(size: 13))
-                .foregroundStyle(WSRegistryPalette.warmGray)
-
-            Button {
-                tabBarVM.registryPath.append(RegistryRoute.recommendations(followupRecommendationPayload))
-            } label: {
-                HStack {
+        Button {
+            tabBarVM.registryPath.append(RegistryRoute.recommendations(followupRecommendationPayload))
+        } label: {
+            HStack(spacing: 16) {
+                ZStack {
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: [WSRegistryPalette.gold.opacity(0.22), WSRegistryPalette.gold.opacity(0.08)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 44, height: 44)
                     Image(systemName: "sparkles")
-                        .font(.system(size: 14, weight: .semibold))
-                    Text("Open Recommendations")
-                        .font(.wsLabel(size: 11))
-                        .tracking(1.0)
-                    Spacer()
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 12, weight: .semibold))
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundStyle(WSRegistryPalette.gold)
                 }
-                .foregroundStyle(WSRegistryPalette.cream)
-                .padding(.horizontal, 14)
-                .frame(maxWidth: .infinity, minHeight: 46)
-                .background(
-                    LinearGradient(
-                        colors: [WSRegistryPalette.espresso, Color(red: 0.245, green: 0.165, blue: 0.110)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ),
-                    in: RoundedRectangle(cornerRadius: 10, style: .continuous)
-                )
-            }
-            .buttonStyle(.plain)
 
-            VStack(alignment: .leading, spacing: 6) {
-                ForEach(bundleCompletionSuggestions, id: \.self) { suggestion in
-                    Text("• \(suggestion)")
-                        .font(.wsBody(size: 12))
-                        .foregroundStyle(WSRegistryPalette.cocoa.opacity(0.9))
-                        .lineLimit(2)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("AI Recommendations")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(WSRegistryPalette.espresso)
+                    Text("Personalized picks, bundles & curated essentials")
+                        .font(.system(size: 12, weight: .regular))
+                        .foregroundStyle(WSRegistryPalette.warmGray)
+                        .lineLimit(1)
                 }
+
+                Spacer(minLength: 8)
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundStyle(WSRegistryPalette.warmGray.opacity(0.6))
             }
+            .padding(16)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                LinearGradient(
+                    colors: [WSRegistryPalette.ivory, Color(red: 0.98, green: 0.96, blue: 0.92)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ),
+                in: RoundedRectangle(cornerRadius: 16, style: .continuous)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .stroke(WSRegistryPalette.gold.opacity(0.2), lineWidth: 1)
+            )
+            .shadow(color: WSRegistryPalette.gold.opacity(0.06), radius: 12, x: 0, y: 6)
         }
-        .padding(14)
-        .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .stroke(WSRegistryPalette.hairline.opacity(0.5), lineWidth: 1)
-        )
-        .shadow(color: WSRegistryPalette.espresso.opacity(0.04), radius: 12, x: 0, y: 6)
+        .buttonStyle(.plain)
     }
 
     private var emptyRegistryState: some View {
