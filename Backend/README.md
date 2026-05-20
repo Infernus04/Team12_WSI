@@ -15,7 +15,7 @@ To start the server in development mode (with hot reloading):
 bun run dev
 ```
 
-The server will be available at `http://localhost:3000`.
+The server will be available at `http://10.21.131.115:3000` (for local network testing) or `http://localhost:3000` (for Mac browser).
 
 ## Project Structure
 

@@ -69,7 +69,13 @@ struct HomeView: View {
             }
             .sheet(item: $selectedArticle) { article in articleSheet(article) }
             .sheet(isPresented: $showMoodboard) {
-                NavigationStack { MoodboardView(allProducts: viewModel.products) }
+                NavigationStack {
+                    MoodboardView(
+                        allProducts: viewModel.products,
+                        onAddToCart: { viewModel.addToCart($0) },
+                        onAddToRegistry: { viewModel.addToRegistry($0) }
+                    )
+                }
             }
             .sheet(isPresented: $showHeroCollection) {
                 HomeSearchView(
@@ -123,10 +129,11 @@ struct HomeView: View {
     private func homeDestination(for route: HomeRoute) -> some View {
         switch route {
         case .product(let id):
-            if let product = viewModel.products.first(where: { $0.id == id }) {
+            let allProds = viewModel.products + ProductItem.fallbackProducts
+            if let product = allProds.first(where: { $0.id == id }) {
                 ProductDetailView(
                     product: product,
-                    allProducts: viewModel.products,
+                    allProducts: allProds,
                     onAddToCart: { viewModel.addToCart($0) },
                     onAddToRegistry: { viewModel.addToRegistry($0) },
                     onAddToSaveForLater: { viewModel.addToSaveForLater($0) },
@@ -193,21 +200,8 @@ struct HomeView: View {
 
     // MARK: Nav Bar
     private var navBar: some View {
-        HStack(spacing: 12) {
-            VStack(alignment: .leading, spacing: 3) {
-                Text("Good Evening, Ausaf")
-                    .font(.wsSerif(size: 13))
-                    .foregroundColor(.wsSecondary)
-                    .lineLimit(1)
-                Text("Welcome Home")
-                    .font(.wsDisplay(size: 18))
-                    .foregroundColor(.wsCharcoal)
-                    .lineLimit(1)
-            }
-            .layoutPriority(1)
-            
-            Spacer(minLength: 8)
-            
+        ZStack {
+            // Center Logo
             Text("WILLIAMS\nSONOMA")
                 .font(.system(size: 8, weight: .bold))
                 .tracking(2)
@@ -215,30 +209,51 @@ struct HomeView: View {
                 .foregroundColor(.wsCharcoal)
                 .fixedSize()
             
-            Spacer(minLength: 8)
-            
-            HStack(spacing: 14) {
-                // Buy Later list button
-                ZStack(alignment: .topTrailing) {
-                    Button(action: { showSaveForLater = true }) {
-                        Image(systemName: "bookmark")
-                            .foregroundColor(.wsMutedBrass)
+            // Left and Right content
+            HStack(alignment: .center) {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Good Evening, Ausaf")
+                        .font(.wsSerif(size: 13))
+                        .foregroundColor(.wsSecondary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                    Text("Welcome Home")
+                        .font(.wsDisplay(size: 18))
+                        .foregroundColor(.wsCharcoal)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                }
+                
+                Spacer(minLength: 16)
+                
+                HStack(spacing: 12) {
+                    // Buy Later list button
+                    ZStack(alignment: .topTrailing) {
+                        Button(action: { showSaveForLater = true }) {
+                            Image(systemName: "bookmark")
+                                .foregroundColor(.wsMutedBrass)
+                                .font(.system(size: 16))
+                        }
+                        if saveForLaterRepository.totalItems > 0 {
+                            Text("\(saveForLaterRepository.totalItems)")
+                                .font(.system(size: 8, weight: .bold))
+                                .foregroundColor(.white)
+                                .frame(width: 14, height: 14)
+                                .background(Color.wsCrimson)
+                                .clipShape(Circle())
+                                .offset(x: 6, y: -6)
+                        }
+                    }
+                    Button(action: { showSearch = true }) {
+                        Image(systemName: "magnifyingglass")
+                            .foregroundColor(.wsCharcoal)
                             .font(.system(size: 16))
                     }
-                    if saveForLaterRepository.totalItems > 0 {
-                        Text("\(saveForLaterRepository.totalItems)")
-                            .font(.system(size: 8, weight: .bold))
-                            .foregroundColor(.white)
-                            .frame(width: 14, height: 14)
-                            .background(Color.wsCrimson)
-                            .clipShape(Circle())
-                            .offset(x: 6, y: -6)
+                    Button(action: { showProfile = true }) {
+                        Image(systemName: "person")
+                            .foregroundColor(.wsCharcoal)
+                            .font(.system(size: 16))
                     }
-                }
-                Button(action: { showSearch = true }) {
-                    Image(systemName: "magnifyingglass")
-                        .foregroundColor(.wsCharcoal)
-                        .font(.system(size: 16))
                 }
             }
         }
@@ -266,8 +281,8 @@ struct HomeView: View {
                 // Background image fills the card exactly
                 Group {
                     if let url = viewModel.product(at: productIndex)?.imageURL {
-                        CustomAsyncImage(url: url)
-                            .frame(width: geo.size.width, height: geo.size.height)
+                        CustomAsyncImage(url: url, contentMode: .fit)
+                            .frame(width: geo.size.width, height: geo.size.height, alignment: .top)
                             .clipped()
                     } else {
                         LinearGradient(
@@ -353,7 +368,7 @@ struct HomeView: View {
         VStack(alignment: .leading, spacing: 10) {
             ZStack(alignment: .bottom) {
                 if let url = viewModel.product(at: scene.productOffset)?.imageURL {
-                    CustomAsyncImage(url: url).frame(width: 300, height: 400).clipped().cornerRadius(2)
+                    CustomAsyncImage(url: url, contentMode: .fit).frame(width: 300, height: 400, alignment: .top).background(Color.wsChampagne).clipped().cornerRadius(2)
                 } else {
                     RoundedRectangle(cornerRadius: 2).fill(Color.wsChampagne).frame(width: 300, height: 400)
                 }
@@ -562,12 +577,18 @@ struct HomeView: View {
             }
             .padding(.horizontal, 20)
 
-            VStack(spacing: 20) {
-                ForEach(HomeEditorialData.articles) { article in
-                    Button(action: { selectedArticle = article }) { editorialCard(article) }.buttonStyle(.plain)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 18) {
+                    ForEach(HomeEditorialData.articles) { article in
+                        Button(action: { selectedArticle = article }) {
+                            editorialCard(article)
+                        }
+                        .buttonStyle(.plain)
+                        .frame(width: 320)
+                    }
                 }
+                .padding(.horizontal, 20)
             }
-            .padding(.horizontal, 20)
         }
     }
 

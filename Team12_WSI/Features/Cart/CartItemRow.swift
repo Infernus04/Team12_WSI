@@ -67,65 +67,49 @@ struct CartItemRow: View {
             }
             
             // MARK: - Quantity Controls (full-width row below)
-            HStack(spacing: 0) {
-                Spacer()
-                
-                HStack(spacing: 20) {
-                    // Minus
+            HStack(alignment: .center) {
+                // Quantity Stepper (left)
+                HStack(spacing: 0) {
                     Button(action: onRemove) {
                         Image(systemName: "minus")
-                            .font(.system(size: 13, weight: .bold))
-                            .foregroundColor(.wsCharcoal)
-                            .frame(width: 28, height: 28)
-                            .background(Color.wsWarmIvory)
-                            .clipShape(Circle())
+                            .font(.system(size: 13, weight: .medium))
+                            .frame(width: 32, height: 32)
                     }
-                    
-                    // Quantity label
                     Text("\(item.quantity)")
-                        .font(.system(size: 16, weight: .bold, design: .rounded))
-                        .foregroundColor(.wsCharcoal)
-                        .frame(minWidth: 24, alignment: .center)
-                    
-                    // Plus
+                        .font(.system(size: 13, weight: .semibold))
+                        .frame(minWidth: 28, alignment: .center)
                     Button(action: onAdd) {
                         Image(systemName: "plus")
-                            .font(.system(size: 13, weight: .bold))
-                            .foregroundColor(.wsCharcoal)
-                            .frame(width: 28, height: 28)
-                            .background(Color.wsWarmIvory)
-                            .clipShape(Circle())
+                            .font(.system(size: 13, weight: .medium))
+                            .frame(width: 32, height: 32)
                     }
-                    
-                    // Divider
-                    Rectangle()
-                        .fill(Color.wsDivider)
-                        .frame(width: 1, height: 20)
+                }
+                .foregroundColor(.wsCharcoal)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 2)
+                        .stroke(Color.wsDivider, lineWidth: 1)
+                )
+                
+                Spacer()
+                
+                // Actions (right)
+                HStack(spacing: 16) {
+                    // Save for later (bookmark)
+                    Button(action: onMoveToRegistry) {
+                        Image(systemName: "bookmark")
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(.wsCharcoal)
+                    }
                     
                     // Delete
                     Button(action: onRemoveAll) {
                         Image(systemName: "trash")
-                            .font(.system(size: 13, weight: .medium))
-                            .foregroundColor(.wsCrimson)
-                            .frame(width: 28, height: 28)
-                            .background(Color.wsWarmIvory)
-                            .clipShape(Circle())
-                    }
-                    
-                    // Save for later (heart)
-                    Button(action: onMoveToRegistry) {
-                        Image(systemName: "heart")
-                            .font(.system(size: 13, weight: .medium))
-                            .foregroundColor(.wsCrimson)
-                            .frame(width: 28, height: 28)
-                            .background(Color.wsWarmIvory)
-                            .clipShape(Circle())
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(.wsSecondary)
                     }
                 }
-                
-                Spacer()
             }
-            .padding(.top, 12)
+            .padding(.top, 16)
         }
         .padding(16)
         .background(Color.wsSurface)

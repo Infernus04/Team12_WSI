@@ -124,33 +124,43 @@ struct CartView: View {
         let remainder = max(0, threshold - current)
         let percentage = min(1.0, current / threshold)
         
-        return VStack(spacing: 8) {
+        return VStack(spacing: 12) {
             HStack {
-                Text(remainder > 0 ? "You're \(remainder.currencyText) away from Free Shipping!" : "You've unlocked Free Shipping!")
-                    .font(.wsBody(size: 13, weight: .semibold))
-                    .foregroundColor(remainder > 0 ? .wsCharcoal : .green)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(remainder > 0 ? "You're \(remainder.currencyText) away from Free Shipping!" : "You've unlocked Free Shipping!")
+                        .font(.wsSerif(size: 14, weight: .bold))
+                        .foregroundColor(.wsCharcoal)
+                    if remainder > 0 {
+                        Text("Add more luxurious items to your cart.")
+                            .font(.wsBody(size: 12))
+                            .foregroundColor(.wsSecondary)
+                    }
+                }
                 Spacer()
+                Image(systemName: remainder > 0 ? "shippingbox" : "shippingbox.fill")
+                    .font(.system(size: 24, weight: .light))
+                    .foregroundColor(remainder > 0 ? .wsMutedBrass : .wsCharcoal)
             }
             
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
-                    Rectangle()
-                        .fill(Color.wsDivider)
-                        .frame(height: 4)
-                        .cornerRadius(2)
+                    Capsule()
+                        .fill(Color.wsWarmIvory)
+                        .frame(height: 6)
                     
-                    Rectangle()
-                        .fill(remainder > 0 ? Color.wsCharcoal : Color.green)
-                        .frame(width: geo.size.width * CGFloat(percentage), height: 4)
-                        .cornerRadius(2)
-                        .animation(.spring(), value: percentage)
+                    Capsule()
+                        .fill(Color.wsMutedBrass)
+                        .frame(width: geo.size.width * CGFloat(percentage), height: 6)
+                        .animation(.spring(response: 0.5, dampingFraction: 0.7), value: percentage)
                 }
             }
-            .frame(height: 4)
+            .frame(height: 6)
         }
-        .padding(16)
-        .background(Color.wsSurface)
-        .cornerRadius(2)
-        .wsLuxuryShadow()
+        .padding(18)
+        .background(Color.white)
+        .overlay(
+            RoundedRectangle(cornerRadius: 2)
+                .stroke(Color.wsMutedBrass.opacity(0.3), lineWidth: 1)
+        )
     }
 }

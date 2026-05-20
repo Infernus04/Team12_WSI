@@ -125,9 +125,13 @@ struct ProductDetailView: View {
 
     private var productHero: some View {
         ZStack(alignment: .bottomLeading) {
-            CustomAsyncImage(url: product.imageURL)
+            Color(.systemGray6)
                 .frame(maxWidth: .infinity)
                 .frame(height: 420)
+                .overlay(
+                    CustomAsyncImage(url: product.imageURL, contentMode: .fit)
+                        .padding(16)
+                )
                 .clipped()
 
             // Gradient fade at bottom
@@ -552,8 +556,12 @@ struct RecommendationProductCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            CustomAsyncImage(url: product.imageURL)
+            Color(.systemGray6)
                 .frame(width: 175, height: 210)
+                .overlay(
+                    CustomAsyncImage(url: product.imageURL, contentMode: .fit)
+                        .padding(8)
+                )
                 .clipped()
                 .cornerRadius(2)
 

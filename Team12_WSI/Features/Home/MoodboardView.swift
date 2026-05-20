@@ -1,11 +1,14 @@
 // MoodboardView.swift
-// Team12_WSI — AI Moodboard: photo upload + text + Core Image analysis + product matching
+// Team12_WSI — AI Moodboard: input-only (photo upload + text + analyze)
+// Results are shown in MoodboardResultsView via NavigationLink.
 
 import SwiftUI
 import PhotosUI
 
 struct MoodboardView: View {
     let allProducts: [ProductItem]
+    let onAddToCart: (ProductItem) -> Void
+    let onAddToRegistry: (ProductItem) -> Void
 
     @Environment(\.dismiss) private var dismiss
 
@@ -16,53 +19,46 @@ struct MoodboardView: View {
     // Text input
     @State private var moodText: String = ""
 
-    // Analysis results
-    @State private var styleIdentity: StyleIdentity?
-    @State private var scoredProducts: [ProductItem] = []
+    // Analysis state
     @State private var isAnalyzing = false
-    @State private var hasResults = false
-    @State private var showPickerFor: Int? = nil
 
-    // Style bar animation
-    @State private var barsVisible = false
-
-    // Selected product for navigation
-    @State private var selectedProduct: ProductItem?
+    // Navigation to results
+    @State private var analysisProfile: MoodboardStyleProfile?
+    @State private var analysisProducts: [ScoredProduct] = []
+    @State private var showResults = false
 
     var body: some View {
-        ZStack(alignment: .bottom) {
-            Color.wsWarmIvory.ignoresSafeArea()
+        ScrollView(showsIndicators: false) {
+            VStack(alignment: .leading, spacing: 32) {
+                // Header
+                headerSection
 
-            ScrollView(showsIndicators: false) {
-                VStack(alignment: .leading, spacing: 32) {
+                // Photo grid
+                photoGridSection
 
-                    // Header
-                    headerSection
+                // Text input
+                moodInputSection
 
-                    // Photo grid
-                    photoGridSection
+                // Analyze button
+                analyzeButton
 
-                    // Text input
-                    moodInputSection
-
-                    // Analyze button
-                    analyzeButton
-
-                    // Results
-                    if hasResults {
-                        resultSection
-                            .transition(.opacity.combined(with: .move(edge: .bottom)))
-                    }
-
-                    Spacer().frame(height: 60)
-                }
-                .padding(.top, 20)
+                Spacer().frame(height: 60)
             }
+            .padding(.top, 20)
         }
-        .navigationBarHidden(true)
-        .fullScreenCover(item: $selectedProduct) { product in
-            // ProductDetailView will be handled by parent
-            EmptyView()
+        .background(Color.wsWarmIvory.ignoresSafeArea())
+        .navigationBarBackButtonHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
+        .fullScreenCover(isPresented: $showResults) {
+            if let profile = analysisProfile {
+                MoodboardResultsView(
+                    profile: profile,
+                    scoredProducts: analysisProducts,
+                    allProducts: allProducts,
+                    onAddToCart: onAddToCart,
+                    onAddToRegistry: onAddToRegistry
+                )
+            }
         }
     }
 
@@ -72,7 +68,7 @@ struct MoodboardView: View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
                 Button(action: { dismiss() }) {
-                    Image(systemName: "chevron.left")
+                    Image(systemName: "xmark")
                         .foregroundColor(.wsCharcoal)
                         .font(.system(size: 16, weight: .medium))
                 }
@@ -113,7 +109,6 @@ struct MoodboardView: View {
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 3), spacing: 8) {
                 ForEach(0..<9, id: \.self) { index in
                     if index < uploadedImages.count {
-                        // Filled tile
                         ZStack(alignment: .topTrailing) {
                             Image(uiImage: uploadedImages[index])
                                 .resizable()
@@ -137,7 +132,6 @@ struct MoodboardView: View {
                         .animation(.spring(response: 0.4), value: uploadedImages.count)
 
                     } else if index == uploadedImages.count {
-                        // Add tile
                         PhotosPicker(
                             selection: $selectedItems,
                             maxSelectionCount: 9 - uploadedImages.count,
@@ -164,7 +158,6 @@ struct MoodboardView: View {
                         }
 
                     } else {
-                        // Empty tile
                         RoundedRectangle(cornerRadius: 4)
                             .stroke(Color.wsIvoryShadow, style: StrokeStyle(lineWidth: 1, dash: [5]))
                             .frame(height: 110)
@@ -216,13 +209,10 @@ struct MoodboardView: View {
             .overlay(Rectangle().stroke(Color.wsIvoryShadow, lineWidth: 1))
             .cornerRadius(2)
 
-            // Example chips
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
                     ForEach(exampleMoods, id: \.self) { mood in
-                        Button(action: {
-                            moodText = mood
-                        }) {
+                        Button(action: { moodText = mood }) {
                             Text(mood)
                                 .font(.wsBody(size: 11))
                                 .foregroundColor(.wsCharcoal)
@@ -270,162 +260,8 @@ struct MoodboardView: View {
             .cornerRadius(2)
         }
         .padding(.horizontal, 24)
-        .disabled(uploadedImages.isEmpty && moodText.trimmingCharacters(in: .whitespaces).isEmpty)
+        .disabled(isAnalyzing || (uploadedImages.isEmpty && moodText.trimmingCharacters(in: .whitespaces).isEmpty))
         .opacity((uploadedImages.isEmpty && moodText.trimmingCharacters(in: .whitespaces).isEmpty) ? 0.5 : 1)
-    }
-
-    // MARK: - Results
-
-    private var resultSection: some View {
-        VStack(alignment: .leading, spacing: 28) {
-            // Divider
-            WSDivider().padding(.horizontal, 24)
-
-            if let identity = styleIdentity {
-                // Style Identity Card
-                styleIdentityCard(identity: identity)
-
-                // Products
-                if !scoredProducts.isEmpty {
-                    productsResultSection
-                }
-            }
-        }
-    }
-
-    private func styleIdentityCard(identity: StyleIdentity) -> some View {
-        VStack(alignment: .leading, spacing: 20) {
-            VStack(alignment: .leading, spacing: 6) {
-                Text("YOUR AESTHETIC IDENTITY")
-                    .font(.wsLabel(size: 10))
-                    .tracking(1.5)
-                    .foregroundColor(.wsMutedBrass)
-
-                Text(identity.name)
-                    .font(.wsDisplay(size: 24))
-                    .foregroundColor(.wsCharcoal)
-
-                Text(identity.description)
-                    .font(.wsSerif(size: 14))
-                    .foregroundColor(.wsSecondary)
-                    .lineSpacing(4)
-            }
-
-            // Color swatches
-            HStack(spacing: 8) {
-                ForEach(identity.swatches.indices, id: \.self) { i in
-                    Circle()
-                        .fill(identity.swatches[i])
-                        .frame(width: 28, height: 28)
-                        .overlay(Circle().stroke(Color.wsIvoryShadow, lineWidth: 1))
-                }
-                Spacer()
-                Text("EXTRACTED PALETTE")
-                    .font(.wsLabel(size: 9))
-                    .tracking(1)
-                    .foregroundColor(.wsSecondary)
-            }
-
-            // Style bars
-            VStack(spacing: 12) {
-                styleBar(label: "Warmth", value: identity.warmth, color: Color(hex: "#C4A882"))
-                styleBar(label: "Modern", value: identity.modern, color: Color.wsCharcoal)
-                styleBar(label: "Minimalist", value: identity.minimalist, color: Color.wsMutedBrass)
-            }
-
-            // AI label
-            HStack(spacing: 6) {
-                Image(systemName: "sparkles")
-                    .font(.system(size: 10))
-                    .foregroundColor(.wsMutedBrass)
-                Text("MODELED FROM YOUR MOODBOARD")
-                    .font(.wsLabel(size: 9))
-                    .tracking(1)
-                    .foregroundColor(.wsMutedBrass)
-            }
-        }
-        .padding(24)
-        .background(Color.white)
-        .wsLuxuryShadow()
-        .padding(.horizontal, 24)
-    }
-
-    private func styleBar(label: String, value: Double, color: Color) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack {
-                Text(label)
-                    .font(.wsBody(size: 12))
-                    .foregroundColor(.wsCharcoal)
-                Spacer()
-                Text("\(Int(value * 100))%")
-                    .font(.wsLabel(size: 10))
-                    .foregroundColor(.wsSecondary)
-            }
-            GeometryReader { geo in
-                ZStack(alignment: .leading) {
-                    Rectangle()
-                        .fill(Color.wsChampagne)
-                        .frame(height: 3)
-                    Rectangle()
-                        .fill(color)
-                        .frame(width: barsVisible ? geo.size.width * value : 0, height: 3)
-                        .animation(.easeOut(duration: 0.9).delay(Double(label.count) * 0.05), value: barsVisible)
-                }
-            }
-            .frame(height: 3)
-        }
-    }
-
-    private var productsResultSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Products That Match Your Vibe")
-                    .font(.wsDisplay(size: 22))
-                    .foregroundColor(.wsCharcoal)
-                    .padding(.horizontal, 24)
-                HStack(spacing: 6) {
-                    Image(systemName: "sparkles")
-                        .font(.system(size: 10))
-                        .foregroundColor(.wsMutedBrass)
-                    Text("SCORED BY YOUR AESTHETIC  ✦")
-                        .font(.wsLabel(size: 9))
-                        .tracking(1)
-                        .foregroundColor(.wsMutedBrass)
-                }
-                .padding(.horizontal, 24)
-            }
-
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 16) {
-                    ForEach(scoredProducts.prefix(10)) { product in
-                        miniProductCard(product: product)
-                    }
-                }
-                .padding(.horizontal, 24)
-            }
-        }
-    }
-
-    private func miniProductCard(product: ProductItem) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            CustomAsyncImage(url: product.imageURL)
-                .frame(width: 160, height: 190)
-                .clipped()
-                .cornerRadius(2)
-
-            VStack(alignment: .leading, spacing: 3) {
-                Text(product.name)
-                    .font(.wsBody(size: 12))
-                    .foregroundColor(.wsCharcoal)
-                    .lineLimit(2)
-                if let price = product.price {
-                    Text("$\(price, specifier: "%.2f")")
-                        .font(.wsLabel(size: 11))
-                        .foregroundColor(.wsCrimson)
-                }
-            }
-            .frame(width: 160, alignment: .leading)
-        }
     }
 
     // MARK: - Actions
@@ -460,44 +296,20 @@ struct MoodboardView: View {
     private func analyzeStyle() {
         guard !isAnalyzing else { return }
         isAnalyzing = true
-        barsVisible = false
 
         Task {
-            // Extract colors from uploaded images
-            var colorTokens: [String] = []
-            for image in uploadedImages {
-                if let color = HomeAIPersonalizationEngine.dominantColor(from: image) {
-                    let token = HomeAIPersonalizationEngine.classifyColor(color)
-                    colorTokens.append(token)
-                }
-            }
-
-            // Tokenize text
-            let textKeywords = HomeAIPersonalizationEngine.tokenize(moodText)
-
-            // Generate style identity
-            let identity = HomeAIPersonalizationEngine.generateStyleIdentity(
-                colorTokens: colorTokens,
-                textKeywords: textKeywords
-            )
-
-            // Score products
-            let allKeywords = textKeywords + SeasonalContextEngine.seasonalKeywords()
-            let scored = HomeAIPersonalizationEngine.scoreProducts(
-                allProducts,
-                keywords: allKeywords,
-                colorTokens: colorTokens
+            let (profile, scored) = await MoodboardStyleAnalyzer.analyze(
+                images: uploadedImages,
+                vibeText: moodText,
+                allProducts: allProducts
             )
 
             await MainActor.run {
-                withAnimation(.easeInOut(duration: 0.4)) {
-                    self.styleIdentity = identity
-                    self.scoredProducts = scored
-                    self.hasResults = true
-                    self.isAnalyzing = false
-                }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    barsVisible = true
+                self.analysisProfile = profile
+                self.analysisProducts = scored
+                self.isAnalyzing = false
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    self.showResults = true
                 }
             }
         }
