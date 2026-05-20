@@ -8,9 +8,15 @@ struct Registry: Identifiable, Codable {
     var date: Date
     var items: [RegistryItem]
     var budget: Double?
+    /// In-memory only — not persisted to disk. Excluded from CodingKeys.
+    var coverImageData: Data? = nil
     
     var displayName: String {
         "\(firstName) \(lastName)'s \(event.rawValue) Registry"
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id, firstName, lastName, event, date, items, budget
     }
 }
 
@@ -26,6 +32,7 @@ struct RegistryItem: Identifiable, Codable {
     var collectionName: String?
     var sourceTag: String?
     var pattern: String?
+    var isPurchased: Bool
 
     init(
         id: String,
@@ -35,7 +42,8 @@ struct RegistryItem: Identifiable, Codable {
         quantity: Int,
         collectionName: String? = nil,
         sourceTag: String? = nil,
-        pattern: String? = nil
+        pattern: String? = nil,
+        isPurchased: Bool = false
     ) {
         self.id = id
         self.name = name
@@ -45,6 +53,7 @@ struct RegistryItem: Identifiable, Codable {
         self.collectionName = collectionName
         self.sourceTag = sourceTag
         self.pattern = pattern
+        self.isPurchased = isPurchased
     }
 
     private enum CodingKeys: String, CodingKey {
@@ -56,6 +65,7 @@ struct RegistryItem: Identifiable, Codable {
         case collectionName
         case sourceTag
         case pattern
+        case isPurchased
     }
 
     init(from decoder: Decoder) throws {
@@ -68,6 +78,6 @@ struct RegistryItem: Identifiable, Codable {
         collectionName = try container.decodeIfPresent(String.self, forKey: .collectionName)
         sourceTag = try container.decodeIfPresent(String.self, forKey: .sourceTag)
         pattern = try container.decodeIfPresent(String.self, forKey: .pattern)
+        isPurchased = try container.decodeIfPresent(Bool.self, forKey: .isPurchased) ?? false
     }
 }
-

@@ -422,6 +422,7 @@ struct CelebrationPoolContributionView: View {
 struct PaymentMethodSelectionView: View {
     let amount: String
     let note: String
+    var linkedRegistryItemID: String? = nil
     
     @Environment(\.dismiss) var dismiss
     @State private var selectedMethod: String = "UPI"
@@ -525,7 +526,11 @@ struct PaymentMethodSelectionView: View {
             
             // Hidden navigation link for programmatic push
             NavigationLink(
-                destination: CelebrationPoolSuccessView(amount: amount, note: note),
+                destination: CelebrationPoolSuccessView(
+                    amount: amount,
+                    note: note,
+                    linkedRegistryItemID: linkedRegistryItemID
+                ),
                 isActive: $showSuccess
             ) {
                 EmptyView()
@@ -540,6 +545,8 @@ struct PaymentMethodSelectionView: View {
 struct CelebrationPoolSuccessView: View {
     let amount: String
     let note: String
+    var linkedRegistryItemID: String? = nil
+    @EnvironmentObject var registryRepo: RegistryRepository
     @Environment(\.dismiss) var dismiss
     @State private var isVisible = false
     
@@ -670,6 +677,10 @@ struct CelebrationPoolSuccessView: View {
             .onAppear {
                 withAnimation(.easeOut(duration: 0.8)) {
                     isVisible = true
+                }
+                // Mark the linked registry item as purchased
+                if let itemID = linkedRegistryItemID {
+                    registryRepo.markItemPurchased(itemID)
                 }
             }
         }
