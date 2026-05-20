@@ -180,6 +180,10 @@ enum RegistryAIInsightsEngine {
         )
     }
 
+    static func tier(for score: Double) -> RegistryScoreTier {
+        tierForScore(score)
+    }
+
     // MARK: - Individual Analyzers
 
     private static func analyzeBudget(items: [RegistryItem]) -> RegistryInsight {

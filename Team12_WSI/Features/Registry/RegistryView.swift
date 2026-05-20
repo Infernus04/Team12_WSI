@@ -44,6 +44,7 @@ enum WSRegistryPalette {
 struct RegistryView: View {
 
     @StateObject private var viewModel = RegistryViewModel()
+    @StateObject private var insightsService = RegistryAIInsightsService.shared
 
     @EnvironmentObject var registryRepo: RegistryRepository
     @EnvironmentObject var cartRepo: CartRepository
@@ -218,6 +219,10 @@ struct RegistryView: View {
         }
         .onAppear {
             viewModel.bind(repository: registryRepo)
+            guard let currentRegistry = registryRepo.currentRegistry, !currentRegistry.items.isEmpty else { return }
+            Task {
+                _ = await insightsService.refreshInsights(for: currentRegistry)
+            }
         }
         .confirmationDialog(
             "Delete Registry?",
@@ -1416,6 +1421,7 @@ private struct RegistryDetailsView: View {
     @EnvironmentObject var registryRepo: RegistryRepository
     @EnvironmentObject var cartRepo: CartRepository
     @EnvironmentObject var tabBarVM: WSTabBarViewModel
+    @ObservedObject private var insightsService = RegistryAIInsightsService.shared
 
     @State private var isProductListExpanded = true
 
@@ -1784,26 +1790,16 @@ private struct RegistryDetailsView: View {
     }
 
     private var aiInsightsCard: some View {
-        let items = registryRepo.currentRegistry?.items ?? []
+        guard let currentRegistry = registryRepo.currentRegistry else {
+            return AnyView(EmptyView())
+        }
+
+        let items = currentRegistry.items
         let hasItems = !items.isEmpty
-
-        // Compute a quick score preview
-        let collectionCount = Set(items.compactMap(\.collectionName)).count
-        let totalItems = items.reduce(0) { $0 + $1.quantity }
-        let prices = items.map(\.price)
-        let hasLow = prices.contains(where: { $0 < 3000 })
-        let hasMid = prices.contains(where: { $0 >= 3000 && $0 <= 15000 })
-        let hasHigh = prices.contains(where: { $0 > 15000 })
-        let rangeCount = [hasLow, hasMid, hasHigh].filter { $0 }.count
-
-        let quickScore: Double = hasItems
-            ? min(1.0, (Double(rangeCount) / 3.0 * 0.3)
-                + (min(1.0, Double(totalItems) / 15.0) * 0.3)
-                + (min(1.0, Double(collectionCount) / 3.0) * 0.4))
-            : 0.0
+        let quickScore = hasItems ? insightsService.report(for: currentRegistry).overallScore : 0.0
         let scoreInt = Int((quickScore * 100).rounded())
 
-        return Button {
+        return AnyView(Button {
             tabBarVM.registryPath.append(RegistryRoute.registryInsights)
         } label: {
             HStack(spacing: 16) {
@@ -1873,7 +1869,7 @@ private struct RegistryDetailsView: View {
         }
         .buttonStyle(.plain)
         .disabled(!hasItems)
-        .opacity(hasItems ? 1.0 : 0.6)
+        .opacity(hasItems ? 1.0 : 0.6))
     }
 
     // MARK: - Budget Tracker by Pattern

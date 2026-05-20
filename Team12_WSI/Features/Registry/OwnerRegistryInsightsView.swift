@@ -13,6 +13,7 @@ struct OwnerRegistryInsightsView: View {
     let registry: Registry
 
     @Environment(\.dismiss) var dismiss
+    @ObservedObject private var insightsService = RegistryAIInsightsService.shared
     @State private var report: RegistryInsightsReport?
     @State private var isAnalyzing = true
     @State private var selectedInsight: RegistryInsight?
@@ -485,7 +486,7 @@ struct OwnerRegistryInsightsView: View {
                 Image(systemName: "sparkles")
                     .font(.system(size: 10))
                     .foregroundStyle(WSRegistryPalette.gold)
-                Text("Powered by AURA Intelligence")
+                Text(footerSourceLabel)
                     .font(.system(size: 11, weight: .medium))
                     .foregroundStyle(WSRegistryPalette.warmGray)
                 Spacer()
@@ -507,12 +508,28 @@ struct OwnerRegistryInsightsView: View {
     // MARK: - Helpers
 
     private func runAnalysis() async {
-        // Simulate AI processing time
-        try? await Task.sleep(nanoseconds: 1_500_000_000)
-        let result = RegistryAIInsightsEngine.analyze(registry: registry)
+        if let cached = insightsService.cachedReport(for: registry) {
+            withAnimation(.easeOut(duration: 0.3)) {
+                report = cached
+                isAnalyzing = false
+            }
+        }
+
+        let result = await insightsService.refreshInsights(for: registry, force: true)
         withAnimation(.easeOut(duration: 0.5)) {
             report = result
             isAnalyzing = false
+        }
+    }
+
+    private var footerSourceLabel: String {
+        switch insightsService.source(for: registry) {
+        case .gemini:
+            return "Powered by Gemini + AURA Intelligence"
+        case .localFallback:
+            return "Powered by AURA Intelligence (fallback mode)"
+        case .mockMode, .none:
+            return "Powered by AURA Intelligence"
         }
     }
 
