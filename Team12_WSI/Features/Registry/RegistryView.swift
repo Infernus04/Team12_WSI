@@ -547,6 +547,7 @@ private extension RegistryView {
                 title: "Trial Registries",
                 subtitle: "Explore and try creating a registry"
             ) {
+                registryRepo.prepareTrialDemoRegistry()
                 showReceiverFlowDemo = true
             }
         }
@@ -708,6 +709,9 @@ private struct ExistingRegistry: Identifiable, Hashable {
         let dateLabel = registry.date.formatted(date: .long, time: .omitted)
         let shortDate = registry.date.formatted(date: .abbreviated, time: .omitted)
         let totalItems = registry.items.reduce(0) { $0 + $1.quantity }
+        let purchasedItems = registry.items
+            .filter(\.isPurchased)
+            .reduce(0) { $0 + $1.quantity }
         return ExistingRegistry(
             id: registry.id,
             coupleName: "\(registry.firstName) & \(registry.lastName)",
@@ -722,7 +726,7 @@ private struct ExistingRegistry: Identifiable, Hashable {
             status: "Completed",
             stats: [
                 RegistryStat(value: "\(totalItems)", label: "Items"),
-                RegistryStat(value: "0", label: "Purchased"),
+                RegistryStat(value: "\(purchasedItems)", label: "Purchased"),
                 RegistryStat(value: totalItems == 0 ? "0%" : "-", label: "Fulfilled"),
                 RegistryStat(value: shortDate, label: "Event Date")
             ],
@@ -1656,7 +1660,7 @@ private struct RegistryDetailsView: View {
     }
 
     private func productListRow(item: RegistryItem, isLast: Bool) -> some View {
-        let isPurchased = false // Placeholder — real purchased state would come from backend
+        let isPurchased = item.isPurchased
 
         return VStack(spacing: 0) {
             HStack(spacing: 14) {

@@ -3,6 +3,7 @@ import SwiftUI
 struct RegistryProductDetailView: View {
     let item: ReceiverRegistryItem
     @Environment(\.dismiss) var dismiss
+    @EnvironmentObject var registryRepo: RegistryRepository
     @State private var showGroupGiftFlow = false
     @State private var showCelebrationPoolFlow = false
     @State private var isBuyActive = false
@@ -17,7 +18,7 @@ struct RegistryProductDetailView: View {
                         if item.isPriority { Text("PRIORITY").font(RegistryTheme.Typography.caption).padding(6).background(RegistryTheme.Colors.primaryText).foregroundColor(.white).cornerRadius(4) }
                         if let collection = item.collection { Text("Part of \(collection.name)").font(RegistryTheme.Typography.caption).padding(6).background(RegistryTheme.Colors.separator).cornerRadius(4) }
                     }
-                    VStack(alignment: .leading) { Text(item.name).font(RegistryTheme.Typography.heroTitle); Text("₹\(Int(item.price))").font(RegistryTheme.Typography.sectionTitle).foregroundColor(RegistryTheme.Colors.secondaryText) }
+                    VStack(alignment: .leading) { Text(item.name).font(RegistryTheme.Typography.heroTitle); Text("$\(Int(item.price))").font(RegistryTheme.Typography.sectionTitle).foregroundColor(RegistryTheme.Colors.secondaryText) }
                     Text(item.description).font(RegistryTheme.Typography.body).foregroundColor(RegistryTheme.Colors.secondaryText).lineSpacing(4)
                     
                     Divider()
@@ -26,7 +27,14 @@ struct RegistryProductDetailView: View {
                     VStack(spacing: RegistryTheme.Spacing.large) {
                         Text("Gifting Options").font(RegistryTheme.Typography.headline)
                         
-                        NavigationLink(destination: PaymentMethodSelectionView(amount: String(Int(item.price)), note: "Gift: \(item.name)"), isActive: $isBuyActive) {
+                        NavigationLink(
+                            destination: PaymentMethodSelectionView(
+                                amount: String(Int(item.price)),
+                                note: "Gift: \(item.name)",
+                                linkedRegistryItemID: item.linkedRegistryItemID
+                            ),
+                            isActive: $isBuyActive
+                        ) {
                             HStack {
                                 VStack(alignment: .leading) {
                                     Text("Buy this Gift").font(RegistryTheme.Typography.headline)

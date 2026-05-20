@@ -36,7 +36,7 @@ struct AllRegistryProductsView: View {
         case .priceHighLow:
             items.sort { $0.price > $1.price }
         case .purchased:
-            break // placeholder — purchased items would sort first
+            items.sort { ($0.isPurchased ? 0 : 1) < ($1.isPurchased ? 0 : 1) }
         case .nameAZ:
             items.sort { $0.name.localizedCompare($1.name) == .orderedAscending }
         }
@@ -191,7 +191,7 @@ struct AllRegistryProductsView: View {
     // MARK: - Product Row
 
     private func productRow(item: RegistryItem, isLast: Bool) -> some View {
-        let isPurchased = false // Placeholder — real state from backend
+        let isPurchased = item.isPurchased
 
         return VStack(spacing: 0) {
             HStack(spacing: 14) {
