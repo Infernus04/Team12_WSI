@@ -42,9 +42,9 @@ struct HomeView: View {
                                 forYourHomeSection.opacity(s2On ? 1 : 0).offset(y: s2On ? 0 : 20).onAppear { withAnimation(.easeOut(duration: 0.5).delay(0.1)) { s2On = true } }
                                 designedTogetherSection.opacity(s4On ? 1 : 0).offset(y: s4On ? 0 : 20).onAppear { withAnimation(.easeOut(duration: 0.5).delay(0.15)) { s4On = true } }
                                 moodboardSection.opacity(s5On ? 1 : 0).offset(y: s5On ? 0 : 20).onAppear { withAnimation(.easeOut(duration: 0.5).delay(0.2)) { s5On = true } }
-                                editorialSection.opacity(s6On ? 1 : 0).offset(y: s6On ? 0 : 20).onAppear { withAnimation(.easeOut(duration: 0.5).delay(0.25)) { s6On = true } }
                                 porterSwivelChairSection.opacity(s7On ? 1 : 0).offset(y: s7On ? 0 : 20).onAppear { withAnimation(.easeOut(duration: 0.5).delay(0.28)) { s7On = true } }
                                 seasonalSection.opacity(s8On ? 1 : 0).offset(y: s8On ? 0 : 20).onAppear { withAnimation(.easeOut(duration: 0.5).delay(0.3)) { s8On = true } }
+                                editorialSection.opacity(s6On ? 1 : 0).offset(y: s6On ? 0 : 20).onAppear { withAnimation(.easeOut(duration: 0.5).delay(0.25)) { s6On = true } }
                                 Spacer().frame(height: 100)
                             }
                         }
@@ -577,18 +577,15 @@ struct HomeView: View {
             }
             .padding(.horizontal, 20)
 
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 18) {
-                    ForEach(HomeEditorialData.articles) { article in
-                        Button(action: { selectedArticle = article }) {
-                            editorialCard(article)
-                        }
-                        .buttonStyle(.plain)
-                        .frame(width: 320)
+            VStack(spacing: 20) {
+                ForEach(HomeEditorialData.articles) { article in
+                    Button(action: { selectedArticle = article }) {
+                        editorialCard(article)
                     }
+                    .buttonStyle(.plain)
                 }
-                .padding(.horizontal, 20)
             }
+            .padding(.horizontal, 20)
         }
     }
 
