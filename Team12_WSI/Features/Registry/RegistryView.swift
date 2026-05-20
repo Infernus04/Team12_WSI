@@ -2233,11 +2233,8 @@ private struct RegistryDetailsView: View {
             onAdd: { cartRepo.add(product: productItem) },
             onRemove: { cartRepo.removeOne(productId: product.id) },
             onAddToRegistry: {
-                registryRepo.addProduct(
-                    productItem,
-                    collectionName: product.collectionName,
-                    sourceTag: nil
-                )
+                // Opens the registry picker sheet so the user can choose which registry to add to
+                registryRepo.presentRegistryPicker(for: productItem)
             },
             onRemoveFromRegistry: { registryRepo.removeItem(product.id) }
         )
@@ -2361,7 +2358,8 @@ private struct RegistryCategoryProductsView: View {
             onAdd: { cartRepo.add(product: productItem) },
             onRemove: { cartRepo.removeOne(productId: product.id) },
             onAddToRegistry: {
-                registryRepo.addProduct(productItem, collectionName: product.collectionName, sourceTag: nil)
+                // Opens the registry picker sheet so the user can choose which registry to add to
+                registryRepo.presentRegistryPicker(for: productItem)
             },
             onRemoveFromRegistry: { registryRepo.removeItem(product.id) }
         )

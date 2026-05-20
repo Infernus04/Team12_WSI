@@ -18,6 +18,14 @@ final class RegistryRepository: ObservableObject {
     /// In-memory cover image for the currently active registry (set during creation).
     @Published var activeCoverImageData: Data? = nil
 
+    /// Set this to a product to present the RegistryPickerView bottom sheet from anywhere in the app.
+    @Published var productToShowInRegistryPicker: ProductItem? = nil
+
+    /// Call this from any view/viewmodel instead of addProduct directly — it opens the registry picker sheet.
+    func presentRegistryPicker(for product: ProductItem) {
+        productToShowInRegistryPicker = product
+    }
+
     private let persistenceStore = RegistryPersistenceStore.shared
     private var hasBoundPersistence = false
     private let trialDemoSeedTag = "demo-seed"
@@ -252,6 +260,37 @@ final class RegistryRepository: ObservableObject {
     
     func addProduct(_ product: ProductItem) {
         addProduct(product, collectionName: nil, sourceTag: nil)
+    }
+
+    /// Add a product to a specific registry by its ID (used by the registry picker sheet).
+    /// Also auto-activates that registry so the product is immediately visible in the Registry tab.
+    func addProduct(_ product: ProductItem, toRegistryID registryID: UUID) {
+        guard let index = registries.firstIndex(where: { $0.id == registryID }) else { return }
+        let price = product.price ?? 0.0
+        let resolved = RegistryRepository.resolvePattern(name: product.name, originalPattern: product.pattern)
+        if let itemIndex = registries[index].items.firstIndex(where: { $0.id == product.id }) {
+            registries[index].items[itemIndex].quantity += 1
+        } else {
+            registries[index].items.append(
+                RegistryItem(
+                    id: product.id,
+                    name: product.name,
+                    price: price,
+                    imageUrl: product.path ?? "",
+                    quantity: 1,
+                    collectionName: nil,
+                    sourceTag: "home_product_detail",
+                    pattern: resolved
+                )
+            )
+        }
+        // Auto-activate the chosen registry so the user sees the product immediately in the Registry tab
+        activeRegistryID = registryID
+        syncCurrentRegistry()
+        persistRegistryState()
+        activities.insert(
+            RegistryActivity(type: .added, productName: product.name, collectionName: nil,
+                             detail: "Added to \(registries[index].displayName)"), at: 0)
     }
 
     func addProduct(

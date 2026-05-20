@@ -6,6 +6,7 @@ import SwiftUI
 struct ContentView: View {
     @EnvironmentObject var tabBarVM: WSTabBarViewModel
     @EnvironmentObject var cartRepository: CartRepository
+    @EnvironmentObject var registryRepository: RegistryRepository
 
     var body: some View {
         TabView(selection: $tabBarVM.selectedTab) {
@@ -36,6 +37,12 @@ struct ContentView: View {
             appearance.shadowColor = UIColor(WSRegistryPalette.hairline)
             UITabBar.appearance().standardAppearance = appearance
             UITabBar.appearance().scrollEdgeAppearance = appearance
+        }
+        // MARK: - Global Registry Picker Sheet
+        // Presented whenever any view sets registryRepository.productToShowInRegistryPicker
+        .sheet(item: $registryRepository.productToShowInRegistryPicker) { product in
+            RegistryPickerView(product: product)
+                .environmentObject(registryRepository)
         }
     }
 }
