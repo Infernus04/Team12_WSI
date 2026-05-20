@@ -60,6 +60,8 @@ struct RegistryView: View {
     @State private var pendingBrowseAfterGifting = false
     /// Controls the Browse Registry fullScreenCover (presented from RegistryView root).
     @State private var showBrowseRegistryFromRoot = false
+    @State private var registryToDelete: Registry?
+    @State private var showDeleteRegistryDialog = false
 
     var body: some View {
         NavigationStack(path: $tabBarVM.registryPath) {
@@ -216,6 +218,21 @@ struct RegistryView: View {
         }
         .onAppear {
             viewModel.bind(repository: registryRepo)
+        }
+        .confirmationDialog(
+            "Delete Registry?",
+            isPresented: $showDeleteRegistryDialog,
+            presenting: registryToDelete
+        ) { registry in
+            Button("Delete Registry", role: .destructive) {
+                registryRepo.deleteRegistry(id: registry.id)
+                registryToDelete = nil
+            }
+            Button("Cancel", role: .cancel) {
+                registryToDelete = nil
+            }
+        } message: { registry in
+            Text("This will remove \"\(registry.displayName)\" from your registries.")
         }
     }
 }
@@ -377,6 +394,14 @@ private extension RegistryView {
             .shadow(color: WSRegistryPalette.espresso.opacity(0.2), radius: 16, x: 0, y: 8)
         }
         .buttonStyle(.plain)
+        .contextMenu {
+            Button(role: .destructive) {
+                registryToDelete = registry
+                showDeleteRegistryDialog = true
+            } label: {
+                Label("Delete Registry", systemImage: "trash")
+            }
+        }
     }
 
     func registryHeroStat(value: String, label: String) -> some View {

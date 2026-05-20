@@ -235,8 +235,16 @@ final class RegistryRepository: ObservableObject {
     
     func deleteRegistry() {
         guard let activeRegistryID else { return }
-        registries.removeAll { $0.id == activeRegistryID }
-        self.activeRegistryID = registries.last?.id
+        deleteRegistry(id: activeRegistryID)
+    }
+
+    func deleteRegistry(id: UUID) {
+        registries.removeAll { $0.id == id }
+        if activeRegistryID == id {
+            activeRegistryID = registries.last?.id
+        } else if activeRegistryID == nil {
+            activeRegistryID = registries.last?.id
+        }
         syncCurrentRegistry()
         persistRegistryState()
     }
