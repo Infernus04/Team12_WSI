@@ -131,6 +131,7 @@ enum MockProductCatalog {
                         styleTags: seed.4,
                         colorTags: seed.5 + [color],
                         materialTags: seed.6,
+                        collection: nil,
                         roomTags: seed.7,
                         regularPrice: (seed.8 * multiplier).rounded(.toNearestOrAwayFromZero),
                         sellingPrice: nil,

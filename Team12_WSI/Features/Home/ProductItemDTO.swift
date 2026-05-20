@@ -41,4 +41,5 @@ extension Dictionary where Key == String, Value == String {
     var canGiftWrap: String? { self["canGiftWrap"] }
     var isFood: String? { self["isFood"] }
     var isFurniture: String? { self["isFurniture"] }
+    var collection: String? { self["collection"] }
 }

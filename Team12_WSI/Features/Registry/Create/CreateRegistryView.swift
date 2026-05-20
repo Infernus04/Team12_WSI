@@ -14,9 +14,12 @@ struct CreateRegistryView: View {
 
     @State private var step: GiftDNAStep = .basics
     @State private var selectedEvent: RegistryEvent = .wedding
+    @State private var customEventText = ""
     @State private var eventDate = Date()
     @State private var namesOnRegistry = ""
     @State private var guestNote = ""
+    @State private var coverPhotoItem: PhotosPickerItem? = nil
+    @State private var coverPhotoData: Data? = nil
     @State private var moodboardVibe = ""
     @State private var moodboardPhotos: [PhotosPickerItem] = []
     @State private var homeType: GiftDNAChoice?
@@ -73,7 +76,7 @@ private extension CreateRegistryView {
 
             GeometryReader { proxy in
                 ScrollView(showsIndicators: false) {
-                    VStack(alignment: .leading, spacing: 22) {
+                    VStack(alignment: .leading, spacing: 14) {
                         if step == .moodboard {
                             editorialHero(height: 168)
                         }
@@ -103,7 +106,7 @@ private extension CreateRegistryView {
                     }
                     .frame(width: max(0, proxy.size.width - 32), alignment: .leading)
                     .padding(.horizontal, 16)
-                    .padding(.top, 10)
+                    .padding(.top, 4)
                     .padding(.bottom, 132)
                 }
                 .scrollClipDisabled(false)
@@ -114,7 +117,7 @@ private extension CreateRegistryView {
     }
 
     var basicsForm: some View {
-        VStack(alignment: .leading, spacing: 18) {
+        VStack(alignment: .leading, spacing: 14) {
             basicsHero
             eventTypeCard
             dateCard
@@ -129,7 +132,7 @@ private extension CreateRegistryView {
                 .resizable()
                 .scaledToFill()
                 .frame(maxWidth: .infinity)
-                .frame(height: 236)
+                .frame(height: 210)
                 .clipped()
                 .overlay(
                     LinearGradient(
@@ -154,29 +157,29 @@ private extension CreateRegistryView {
                     )
                 )
 
-            VStack(alignment: .leading, spacing: 14) {
+            VStack(alignment: .leading, spacing: 10) {
                 Text("Just the basics\nto get started")
                     .font(.system(size: 38, weight: .regular, design: .serif))
                     .foregroundStyle(WSRegistryPalette.espresso)
                     .lineSpacing(2)
                     .fixedSize(horizontal: false, vertical: true)
 
-                Text("We’ll personalize your registry recommendations.")
-                    .font(.system(size: 18, weight: .regular))
+                Text("We'll personalize your registry recommendations.")
+                    .font(.system(size: 16, weight: .regular))
                     .foregroundStyle(WSRegistryPalette.cocoa.opacity(0.78))
                     .lineSpacing(4)
                     .frame(maxWidth: 250, alignment: .leading)
             }
             .padding(.horizontal, 16)
-            .padding(.bottom, 18)
+            .padding(.bottom, 14)
         }
         .frame(maxWidth: .infinity)
-        .frame(height: 236)
+        .frame(height: 210)
         .clipShape(RoundedRectangle(cornerRadius: 2, style: .continuous))
     }
 
     var eventTypeCard: some View {
-        VStack(alignment: .leading, spacing: 18) {
+        VStack(alignment: .leading, spacing: 14) {
             formSectionLabel("EVENT TYPE")
 
             LazyVGrid(columns: twoColumns, spacing: 10) {
@@ -213,6 +216,36 @@ private extension CreateRegistryView {
                     }
                     .buttonStyle(.plain)
                 }
+            }
+
+            // Animated custom field when "Other" is selected
+            if selectedEvent == .other {
+                VStack(alignment: .leading, spacing: 10) {
+                    formSectionLabel("WHAT ARE YOU CELEBRATING?")
+
+                    HStack(spacing: 12) {
+                        Image(systemName: "pencil")
+                            .font(.system(size: 17, weight: .light))
+                            .foregroundStyle(WSRegistryPalette.gold)
+
+                        TextField("e.g. Birthday, Graduation, Bridal Shower…", text: $customEventText)
+                            .font(.system(size: 16, weight: .regular))
+                            .foregroundStyle(WSRegistryPalette.espresso)
+                            .textInputAutocapitalization(.words)
+                            .submitLabel(.done)
+                    }
+                    .padding(.horizontal, 16)
+                    .frame(maxWidth: .infinity, minHeight: 54, alignment: .leading)
+                    .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 2, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 2, style: .continuous)
+                            .stroke(WSRegistryPalette.gold.opacity(0.45), lineWidth: 1)
+                    )
+                }
+                .transition(.asymmetric(
+                    insertion: .move(edge: .top).combined(with: .opacity),
+                    removal: .opacity
+                ))
             }
         }
         .onboardingCardPadding()
@@ -298,7 +331,7 @@ private extension CreateRegistryView {
                     .padding(.horizontal, 56)
                     .padding(.vertical, 14)
 
-                Text("“")
+                Text("\u{201C}")
                     .font(.system(size: 34, weight: .bold, design: .serif))
                     .foregroundStyle(WSRegistryPalette.gold)
                     .padding(.leading, 18)
@@ -332,6 +365,9 @@ private extension CreateRegistryView {
                 }
             }
 
+            // MARK: Cover Image Upload
+            coverImageUploadRow
+
             HStack(spacing: 14) {
                 Image(systemName: "sparkle")
                     .font(.system(size: 24, weight: .regular))
@@ -346,6 +382,84 @@ private extension CreateRegistryView {
             .background(WSRegistryPalette.ivory, in: RoundedRectangle(cornerRadius: 2, style: .continuous))
         }
         .onboardingCardPadding()
+    }
+
+    var coverImageUploadRow: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            formSectionLabel("COVER IMAGE")
+            Text("Add a photo that will appear as the cinematic hero on your registry page.")
+                .font(.system(size: 13, weight: .regular))
+                .foregroundStyle(WSRegistryPalette.cocoa.opacity(0.7))
+                .lineSpacing(3)
+
+            if let data = coverPhotoData, let uiImage = UIImage(data: data) {
+                ZStack(alignment: .topTrailing) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 140)
+                        .clipped()
+                        .clipShape(RoundedRectangle(cornerRadius: 2, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 2, style: .continuous)
+                                .stroke(WSRegistryPalette.gold.opacity(0.5), lineWidth: 1)
+                        )
+
+                    Button {
+                        withAnimation(.easeOut(duration: 0.22)) {
+                            coverPhotoData = nil
+                            coverPhotoItem = nil
+                        }
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 22))
+                            .foregroundStyle(.white)
+                            .background(Circle().fill(Color.black.opacity(0.45)))
+                    }
+                    .padding(8)
+                }
+                .transition(.scale(scale: 0.94).combined(with: .opacity))
+            } else {
+                PhotosPicker(
+                    selection: $coverPhotoItem,
+                    matching: .images
+                ) {
+                    HStack(spacing: 13) {
+                        Image(systemName: "camera")
+                            .font(.system(size: 19, weight: .regular))
+                            .foregroundStyle(WSRegistryPalette.gold)
+                        
+                        Text("Add a cover image for your registry")
+                            .font(.system(size: 16, weight: .regular))
+                            .foregroundStyle(WSRegistryPalette.espresso)
+                        
+                        Spacer()
+                        
+                        Image(systemName: "plus")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundStyle(WSRegistryPalette.gold)
+                    }
+                    .padding(.horizontal, 16)
+                    .frame(maxWidth: .infinity, minHeight: 58, alignment: .leading)
+                    .background(WSRegistryPalette.porcelain, in: RoundedRectangle(cornerRadius: 2, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 2, style: .continuous)
+                            .stroke(WSRegistryPalette.hairline.opacity(0.62), lineWidth: 1)
+                    )
+                }
+                .onChange(of: coverPhotoItem) { _, newItem in
+                    guard let newItem else { return }
+                    Task {
+                        if let data = try? await newItem.loadTransferable(type: Data.self) {
+                            withAnimation(.easeOut(duration: 0.28)) {
+                                coverPhotoData = data
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
     
     func formSectionLabel(_ text: String) -> some View {
@@ -916,7 +1030,7 @@ private extension CreateRegistryView {
             let names = parsedRegistryNames
             let registryID = UUID()
             let budgetAmount = budgetAmountFromPreference(budgetPreference)
-            registryRepo.createRegistry(firstName: names.first, lastName: names.last, event: selectedEvent, date: eventDate, budget: budgetAmount)
+            registryRepo.createRegistry(firstName: names.first, lastName: names.last, event: selectedEvent, date: eventDate, budget: budgetAmount, coverImageData: coverPhotoData)
 
             // Animate generation progress
             for (index, item) in GiftDNAData.generationSteps.enumerated() {

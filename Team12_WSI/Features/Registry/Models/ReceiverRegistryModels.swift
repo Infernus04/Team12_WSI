@@ -46,6 +46,8 @@ struct ReceiverRegistryItem: Identifiable, Hashable {
     var emotionalAttribution: EmotionalAttribution?
     var isPriority: Bool = false
     let description: String
+    /// Links this receiver item to a real RegistryItem ID in the seeded registry
+    var linkedRegistryItemID: String?
     
     /// Items that have already been gifted (celebration pool completed or emotionally attributed)
     var isGifted: Bool {
@@ -53,19 +55,83 @@ struct ReceiverRegistryItem: Identifiable, Hashable {
     }
 }
 
-// MARK: - Mock Data
+// MARK: - Mock Data (linked to seeded demo registry product IDs)
 struct RegistryMockData {
     static let citronCollection = RegistryCollection(name: "Citron Dining Collection", completionPercentage: 82)
-    static let pastaBowlCollection = RegistryCollection(name: "Pasta Bowl Collection", completionPercentage: 18)
+    static let cookingCollection = RegistryCollection(name: "Daily Cooking", completionPercentage: 60)
+    static let hostingCollection = RegistryCollection(name: "Hosting", completionPercentage: 40)
     
     static let items: [ReceiverRegistryItem] = [
-        ReceiverRegistryItem(name: "Citron Dinner Plates, Set of 4", imagePath: "/img23m.jpg", price: 12000, state: .celebrationPoolAssisted, category: .collections, collection: citronCollection, isPriority: true, description: "Hand-painted citron design."),
-        ReceiverRegistryItem(name: "Smeg Espresso Machine", imagePath: "/img122m.jpg", price: 45000, state: .groupGiftActive, category: .groupGifts, groupGift: GroupGift(totalAmountNeeded: 45000, currentContribution: 14000), isPriority: true, description: "Retro style espresso machine."),
-        ReceiverRegistryItem(name: "Le Creuset Dutch Oven", imagePath: "/lc_fondue_cerise.jpg", price: 32000, state: .emotionallyAttributed, category: .essentials, emotionalAttribution: EmotionalAttribution(contributorNames: ["Aarav", "Riya"], totalContributors: 5, message: "Enjoy cozy dinners!"), description: "Enameled cast iron dutch oven."),
-        ReceiverRegistryItem(name: "Pasta Bowls, Set of 4", imagePath: "/img10s.jpg", price: 6500, state: .available, category: .essentials, collection: pastaBowlCollection, description: "Wide and shallow bowls.")
+        // Linked to seeded registry items by their real product IDs
+        ReceiverRegistryItem(
+            name: "Staub Dutch Oven, 7-Qt., Basil",
+            imagePath: "/staub_dutch_basil.jpg",
+            price: 299.95,
+            state: .available,
+            category: .essentials,
+            collection: cookingCollection,
+            isPriority: true,
+            description: "Premium enameled cast iron Dutch oven for everyday cooking.",
+            linkedRegistryItemID: "2453926"
+        ),
+        ReceiverRegistryItem(
+            name: "Dorset Martini Glasses, Set of 4",
+            imagePath: "/crystal_martini_glass.jpg",
+            price: 179.80,
+            state: .groupGiftActive,
+            category: .groupGifts,
+            groupGift: GroupGift(totalAmountNeeded: 179.80, currentContribution: 65.00),
+            isPriority: true,
+            description: "Lead-free crystal martini glasses for hosting.",
+            linkedRegistryItemID: "9670912"
+        ),
+        ReceiverRegistryItem(
+            name: "Cuisinart PerfecTemp Coffee Maker",
+            imagePath: "/cuisinart_coffee_maker.jpg",
+            price: 119.95,
+            state: .emotionallyAttributed,
+            category: .essentials,
+            emotionalAttribution: EmotionalAttribution(
+                contributorNames: ["Emma", "James"],
+                totalContributors: 3,
+                message: "For your morning rituals together! ☕"
+            ),
+            description: "14-cup programmable coffee maker with thermal carafe.",
+            linkedRegistryItemID: "8381456"
+        ),
+        ReceiverRegistryItem(
+            name: "Staub Deep Skillet, 8½\", Citron",
+            imagePath: "/staub_frypan_citron.jpg",
+            price: 180.00,
+            state: .celebrationPoolAssisted,
+            category: .collections,
+            collection: citronCollection,
+            isPriority: true,
+            description: "Enameled cast iron skillet perfect for searing and braising.",
+            linkedRegistryItemID: "181543"
+        ),
+        ReceiverRegistryItem(
+            name: "Apilco Porcelain Cup & Saucer",
+            imagePath: "/pillivuyt_cup.jpg",
+            price: 34.95,
+            state: .available,
+            category: .essentials,
+            description: "Classic French porcelain cup and saucer set.",
+            linkedRegistryItemID: "1341411"
+        ),
+        ReceiverRegistryItem(
+            name: "Hold Everything Ceramic Bowl, 12\"",
+            imagePath: "/ceramic_lidded_bowl_white.jpg",
+            price: 89.95,
+            state: .available,
+            category: .essentials,
+            collection: hostingCollection,
+            description: "Elegant lidded ceramic bowl for pantry or serving.",
+            linkedRegistryItemID: "6247040"
+        )
     ]
     
-    static let coupleName = "Ananya & Rohan"
-    static let totalContributed = 48000.0
+    static let coupleName = "Sasha & Andy"
+    static let totalContributed = 245.00
     static let intentChips = ["Future dinners", "New kitchen", "First home", "Celebrate your union"]
 }

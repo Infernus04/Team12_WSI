@@ -82,7 +82,7 @@ struct AIConciergeView: View {
                         cartRepository.add(product: item, quantityDelta: 1)
                     },
                     onAddToRegistry: { item in
-                        registryRepository.addProduct(item)
+                        registryRepository.presentRegistryPicker(for: item)
                     },
                     onAddToSaveForLater: { item in
                         saveForLaterRepository.add(product: item)

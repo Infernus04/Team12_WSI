@@ -43,6 +43,7 @@ struct CatalogProduct: Identifiable, Codable, Hashable {
     let styleTags: [String]
     let colorTags: [String]
     let materialTags: [String]
+    let collection: String?
     let roomTags: [AURARoomType]
     let regularPrice: Double?
     let sellingPrice: Double?
@@ -90,6 +91,7 @@ extension CatalogProduct {
         )
         self.colorTags = Self.parseList(dto.properties?.color)
         self.materialTags = materialTags
+        self.collection = Self.normalizedCollection(dto.properties?.collection)
         self.roomTags = Self.inferRoomTags(
             categories: self.categoryTags,
             productType: self.productType
@@ -121,6 +123,14 @@ extension CatalogProduct {
 
     private static func parseBool(_ raw: String?) -> Bool {
         raw?.lowercased() == "true"
+    }
+
+    private static func normalizedCollection(_ raw: String?) -> String? {
+        guard let raw, !raw.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return nil }
+        if let first = parseList(raw).first {
+            return first.lowercased()
+        }
+        return raw.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
     }
 
     private static func inferStyleTags(brand: WSIBrand,

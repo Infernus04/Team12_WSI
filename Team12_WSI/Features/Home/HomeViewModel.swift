@@ -70,7 +70,8 @@ class HomeViewModel: ObservableObject {
     // MARK: - Registry
 
     func addToRegistry(_ product: ProductItem) {
-        registryRepository?.addProduct(product)
+        // Opens the registry picker bottom sheet so the user can choose which registry to add to
+        registryRepository?.presentRegistryPicker(for: product)
     }
 
     func canAddToRegistry(_ product: ProductItem) -> Bool {
